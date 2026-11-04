@@ -206,9 +206,9 @@ linear-gradient(180deg,#e9c9a8 0%,#f2d9bb 48%,#d6ad84 100%)}
 body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.94;background-repeat:no-repeat;background-position:center bottom;background-size:100% 100%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMidYMax slice'%3E%3Cdefs%3E%3ClinearGradient id='sky' x2='0' y2='1'%3E%3Cstop stop-color='%23f4dfc5' stop-opacity='.12'/%3E%3Cstop offset='1' stop-color='%23c08e65' stop-opacity='.18'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23sky)' d='M0 0h1600v1000H0z'/%3E%3Cpath fill='%23c99d78' opacity='.38' d='M0 475 95 430 160 455 255 350 350 395 440 310 530 380 650 330 760 395 880 320 990 390 1100 340 1200 410 1320 330 1430 395 1510 350 1600 390v610H0z'/%3E%3Cpath fill='%23b98762' opacity='.45' d='M0 575 130 510 230 550 330 465 430 525 560 450 680 530 810 455 930 530 1050 470 1180 540 1300 460 1410 530 1510 470 1600 510v490H0z'/%3E%3Cpath fill='%23d5ad88' d='M0 670q200-90 390-20t390 0 390-20 430 0v370H0z'/%3E%3Cpath fill='%23bd906d' opacity='.65' d='M0 790q220-95 430-20t410 0 390-25 370 5v250H0z'/%3E%3Cg fill='%23774b32' opacity='.65'%3E%3Cpath d='M100 770v-125h16v125zm-42-87q-8-68 42-75-8 43-42 75zm52-32q3-55 52-61-8 39-52 61zm-9 5q-42-42-28-83 37 26 28 83z'/%3E%3Cpath d='M1450 820V690h17v130zm-40-75q-10-64 42-75-5 43-42 75zm48-39q8-53 54-55-12 39-54 55zm-6 10q-45-40-34-82 40 26 34 82z'/%3E%3C/g%3E%3Cg fill='%23f8e5cd' opacity='.6'%3E%3Cpath d='M110 160q25-28 53 0 22-20 44 5H90q-8-5 20-5zm1220 80q22-25 46 0 20-17 40 4h-108q-5-4 22-4z'/%3E%3C/g%3E%3Cpath d='M0 900q180-45 330 0t330 0 330 0 330 0 280-5v105H0z' fill='%23845a3d' opacity='.38'/%3E%3C/svg%3E")}
 main{max-width:1240px;padding:34px 34px 56px}
 .menu-screen{max-width:1120px;margin:0 auto;padding:16px 0 30px}
-.brand-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:138px;margin-bottom:28px}
-.brand-title-wrap{text-align:center}
-.brand-mark{width:70px;height:48px;margin:0 auto 2px;color:#482b1d}
+.brand-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:150px;margin:0 auto 28px;text-align:center;width:100%}
+.brand-title-wrap{text-align:center;width:100%;margin:0 auto}
+.brand-mark{width:70px;height:48px;margin:0 auto 5px;color:#482b1d;display:block}
 .brand-title{margin:0!important;color:#482b1d;font-family:Georgia,serif;font-size:clamp(48px,6vw,76px)!important;font-weight:1000;letter-spacing:.025em!important;line-height:.95!important;text-shadow:0 2px 0 #d5b08d}
 .brand-title-wrap p{margin:10px 0 0;color:#75543e;font-size:14px;letter-spacing:.02em}
 .brand-kicker{font-size:9px;font-weight:800;letter-spacing:.24em;color:#87664d}
@@ -226,7 +226,7 @@ main{max-width:1240px;padding:34px 34px 56px}
 .mode-option:hover:not(:disabled){border-color:#a87954;background:#fff1df}
 .mode-option:disabled{opacity:.52}
 .mode-option.selected,.mode-option[aria-pressed="true"]{border:2px solid #70452c;background:#f1c99f;box-shadow:inset 0 0 0 2px #fff3}
-.mode-symbol{font-family:Georgia,serif;font-size:53px;font-weight:900;line-height:.9;color:#5c3927;transform:rotate(180deg)}
+.mode-symbol{width:54px;height:54px;margin:0 auto 2px;display:grid;place-items:center;border:1.5px solid #c69b76;border-radius:16px;background:#f6e3ce;color:#70472e;font:800 21px Georgia,serif;letter-spacing:.02em;box-shadow:inset 0 1px 0 #fff8}
 .mode-info{display:flex;flex-direction:column;gap:2px}
 .mode-info strong{font-size:17px;color:#4b2e20}
 .mode-info small{font-size:11px;color:#8a6a52;white-space:normal}
@@ -263,7 +263,7 @@ main{max-width:1240px;padding:34px 34px 56px}
  .brand-title{font-size:48px!important}
  .brand-kicker{font-size:8px}
  .brand-title-wrap p{font-size:12px}
- .stats-link{top:0;right:0;padding:8px 11px;font-size:11px}
+
  .menu-grid{grid-template-columns:1fr;gap:12px}
  .menu-card{padding:18px;border-radius:20px}
  .menu-card-heading h2{font-size:21px}
@@ -277,15 +277,15 @@ main{max-width:1240px;padding:34px 34px 56px}
 <header class="brand-header">
   <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 90 54"><path d="M9 29 Q18 24 29 25 L36 8 Q43 1 52 8 L61 25 Q74 24 82 29 Q70 39 45 39 Q20 39 9 29Z" fill="currentColor"/><path d="M34 24 Q45 19 63 25" fill="none" stroke="#e7c8a7" stroke-width="2.5" stroke-linecap="round"/></svg></div>
   <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><h1 class="brand-title">BANDITO</h1><p>Прокладывай тоннели. Закрой все выходы.</p></div>
-  <button class="stats-link" type="button" onclick="document.querySelector('.menu-stats').scrollIntoView({behavior:'smooth',block:'center'})"><span aria-hidden="true">▥</span> Статистика</button>
+  
 </header>
 <div class="menu-grid">
 <section class="menu-card solo-card">
   <div class="menu-card-heading"><span class="menu-icon solo-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4 30 9 38 9 39 17 44 24 39 31 38 39 30 39 24 44 18 39 10 39 9 31 4 24 9 17 10 9 18 9Z" fill="currentColor"/><path d="m24 13 3.4 7 7.6 1.1-5.5 5.4 1.3 7.6-6.8-3.6-6.8 3.6 1.3-7.6-5.5-5.4 7.6-1.1Z" fill="#f5dfc5"/></svg></span><div><h2>Одиночная игра</h2><p>Выбери количество выходов</p></div></div>
   <div class="mode-list">
-    <button class="mode-option" data-start="2" disabled type="button"><span class="mode-symbol" aria-hidden="true">⌒</span><span class="mode-info"><strong>2 выхода</strong><small>Лёгкая партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
-    <button class="mode-option" data-start="5" disabled type="button"><span class="mode-symbol" aria-hidden="true">⌒</span><span class="mode-info"><strong>5 выходов</strong><small>Стандартная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
-    <button class="mode-option" data-start="6" disabled type="button"><span class="mode-symbol" aria-hidden="true">⌒</span><span class="mode-info"><strong>6 выходов</strong><small>Сложная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
+    <button class="mode-option" data-start="2" disabled type="button"><span class="mode-symbol" aria-hidden="true">02</span><span class="mode-info"><strong>2 выхода</strong><small>Лёгкая партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
+    <button class="mode-option" data-start="5" disabled type="button"><span class="mode-symbol" aria-hidden="true">05</span><span class="mode-info"><strong>5 выходов</strong><small>Стандартная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
+    <button class="mode-option" data-start="6" disabled type="button"><span class="mode-symbol" aria-hidden="true">06</span><span class="mode-info"><strong>6 выходов</strong><small>Сложная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
   </div>
   <p id="loadstate" class="menu-loadstate">Загружаю колоду…</p>
 </section>
