@@ -633,10 +633,26 @@ body.dark-theme .lobby-player-empty {
   text-shadow:none!important;
 }
 body.dark-theme #mpLobby{color:#c9c8bd}
+/* Keep every lobby heading in the same light system type style. */
+#mpLobby .lobby-eyebrow,
 #mpLobby .lobby-heading h2,
+#mpLobby .lobby-code-caption,
+#mpLobby .lobby-name-card>label,
 #mpLobby .lobby-section-head h3,
-#mpLobby .lobby-settings-copy strong{font-weight:350!important}
+#mpLobby .lobby-settings-copy strong{
+  font-family:ui-sans-serif,system-ui,sans-serif!important;
+  font-weight:350!important;
+}
 #mpLobby .lobby-player-name{font-weight:350!important}
+
+/* Give the lobby sections a little more consistent breathing room. */
+#mpLobby .lobby-head{margin-bottom:24px}
+#mpLobby .lobby-name-card{margin-bottom:16px}
+#mpLobby .lobby-code-card{padding:17px 18px}
+#mpLobby .lobby-section-head{margin:24px 0 12px}
+#mpLobby .lobby-players{gap:11px}
+#mpLobby .lobby-settings{margin-top:20px;padding:16px}
+#mpLobby .lobby-footer{margin-top:22px;padding-top:18px}
 body.dark-theme #mpLobby .lobby-heading h2,
 body.dark-theme #mpLobby .lobby-section-head h3,
 body.dark-theme #mpLobby .lobby-player-name,
