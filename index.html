@@ -350,7 +350,45 @@ main{position:relative;z-index:1;min-height:100svh}
  .bandito-corner-art{height:23vh;width:14vw}
  .brand-header{min-height:160px}
 }</style>
-</head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
+
+<style id="readability-and-lobby-fix">
+/* Larger supporting text without inflating the main headings */
+.menu-card-heading p{font-size:15px}
+.mode-info small{font-size:13px}
+.menu-loadstate,.menu-coop-note,.menu-connection{font-size:13px}
+.menu-field-label{font-size:14px}
+.menu-divider{font-size:11px}
+.menu-stats-heading p{font-size:13px}
+.menu-stat>span{font-size:13px}
+.menu-stat small{font-size:12px}
+.player-name-card>label{font-size:11px}
+.lobby-shell{margin:0 auto 24px}
+.lobby-eyebrow{font-size:12px}
+.lobby-heading p{font-size:15px}
+.lobby-presence{font-size:13px}
+.lobby-code-caption{font-size:12px}
+.lobby-code-hint{font-size:13px}
+.lobby-section-head>span{font-size:13px}
+.lobby-player-name{font-size:14px}
+.lobby-player-state{font-size:12px}
+.lobby-badge{font-size:11px}
+.lobby-settings-copy strong{font-size:14px}
+.lobby-settings-copy span{font-size:13px}
+#mpLobbyMessage{font-size:13px}
+.lobby-actions button{font-size:14px}
+@media(max-width:760px){
+  .menu-card-heading p{font-size:14px}
+  .mode-info small{font-size:12px}
+  .menu-loadstate,.menu-coop-note,.menu-connection{font-size:12px}
+  .menu-stat>span{font-size:12px}
+  .menu-stat small{font-size:11px}
+  .lobby-shell{margin:0 auto 18px;padding:16px}
+  .lobby-heading p,.lobby-code-hint,.lobby-settings-copy span{font-size:14px}
+  .lobby-presence,.lobby-section-head>span,#mpLobbyMessage{font-size:12px}
+  .lobby-player-name{font-size:14px}
+  .lobby-player-state{font-size:12px}
+}
+</style></head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
   <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
@@ -376,11 +414,11 @@ main{position:relative;z-index:1;min-height:100svh}
   <p id="mpMessage" class="menu-connection" aria-live="polite">Подключение к кооперативу…</p>
 </section>
 </div>
-<div class="player-name-card"><label for="mpName">ИМЯ ИГРОКА</label><div class="player-name-control"><input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"><button id="editPlayerName" type="button" aria-label="Изменить имя" title="Изменить имя">✎</button></div></div>
 <section class="menu-stats">
   <div class="menu-stats-heading"><div><h2>Статистика</h2><p>Твои результаты на этом устройстве</p></div><span class="stats-stamp">BANDITO</span></div>
   <div class="menu-stat-list"><div class="menu-stat"><span>Партии</span><b id="menuGames">0</b></div><div class="menu-stat"><span>Победы</span><b id="menuWins">0</b></div><div class="menu-stat"><span>Поражения</span><b id="menuLosses">0</b></div><div class="menu-stat"><span>Лучший результат</span><div><b id="menuBest">—</b><small>ходов</small></div></div></div>
 </section>
+<div class="player-name-card"><label for="mpName">ИМЯ ИГРОКА</label><div class="player-name-control"><input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"><button id="editPlayerName" type="button" aria-label="Изменить имя" title="Изменить имя">✎</button></div></div>
 </section>
 <section id="mpLobby" class="panel lobby-shell hidden" aria-label="Лобби кооперативной игры">
 <header class="lobby-head">
@@ -501,7 +539,8 @@ function mpMessage(t){const e=$('#mpMessage');if(e)e.textContent=t}
 function mpName(){return ($('#mpName').value.trim()||'Игрок').slice(0,18)}
 function mpCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function mpShowLobby(room){
-$('#menu').classList.remove('hidden');$('#play').classList.add('hidden');$('#mpLobby').classList.remove('hidden');
+$('#menu').classList.add('hidden');$('#play').classList.add('hidden');$('#mpLobby').classList.remove('hidden');
+window.scrollTo({top:0,behavior:'instant'});
 $('#mpRoomCode').textContent=mpRoomCode;
 const players=Object.entries(room.players||{}),online=players.filter(([,p])=>p.online!==false).length,list=$('#mpPlayers');
 $('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 игроков';
