@@ -332,10 +332,33 @@ linear-gradient(180deg,transparent 0 55%,#c28a60 55.2% 73%,#9c6345 73.2% 100%)}
   .menu-stat{min-width:0}
 }
 </style>
-</head><body><main><section id="menu" class="menu-screen">
+<style id="bandito-photo-assets">
+/* Desert cactus corner artwork */
+html,body{width:100%;min-height:100%;margin:0}
+body{position:relative;overflow-x:hidden}
+.bandito-corner-art{position:fixed;z-index:0;top:0;width:clamp(105px,18vw,290px);height:clamp(145px,30vh,360px);object-fit:contain;pointer-events:none;user-select:none}
+.bandito-corner-left{left:0;object-position:left top}
+.bandito-corner-right{right:0;object-position:right top}
+main{position:relative;z-index:1;min-height:100svh}
+.brand-header{min-height:205px}
+.brand-logo{display:block;width:clamp(220px,32vw,410px);height:auto;max-height:150px;object-fit:contain;margin:0 auto 8px}
+@media(max-width:700px){
+ .bandito-corner-art{width:clamp(76px,23vw,150px);height:clamp(112px,24vh,220px)}
+ .brand-header{min-height:175px}
+ .brand-logo{width:clamp(190px,58vw,300px);max-height:105px}
+}
+@media(max-width:420px){
+ .bandito-corner-art{width:23vw;height:17vh;min-width:68px}
+ .brand-header{min-height:160px}
+}
+@media(max-height:760px) and (min-width:701px){
+ .bandito-corner-art{height:23vh;width:14vw}
+ .brand-header{min-height:160px}
+}</style>
+</head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
-  
-  <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><h1 class="brand-title">BANDITO</h1><p>Прокладывай тоннели. Закрой все выходы.</p></div>
+  <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
+  <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
   
 </header>
 <div class="menu-grid">
