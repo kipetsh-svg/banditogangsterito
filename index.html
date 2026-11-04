@@ -623,6 +623,35 @@ body.dark-theme .lobby-player-empty {
   border-color:#555c65!important;
 }
 </style>
+
+<style id="lobby-typography-fix">
+/* Keep waiting-room typography consistent with the graphite night palette. */
+body.dark-theme #mpLobby,
+body.dark-theme #mpLobby *{font-family:inherit}
+body.dark-theme #mpLobby{color:#c9c8bd}
+body.dark-theme #mpLobby .lobby-heading h2,
+body.dark-theme #mpLobby .lobby-section-head h3,
+body.dark-theme #mpLobby .lobby-player-name,
+body.dark-theme #mpLobby .lobby-settings-copy strong{color:#d8d6ca;font-weight:650}
+body.dark-theme #mpLobby .lobby-eyebrow,
+body.dark-theme #mpLobby .lobby-presence,
+body.dark-theme #mpLobby .lobby-code-caption,
+body.dark-theme #mpLobby .lobby-code-hint,
+body.dark-theme #mpLobby .lobby-section-head>span,
+body.dark-theme #mpLobby .lobby-settings-copy span,
+body.dark-theme #mpLobby #mpLobbyMessage{color:#aaa99e}
+body.dark-theme #mpLobby .lobby-code-card,
+body.dark-theme #mpLobby .lobby-player,
+body.dark-theme #mpLobby .lobby-settings{background:#20251f;border-color:#3b4339}
+body.dark-theme #mpLobby .lobby-player.offline{background:#1c211c;color:#92948a}
+body.dark-theme #mpLobby .lobby-player-avatar,
+body.dark-theme #mpLobby .lobby-badge{background:#30372e;color:#c1c2b5}
+body.dark-theme #mpLobby .lobby-player-state{color:#9eaf91}
+body.dark-theme #mpLobby .lobby-player.offline .lobby-player-state{color:#b18a7c}
+body.dark-theme #mpLobby .lobby-settings select{background:#2b3129;color:#d8d6ca;border-color:#485044}
+body.dark-theme #mpLobby #mpRoomCode{color:#d8d6ca}
+</style>
+
 </head><body><div id="themeShade" class="theme-shade" aria-hidden="true"></div><div id="celestialScene" class="celestial-scene" aria-hidden="true"><span class="celestial-sun">☀</span><span class="celestial-moon">☾</span></div><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
