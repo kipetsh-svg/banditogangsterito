@@ -1,4 +1,4 @@
-/* One consistent decorative serif for headings throughout Bandito. */
+/* Restore the original bold serif heading style with a soft warm shadow. */
 h1,
 h2,
 h3,
@@ -11,8 +11,8 @@ h6,
 .game-intro h2,
 #mpLobby .lobby-heading h2,
 #mpLobby .lobby-section-head h3 {
-  font-family: "Cormorant Garamond", Georgia, serif !important;
-  font-weight: 400 !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-weight: 700 !important;
   font-style: normal !important;
-  text-shadow: none !important;
+  text-shadow: 0 2px 0 #f4d7aa, 0 5px 15px #65391f30 !important;
 }
