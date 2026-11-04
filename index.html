@@ -466,8 +466,11 @@ main{position:relative;z-index:1;min-height:100svh}
 
 /* Readability and settings */
 body{zoom:1.12}
-.brand-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.settings-open{display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:11px 15px;border-radius:12px;background:var(--paper);font-size:15px;font-weight:650}
+.brand-header{display:flex;align-items:center;justify-content:center;gap:16px}
+.settings-open{position:absolute;top:12px;right:12px;z-index:5;width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid #e0c39d;border-radius:12px;background:#fff5e8e8;color:#704b31;box-shadow:0 8px 22px #57351f20,inset 0 1px #fff9;backdrop-filter:blur(5px);cursor:pointer;transition:background .18s ease,transform .18s ease}
+.settings-open:hover{background:#fffaf2f2;transform:translateY(-1px)}
+.settings-open svg{width:21px;height:21px;display:block}
+.settings-open span{display:none}
 .settings-backdrop{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:20px;background:#25251f66;backdrop-filter:blur(7px)}
 .settings-backdrop.hidden{display:none!important}
 .settings-dialog{width:min(460px,100%);padding:25px;border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 24px 80px #25251f30;animation:end-pop .22s ease both}
@@ -489,12 +492,12 @@ body{zoom:1.12}
 .settings-footer span{color:var(--muted);font-size:11px}
 .settings-footer button{padding:9px 12px;font-size:13px}
 body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-@media(max-width:760px){.brand-header{align-items:flex-start}.settings-open{padding:9px 11px}.settings-open span{display:none}.settings-dialog{padding:20px;border-radius:16px}}
+@media(max-width:760px){.brand-header{align-items:flex-start}.settings-open{top:8px;right:8px;width:40px;height:40px}.settings-dialog{padding:20px;border-radius:16px}}
 </style></head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
   <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
-  <button id="openSettings" class="settings-open" type="button" aria-label="Настройки" title="Настройки">⚙ <span>Настройки</span></button>
+  <button id="openSettings" class="settings-open" type="button" aria-label="Настройки" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.1.9-1.4 2.4-1.4-.5a7.9 7.9 0 0 1-1.5.9l-.2 1.5h-2.8l-.3-1.5a7.9 7.9 0 0 1-1.6-.9l-1.4.5-1.4-2.4 1.1-.9a7.2 7.2 0 0 1 0-1.8l-1.1-.9 1.4-2.4 1.4.5a7.9 7.9 0 0 1 1.6-.9l.3-1.5h2.8l.2 1.5a7.9 7.9 0 0 1 1.5.9l1.4-.5 1.4 2.4-1.1.9a7.2 7.2 0 0 1 0 1.8Z" transform="translate(-1 -1)"/></svg></button>
 </header>
 <div class="menu-grid">
 <section class="menu-card solo-card">
