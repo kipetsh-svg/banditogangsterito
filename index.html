@@ -388,6 +388,20 @@ main{position:relative;z-index:1;min-height:100svh}
   .lobby-player-name{font-size:14px}
   .lobby-player-state{font-size:12px}
 }
+</style>
+<style id="multiplayer-card-swap">
+/* Morph the multiplayer card into its lobby in-place */
+.coop-card{view-transition-name:bandito-multiplayer-panel}
+#mpLobby{view-transition-name:bandito-multiplayer-panel}
+::view-transition-old(bandito-multiplayer-panel){animation:bandito-panel-out .22s ease both}
+::view-transition-new(bandito-multiplayer-panel){animation:bandito-panel-in .32s cubic-bezier(.2,.75,.25,1) both}
+@keyframes bandito-panel-out{to{opacity:0;transform:translateY(8px) scale(.985)}}
+@keyframes bandito-panel-in{from{opacity:0;transform:translateY(12px) scale(.975)}to{opacity:1;transform:translateY(0) scale(1)}}
+.lobby-shell{width:100%;max-width:none;margin:0;padding:20px}
+@media(max-width:760px){.lobby-shell{padding:16px}}
+@media(prefers-reduced-motion:reduce){
+ ::view-transition-old(bandito-multiplayer-panel),::view-transition-new(bandito-multiplayer-panel){animation:none}
+}
 </style></head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
@@ -538,9 +552,21 @@ let mpAuth=null,mpDb=null,mpUid=null,mpRoomCode=null,mpRoomRef=null,mpRoomListen
 function mpMessage(t){const e=$('#mpMessage');if(e)e.textContent=t}
 function mpName(){return ($('#mpName').value.trim()||'Игрок').slice(0,18)}
 function mpCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+/* Keep the lobby in the multiplayer card's exact grid position. */
+document.querySelector('.coop-card')?.after($('#mpLobby'));
+function mpSwapPanel(showLobby){
+const coop=document.querySelector('.coop-card'),lobby=$('#mpLobby');
+if(!coop||!lobby)return;
+const apply=()=>{
+coop.classList.toggle('hidden',showLobby);
+lobby.classList.toggle('hidden',!showLobby);
+};
+if(document.startViewTransition)document.startViewTransition(apply);
+else apply();
+}
 function mpShowLobby(room){
-$('#menu').classList.add('hidden');$('#play').classList.add('hidden');$('#mpLobby').classList.remove('hidden');
-window.scrollTo({top:0,behavior:'instant'});
+$('#menu').classList.remove('hidden');$('#play').classList.add('hidden');
+if($('#mpLobby').classList.contains('hidden'))mpSwapPanel(true);
 $('#mpRoomCode').textContent=mpRoomCode;
 const players=Object.entries(room.players||{}),online=players.filter(([,p])=>p.online!==false).length,list=$('#mpPlayers');
 $('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 игроков';
@@ -657,7 +683,8 @@ return room
 }
 mpRoomRef=null;mpRoomListener=null;mpRoomCode=null;mpRoomData=null;mpCelebrated=false;
 hand=[];placed=[];deck=[];selected=-1;
-$('#mpLobby').classList.add('hidden');$('#play').classList.add('hidden');
+$('#play').classList.add('hidden');
+mpSwapPanel(false);
 if(showMenu)$('#menu').classList.remove('hidden');
 mpMessage('Ты вышел из комнаты.')
 }
