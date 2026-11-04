@@ -596,8 +596,6 @@ body.dark-theme .lobby-player-state{color:#b3bac2!important}
 <section class="menu-card coop-card">
   <div class="menu-card-heading"><span class="menu-icon coop-icon" aria-hidden="true"><svg viewBox="0 0 52 48"><circle cx="26" cy="12" r="8" fill="currentColor"/><circle cx="10" cy="17" r="6" fill="currentColor"/><circle cx="42" cy="17" r="6" fill="currentColor"/><path d="M11 40v-6c0-8 6-13 15-13s15 5 15 13v6Z" fill="currentColor"/><path d="M1 39v-5c0-6 4-10 10-10 3 0 5 1 7 3-3 3-4 7-4 13Zm50 0v-5c0-6-4-10-10-10-3 0-5 1-7 3 3 3 4 7 4 13Z" fill="currentColor"/></svg></span><div><h2>Мультиплеер</h2><p>Играй вместе с друзьями</p></div></div>
 
-  <div class="player-name-card"><label for="mpName">ИМЯ ИГРОКА</label><div class="player-name-control"><input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"><button id="editPlayerName" type="button" aria-label="Изменить имя" title="Изменить имя">✎</button></div></div>
-
   <button id="mpCreate" class="primary menu-create" type="button"><span class="plus" aria-hidden="true">＋</span>Создать комнату <span class="button-arrow" aria-hidden="true">↗</span></button>
   <div class="menu-divider"><span>ИЛИ ПОДКЛЮЧИСЬ ПО КОДУ</span></div>
   <div class="menu-join-row"><input id="mpCode" maxlength="6" placeholder="Код комнаты" aria-label="Код комнаты"><button id="mpJoin" type="button">Войти</button></div>
@@ -615,6 +613,7 @@ body.dark-theme .lobby-player-state{color:#b3bac2!important}
 </div>
 <div class="lobby-presence"><span class="lobby-presence-dot"></span><span id="mpLobbyMeta">Подключаем игроков…</span></div>
 </header>
+<div class="player-name-card lobby-name-card"><label for="mpName">ТВОЁ ИМЯ В КОМНАТЕ</label><div class="player-name-control"><input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"></div></div>
 <div class="lobby-code-card">
 <div class="lobby-code-caption">КОД ПРИГЛАШЕНИЯ</div>
 <div class="lobby-code-content"><strong id="mpRoomCode"></strong><button id="mpCopyCode" type="button">Копировать код</button></div>
@@ -774,8 +773,21 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#settingsModal').
 const firebaseConfig={apiKey:"AIzaSyDCBEArE3TebFxTiaK-6Q7DxWf8GloOuUg",authDomain:"bandito-83823.firebaseapp.com",databaseURL:"https://bandito-83823-default-rtdb.firebaseio.com/",projectId:"bandito-83823",storageBucket:"bandito-83823.firebasestorage.app",messagingSenderId:"434862103332",appId:"1:434862103332:web:f470c708e8d88a4f69b1b1",measurementId:"G-TTN8Z732BH"};
 let mpAuth=null,mpDb=null,mpUid=null,mpRoomCode=null,mpRoomRef=null,mpRoomListener=null,mpRoomData=null,mpBusy=false,mpCelebrated=false,mpTimerInterval=null,mpPresenceRef=null,mpPresenceHandler=null;
 function mpMessage(t){const e=$('#mpMessage');if(e)e.textContent=t}
-function mpName(){return ($('#mpName').value.trim()||'Игрок').slice(0,18)}
-function mpCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function mpName(){return (localStorage.getItem('banditoPlayerName')||'Игрок').trim().slice(0,18)||'Игрок'}
+function mpCode(){return Math.random().toString(36).slice(2,8).toUpperCase()};
+const lobbyNameInput=$('#mpName');
+if(lobbyNameInput){
+lobbyNameInput.value=mpName()==='Игрок'?'':mpName();
+lobbyNameInput.addEventListener('change',async()=>{
+const value=(lobbyNameInput.value.trim()||'Игрок').slice(0,18);
+lobbyNameInput.value=value;
+localStorage.setItem('banditoPlayerName',value);
+if(mpRoomRef&&mpUid){
+try{await mpRoomRef.child('players/'+mpUid+'/name').set(value)}
+catch(e){$('#mpLobbyMessage').textContent='Не удалось обновить имя: '+e.message}
+}
+});
+}
 /* Keep both states inside one fixed multiplayer card. */
 const coopPanel=document.querySelector('.coop-card'),lobbyPanel=$('#mpLobby');
 let coopContent=null;
@@ -798,7 +810,7 @@ else apply();
 function mpShowLobby(room){
 $('#menu').classList.remove('hidden');$('#play').classList.add('hidden');
 if($('#mpLobby').classList.contains('hidden'))mpSwapPanel(true);
-$('#mpRoomCode').textContent=mpRoomCode;
+$('#mpRoomCode').textContent=mpRoomCode;const nameInput=$('#mpName');if(nameInput&&!nameInput.matches(':focus'))nameInput.value=room.players?.[mpUid]?.name||mpName();
 const players=Object.entries(room.players||{}),online=players.filter(([,p])=>p.online!==false).length,list=$('#mpPlayers');
 $('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 игроков';
 const freeSlots=$('#mpFreeSlots');if(freeSlots)freeSlots.textContent=String(Math.max(0,4-players.length));
@@ -1035,4 +1047,11 @@ main{height:auto;min-height:100svh;overflow:visible}
   .player-name-control{gap:6px}
 }
 </style><style id="bandito-name-in-multiplayer">.coop-card .player-name-card{width:100%;max-width:none;margin:0 0 14px;padding:11px 14px}.coop-card .player-name-card>label{margin-bottom:6px}.coop-card .player-name-control input{min-width:0}</style>
+<style id="bandito-lobby-name-and-code-fix">
+.lobby-name-card{width:100%;max-width:none;margin:0 0 12px;padding:11px 14px;background:var(--paper);border-color:var(--line);box-shadow:none}
+.lobby-name-card>label{color:var(--muted)}
+.lobby-name-card .player-name-control input{width:100%;min-width:0;background:var(--bg);color:var(--ink);border-color:var(--line)}
+body.dark-theme .lobby-code-card{background:#252a25!important;border-color:#485044!important}
+body.dark-theme #mpRoomCode{color:#f1f0e8!important;background:transparent!important}
+</style>
 </body></html>
