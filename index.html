@@ -982,49 +982,8 @@ body.dark-theme .place-pin.angle-3::before{background:#777f89!important}
 .mode-symbol svg{width:29px;height:29px;display:block}
 </style>
 <style id="bandito-viewport-fit">
-/* Keep the original menu proportions; only tighten vertical spacing on short desktop screens. */
-@media(min-width:761px){
- html,body{height:100%;overflow:hidden}
- main{height:100dvh;min-height:0;overflow:hidden;padding:clamp(8px,1.8vh,20px) 20px!important}
- #menu{height:100%;max-height:100%;display:flex;flex-direction:column;justify-content:center;padding-top:0!important}
- .brand-header{flex:0 0 auto;min-height:clamp(125px,22vh,205px);margin-bottom:clamp(8px,2vh,24px)}
- .brand-logo{max-height:clamp(88px,16vh,150px)}
- .menu-grid{flex:0 0 auto}
- .menu-stats{margin-top:clamp(8px,2vh,22px)}
- .player-name-card{margin-top:clamp(8px,2vh,20px)}
-}
-@media(min-width:761px) and (max-height:820px){
- main{padding-top:7px!important;padding-bottom:7px!important}
- .brand-header{min-height:118px;margin-bottom:8px}
- .brand-logo{max-height:96px}
- .menu-grid{gap:14px}
- .menu-card{padding:15px 17px 14px}
- .menu-card-heading{margin-bottom:10px}
- .mode-list{gap:6px}
- .mode-option{min-height:52px;padding:8px 10px}
- .menu-stats{margin-top:8px;padding:9px 14px}
- .menu-stats-heading{margin-bottom:6px}
- .menu-stat{padding:5px 7px}
- .player-name-card{margin-top:8px;padding:7px 12px 8px}
- .player-name-control input{padding:7px 10px}
- .player-name-control button{width:36px;height:36px}
-}
-@media(min-width:761px) and (max-height:700px){
- .brand-header{min-height:96px;margin-bottom:6px}
- .brand-logo{max-height:78px}
- .menu-card{padding:12px 15px}
- .menu-card-heading{margin-bottom:7px}
- .mode-option{min-height:44px;padding:6px 9px}
- .menu-stats{margin-top:6px;padding:7px 12px}
- .menu-stats-heading{margin-bottom:4px}
- .menu-stat{padding:3px 6px}
- .player-name-card{margin-top:6px;padding:5px 10px}
- .player-name-card>label{margin-bottom:3px}
- .player-name-control input{padding:5px 9px}
- .player-name-control button{width:32px;height:32px}
-}
-@media(max-width:760px){
- html,body{overflow-x:hidden}
-}
+/* Keep natural vertical page scrolling on every device and viewport size. */
+html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+main{height:auto;min-height:100svh;overflow:visible}
 .settings-backdrop{overscroll-behavior:contain}
 </style></body></html>
