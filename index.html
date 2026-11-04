@@ -29,25 +29,70 @@
 .place-pin:hover::before,.place-pin:focus-visible::before{transform:scale(1.2)}
 .rematch-choice{margin:8px 0 28px;font-size:16px;font-weight:600;justify-content:center;transform:translateY(5px)}
 .rematch-choice select{min-width:126px;padding:9px 13px;border-radius:10px}
-.lobby-code-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 10px;padding:12px;border:1px solid var(--line);border-radius:11px;background:#f7f5ef}
-#mpRoomCode{display:block;margin-top:2px;font:700 23px/1.2 ui-monospace,monospace;letter-spacing:.12em}
-#mpCopyCode{flex:0 0 auto;padding:9px 11px;font-size:12px}
-.lobby-meta{margin:8px 0;font-size:12px;color:var(--muted)}
-.lobby-players{display:grid;gap:7px;margin-top:10px}
-.lobby-player{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.lobby-shell{width:min(760px,100%);max-width:760px;margin:24px auto 0;padding:24px;border-radius:18px}
+.lobby-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:20px}
+.lobby-eyebrow{margin-bottom:7px;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.14em}
+.lobby-heading h2{margin:0;font-size:clamp(24px,4vw,32px);letter-spacing:-.055em}
+.lobby-heading p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.lobby-presence{display:flex;align-items:center;gap:7px;max-width:190px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:11px;line-height:1.35;text-align:right}
+.lobby-presence-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#718568}
+.lobby-code-card{padding:15px 16px;border:1px solid var(--line);border-radius:13px;background:#f7f5ef}
+.lobby-code-caption{color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.12em}
+.lobby-code-content{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:5px}
+#mpRoomCode{display:block;font:750 clamp(26px,5vw,34px)/1.15 ui-monospace,monospace;letter-spacing:.15em;color:var(--ink)}
+#mpCopyCode{flex:0 0 auto;padding:9px 12px;border-radius:9px;font-size:12px}
+.lobby-code-hint{margin-top:7px;color:var(--muted);font-size:11px}
+.lobby-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:21px 0 10px}
+.lobby-section-head h3{margin:0;font-size:15px;letter-spacing:-.02em}
+.lobby-section-head>span{color:var(--muted);font-size:11px}
+.lobby-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.lobby-player{display:flex;align-items:center;gap:10px;min-width:0;min-height:65px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:#fff}
 .lobby-player.offline{background:#f8f7f3;color:#88867e}
-.lobby-player-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600}
-.lobby-badges{display:flex;gap:4px}
-.lobby-badge{padding:3px 6px;border-radius:6px;background:#f0eee7;color:#64645b;font-size:10px;white-space:nowrap}
-.lobby-player-state{font-size:11px;color:#657b5c;white-space:nowrap}
+.lobby-player-avatar{display:grid;width:34px;height:34px;flex:0 0 34px;place-items:center;border-radius:9px;background:#f0eee7;color:#66685d;font-size:13px;font-weight:700}
+.lobby-player.offline .lobby-player-avatar{background:#eeece6;color:#aaa79d}
+.lobby-player-copy{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+.lobby-player-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:650}
+.lobby-player-state{font-size:10px;color:#718568}
 .lobby-player.offline .lobby-player-state{color:#9a6c5c}
+.lobby-badges{display:flex;gap:4px;flex-wrap:wrap}
+.lobby-badge{padding:3px 6px;border-radius:6px;background:#f0eee7;color:#64645b;font-size:9px;white-space:nowrap}
+.lobby-player-empty{border-style:dashed;background:transparent;color:#aaa79d}
+.lobby-player-empty .lobby-player-avatar{background:#f6f4ee;color:#aaa79d;font-size:17px;font-weight:400}
+.lobby-player-empty .lobby-player-name{color:#88867e;font-weight:500}
+.lobby-player-empty .lobby-player-state{color:#aaa79d}
+.lobby-settings{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:17px;padding:14px 15px;border:1px solid var(--line);border-radius:11px;background:#fff}
+.lobby-settings-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.lobby-settings-copy strong{font-size:12px}
+.lobby-settings-copy span{color:var(--muted);font-size:10px}
+.lobby-settings select{max-width:190px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fffefa;color:var(--ink);font:inherit;font-size:12px}
+.lobby-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+#mpLobbyMessage{flex:1;margin:0;color:var(--muted);font-size:11px;line-height:1.45}
+.lobby-actions{display:flex;gap:8px;flex:0 0 auto}
+.lobby-actions button{min-height:40px;padding:9px 13px;border-radius:9px;font-size:12px}
+.lobby-actions #mpStart{min-width:140px}
 @media(max-width:760px){
-.lobby-code-row{padding:10px}
-#mpRoomCode{font-size:21px}
-.lobby-player{gap:6px;padding:9px}
-.lobby-player-name{font-size:12px}
-.lobby-badge,.lobby-player-state{font-size:10px}
-
+.lobby-shell{margin-top:14px;padding:18px;border-radius:14px}
+.lobby-head{flex-direction:column;gap:12px;margin-bottom:16px}
+.lobby-presence{max-width:none;padding:6px 9px;text-align:left}
+.lobby-players{gap:7px}
+.lobby-player{min-height:60px;padding:9px}
+.lobby-footer{align-items:stretch;flex-direction:column;gap:12px}
+.lobby-actions{width:100%}
+.lobby-actions button{flex:1;min-height:44px}
+.lobby-actions #mpStart{min-width:0}
+}
+@media(max-width:420px){
+.lobby-shell{padding:14px}
+.lobby-code-card{padding:12px}
+.lobby-code-content{align-items:flex-start;flex-direction:column}
+#mpCopyCode{width:100%;min-height:40px}
+.lobby-players{grid-template-columns:1fr}
+.lobby-player{min-height:56px}
+.lobby-settings{align-items:stretch;flex-direction:column;gap:9px}
+.lobby-settings select{max-width:none;width:100%;min-height:42px}
+.lobby-section-head{margin-top:17px}
+}
+@media(max-width:760px){
 main{padding:14px 10px 24px}
 .top{font-size:10px;letter-spacing:.08em}
 #play>.game-head{gap:8px;margin-bottom:8px}
@@ -104,13 +149,30 @@ main{padding-left:8px;padding-right:8px}
 </div>
 <p id="mpMessage" class="muted" style="font-size:13px;margin:10px 0 0">Подключение к кооперативу…</p>
 </div>
-<section id="mpLobby" class="panel hidden" style="margin-top:14px">
-<h2>Комната</h2>
-<div class="lobby-code-row"><div><div class="muted">Код для друзей</div><strong id="mpRoomCode"></strong></div><button id="mpCopyCode" type="button">Копировать код</button></div>
-<div id="mpLobbyMeta" class="lobby-meta"></div>
+<section id="mpLobby" class="panel lobby-shell hidden" aria-label="Лобби кооперативной игры">
+<header class="lobby-head">
+<div class="lobby-heading">
+<div class="lobby-eyebrow">ОНЛАЙН · КООПЕРАТИВ</div>
+<h2>Комната ожидания</h2>
+<p>Пригласи друзей по коду и соберитесь за одним игровым полем.</p>
+</div>
+<div class="lobby-presence"><span class="lobby-presence-dot"></span><span id="mpLobbyMeta">Подключаем игроков…</span></div>
+</header>
+<div class="lobby-code-card">
+<div class="lobby-code-caption">КОД ПРИГЛАШЕНИЯ</div>
+<div class="lobby-code-content"><strong id="mpRoomCode"></strong><button id="mpCopyCode" type="button">Копировать код</button></div>
+<div class="lobby-code-hint">Отправь этот код друзьям, чтобы они вошли в комнату.</div>
+</div>
+<div class="lobby-section-head"><h3>Игроки</h3><span>До 4 участников</span></div>
 <div id="mpPlayers" class="lobby-players" aria-live="polite"></div>
-<div style="margin:14px 0"><label for="mpExits"><b>Сложность — количество выходов:</b></label><select id="mpExits" style="margin-left:8px;padding:9px;border:1px solid var(--line);border-radius:10px;font:inherit"><option value="2">2 выхода · легко</option><option value="5">5 выходов · нормально</option><option value="6" selected>6 выходов · сложно</option></select></div><div class="choices"><button id="mpStart" class="primary">Начать общую партию</button><button id="mpLeave">Выйти из комнаты</button></div>
-<p id="mpLobbyMessage" class="muted"></p>
+<div class="lobby-settings">
+<div class="lobby-settings-copy"><strong>Сложность партии</strong><span>Количество выходов, которые нужно закрыть</span></div>
+<select id="mpExits" aria-label="Сложность партии"><option value="2">2 выхода · легко</option><option value="5">5 выходов · нормально</option><option value="6" selected>6 выходов · сложно</option></select>
+</div>
+<footer class="lobby-footer">
+<p id="mpLobbyMessage" aria-live="polite">Ждём подключения игроков.</p>
+<div class="lobby-actions"><button id="mpLeave" type="button">Выйти</button><button id="mpStart" class="primary" type="button">Начать партию</button></div>
+</footer>
 </section></section><section id="play" class="hidden"><div class="game-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="game-intro"><h2 id="heading"></h2><div class="muted">Выбери карту и нажми на точку нужного поворота.</div></div><button id="newgame">Новая партия</button></div><div class="layout"><div class="boardbox"><div id="camera" class="camera" aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."><div id="board" class="board"></div></div></div><aside class="side"><div class="side-metrics"><div class="stats"><span>В колоде</span><b id="deckcount">0</b></div><div class="stats"><span>Выходы</span><b id="openCount">0</b></div><div class="stats"><span>Ход</span><b id="turnCount">0</b></div><div class="stats"><span>Победы</span><b id="gameWins">0</b></div></div><div class="hand-section"><div class="side-label">Карты в руке</div><div class="hand" id="hand" aria-label="Карты в руке"></div></div><div class="side-actions"><div class="controls"><button id="exchange" type="button">Сбросить карты</button></div><div class="camera-tools"><button id="zoomOut" type="button" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button><button id="zoomReset" type="button" title="Сбросить масштаб">100%</button><button id="zoomIn" type="button" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button></div></div><div id="mpTimer" class="status" style="font-weight:700;display:none">⏱ До конца хода: 60 сек.</div><div id="status" class="status">Загрузка карт…</div><div class="hint">Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью или пальцем.</div></aside></div></section></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script>
 const $=s=>document.querySelector(s);let all=[],deck=[],hand=[],placed=[],selected=-1,rotation=0,finished=false,exits=6,turnCount=0,hoverSpot=null,lastPlaced=null,animateLastPlacement=false;const defaultStats={games:0,wins:0,losses:0,best:null};let playerStats={...defaultStats,...(()=>{try{return JSON.parse(localStorage.getItem('bandidoStats')||'{}')||{}}catch{return {}}})()};function saveStats(){localStorage.setItem('bandidoStats',JSON.stringify(playerStats));updateStats()}function updateStats(){const set=(id,v)=>{const el=$('#'+id);if(el)el.textContent=v};set('menuGames',playerStats.games);set('menuWins',playerStats.wins);set('menuLosses',playerStats.losses);set('menuBest',playerStats.best??'—');set('gameWins',playerStats.wins);set('turnCount',turnCount)}function finishGame(won){if(finished)return;finished=true;playerStats.games++;if(won){playerStats.wins++;if(playerStats.best===null||turnCount<playerStats.best)playerStats.best=turnCount}else playerStats.losses++;saveStats()}const clone=m=>m.map(r=>r.slice());function rot(m){let h=m.length,w=m[0].length,o=Array.from({length:w},()=>Array(h));for(let y=0;y<h;y++)for(let x=0;x<w;x++)o[x][h-1-y]=m[y][x];return o}function dims(m){return[m[0].length,m.length]}function edges(m){return{top:m[0],bottom:m[m.length-1],left:m.map(r=>r[0]),right:m.map(r=>r[r.length-1])}}function at(x,y){return placed.find(p=>p.x===x&&p.y===y)}
 let boardIndex=null,indexedBoard=null,indexedBoardLength=-1;
@@ -209,17 +271,27 @@ function mpShowLobby(room){
 $('#menu').classList.remove('hidden');$('#play').classList.add('hidden');$('#mpLobby').classList.remove('hidden');
 $('#mpRoomCode').textContent=mpRoomCode;
 const players=Object.entries(room.players||{}),online=players.filter(([,p])=>p.online!==false).length,list=$('#mpPlayers');
-$('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 мест занято';
+$('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 игроков';
 list.replaceChildren();
-players.forEach(([id,p])=>{
+players.forEach(([id,p],index)=>{
 const row=document.createElement('div');row.className='lobby-player'+(p.online===false?' offline':'');
+const avatar=document.createElement('span');avatar.className='lobby-player-avatar';avatar.textContent=(p.name||'И').trim().slice(0,1).toUpperCase()||'И';
+const copy=document.createElement('span');copy.className='lobby-player-copy';
 const name=document.createElement('span');name.className='lobby-player-name';name.textContent=(p.name||'Игрок')+(id===mpUid?' (ты)':'');
 const badges=document.createElement('span');badges.className='lobby-badges';
 if(id===room.owner){const badge=document.createElement('span');badge.className='lobby-badge';badge.textContent='Создатель';badges.append(badge)}
 if(id===mpUid){const badge=document.createElement('span');badge.className='lobby-badge';badge.textContent='Ты';badges.append(badge)}
 const state=document.createElement('span');state.className='lobby-player-state';state.textContent=p.online===false?'Не в сети':'В сети';
-row.append(name,badges,state);list.append(row)
+copy.append(name,badges);row.append(avatar,copy,state);list.append(row)
 });
+for(let slot=players.length;slot<4;slot++){
+const row=document.createElement('div');row.className='lobby-player lobby-player-empty';
+const avatar=document.createElement('span');avatar.className='lobby-player-avatar';avatar.textContent='+';
+const copy=document.createElement('span');copy.className='lobby-player-copy';
+const name=document.createElement('span');name.className='lobby-player-name';name.textContent='Свободное место';
+const state=document.createElement('span');state.className='lobby-player-state';state.textContent='Ожидаем игрока';
+copy.append(name,state);row.append(avatar,copy);list.append(row)
+}
 $('#mpStart').disabled=room.owner!==mpUid||players.length<1;
 $('#mpLobbyMessage').textContent=room.owner===mpUid?'Ты создатель комнаты. Отправь код друзьям и начинай, когда они подключатся.':'Ждём, пока создатель начнёт игру. Если связь прервётся, статус обновится автоматически.'
 }
