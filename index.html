@@ -513,7 +513,44 @@ body{zoom:1}
 .settings-footer button{padding:9px 12px;font-size:13px}
 body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 @media(max-width:760px){.brand-header{align-items:flex-start}.settings-open{top:12px;right:12px;width:44px;height:44px}.settings-dialog{padding:20px;border-radius:16px}}
-</style></head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
+</style>
+<style id="bandito-night-theme">
+body{background-image:url("bandito-background-clean.jpg")!important;transition:background-color .9s ease}
+body.dark-theme{background-image:url("bandito-background-clean-night.jpg")!important}
+body.dark-theme .menu-card,body.dark-theme .menu-stats,body.dark-theme .player-name-card{background:rgba(29,34,31,.91)!important;border-color:#465047!important;color:#eeeade!important;box-shadow:0 12px 34px #0005}
+body.dark-theme .menu-card-heading h2,body.dark-theme .mode-info strong,body.dark-theme .menu-stat b,body.dark-theme .brand-title{color:#eeeade!important;text-shadow:none!important}
+body.dark-theme .menu-card-heading p,body.dark-theme .menu-overline,body.dark-theme .brand-kicker,body.dark-theme .brand-title-wrap p,body.dark-theme .menu-coop-note,body.dark-theme .menu-field-label,body.dark-theme .menu-connection,body.dark-theme .menu-stat>span,body.dark-theme .menu-stat small,body.dark-theme .player-name-card>label{color:#b5bcae!important}
+body.dark-theme .mode-option{background:#293129!important;border-color:#4a5748!important;color:#eeeade!important}
+body.dark-theme .mode-option:hover:not(:disabled),body.dark-theme .mode-option.selected{background:#394638!important;border-color:#899b7d!important}
+body.dark-theme .mode-info small{color:#b5bcae!important}
+body.dark-theme .mode-symbol{background:#394638!important;border-color:#65765d!important;color:#e8eddf!important}
+body.dark-theme .mode-count,body.dark-theme .mode-arrow{color:#b5bcae!important}
+body.dark-theme .menu-create{background:#52634d!important;border-color:#71846a!important}
+body.dark-theme .menu-join-row button,body.dark-theme .player-name-control button{background:#394638!important;border-color:#65765d!important;color:#eeeade!important}
+body.dark-theme #mpName,body.dark-theme #mpCode,body.dark-theme .player-name-control input{background:#202720!important;border-color:#4b5748!important;color:#eeeade!important}
+body.dark-theme .brand-mark{color:#d6dfca!important;filter:none!important}
+body.dark-theme .stats-link{background:#293129e8!important;border-color:#596653!important;color:#e8eddf!important}
+.bandito-corner-art{transition:opacity .55s ease,filter .55s ease}
+.theme-shade{position:fixed;inset:0;z-index:4998;background:#101711;opacity:0;pointer-events:none;transition:opacity 1.05s ease}
+.theme-shade.visible{opacity:.78}
+.celestial-scene{position:fixed;inset:0;z-index:5000;overflow:hidden;pointer-events:none;display:none}
+.celestial-scene.active{display:block}
+.celestial-sun,.celestial-moon{position:absolute;left:50%;top:9%;font:normal clamp(58px,9vw,104px)/1 system-ui,sans-serif;filter:drop-shadow(0 0 22px #f6c76b);transform:translateX(-50%);will-change:transform,opacity}
+.celestial-sun{color:#ffd36d}
+.celestial-moon{color:#e8eddf;opacity:0;filter:drop-shadow(0 0 22px #dce8d1)}
+.celestial-scene.to-night .celestial-sun{animation:sun-fall 1.2s cubic-bezier(.55,.05,.8,.45) forwards}
+.celestial-scene.to-night .celestial-moon{animation:moon-rise-in 1.2s ease forwards}
+.celestial-scene.to-day .celestial-sun{animation:sun-rise-in 1.2s ease forwards}
+.celestial-scene.to-day .celestial-moon{animation:moon-fall 1.2s cubic-bezier(.55,.05,.8,.45) forwards}
+@keyframes sun-fall{0%{opacity:1;transform:translate(-50%,0) rotate(0)}45%{opacity:1;transform:translate(calc(-50% + 18vw),42vh) rotate(180deg)}100%{opacity:0;transform:translate(calc(-50% + 35vw),105vh) rotate(360deg)}}
+@keyframes moon-rise-in{0%,42%{opacity:0;transform:translate(calc(-50% - 35vw),105vh) rotate(0)}100%{opacity:1;transform:translate(-50%,0) rotate(360deg)}}
+@keyframes sun-rise-in{0%,42%{opacity:0;transform:translate(calc(-50% - 35vw),105vh) rotate(0)}100%{opacity:1;transform:translate(-50%,0) rotate(360deg)}}
+@keyframes moon-fall{0%{opacity:1;transform:translate(-50%,0) rotate(0)}45%{opacity:1;transform:translate(calc(-50% + 18vw),42vh) rotate(180deg)}100%{opacity:0;transform:translate(calc(-50% + 35vw),105vh) rotate(360deg)}}
+body.reduce-motion .theme-shade,body.reduce-motion .bandito-corner-art{transition:none}
+body.reduce-motion .celestial-scene{display:none!important}
+@media(prefers-reduced-motion:reduce){.theme-shade,.bandito-corner-art{transition:none}}
+</style>
+</head><body><div id="themeShade" class="theme-shade" aria-hidden="true"></div><div id="celestialScene" class="celestial-scene" aria-hidden="true"><span class="celestial-sun">☀</span><span class="celestial-moon">☾</span></div><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
   <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
@@ -573,26 +610,47 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{sc
 </section><div id="settingsModal" class="settings-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <section class="settings-dialog">
     <header class="settings-head"><div><div class="settings-kicker">BANDITO · ПЕРСОНАЛИЗАЦИЯ</div><h2 id="settingsTitle">Настройки</h2></div><button id="closeSettings" class="settings-close" type="button" aria-label="Закрыть">×</button></header>
-    <div class="settings-row"><div><strong>Масштаб страницы</strong><p>Размер страницы оставлен на стандартных 100%</p></div><output>100%</output></div>
-    <label class="settings-toggle"><span><strong>Тёмная тема</strong><small>Спокойная тёмная палитра для интерфейса и игрового поля</small></span><input id="darkTheme" type="checkbox"></label>
+    <label class="settings-toggle"><span><strong>Ночная тема</strong><small>Ночной фон и оформление Bandito</small></span><input id="darkTheme" type="checkbox"></label>
     <label class="settings-toggle"><span><strong>Уменьшить анимации</strong><small>Отключает лишние движения интерфейса</small></span><input id="reduceMotion" type="checkbox"></label>
     <footer class="settings-footer"><span>Настройки сохраняются автоматически</span><button id="resetSettings" type="button">Сбросить</button></footer>
   </section>
 </div></section><section id="play" class="hidden"><div class="game-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="game-intro"><h2 id="heading"></h2><div class="muted">Выбери карту и нажми на точку нужного поворота.</div></div><button id="newgame">Новая партия</button></div><div class="layout"><div class="boardbox"><div id="camera" class="camera" aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."><div id="board" class="board"></div></div></div><aside class="side"><div class="side-metrics"><div class="stats"><span>В колоде</span><b id="deckcount">0</b></div><div class="stats"><span>Выходы</span><b id="openCount">0</b></div><div class="stats"><span>Ход</span><b id="turnCount">0</b></div><div class="stats"><span>Победы</span><b id="gameWins">0</b></div></div><div class="hand-section"><div class="side-label">Карты в руке</div><div class="hand" id="hand" aria-label="Карты в руке"></div></div><div class="side-actions"><div class="controls"><button id="exchange" type="button">Сбросить карты</button></div><div class="camera-tools"><button id="zoomOut" type="button" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button><button id="zoomReset" type="button" title="Сбросить масштаб">100%</button><button id="zoomIn" type="button" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button></div></div><div id="mpTimer" class="status" style="font-weight:700;display:none">⏱ До конца хода: 60 сек.</div><div id="status" class="status">Загрузка карт…</div><div class="hint">Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью или пальцем.</div></aside></div></section></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script>
 const $=s=>document.querySelector(s);
 const settingsDefaults={reduceMotion:false,darkTheme:false};
-function applySettings(){
+function setNightTheme(enabled,animate=true){
+const left=$('.bandito-corner-left'),right=$('.bandito-corner-right'),logo=$('.brand-logo');
+const scene=$('#celestialScene'),shade=$('#themeShade');
+const finish=()=>{
+document.body.classList.toggle('dark-theme',!!enabled);
+if(left)left.src=enabled?'bandito-corner-left-night.png':'bandito-corner-left.png';
+if(right)right.src=enabled?'bandito-corner-right-night.png':'bandito-corner-right.png';
+if(logo)logo.src=enabled?'bandito-logo-night-512.png':'bandito-logo.png';
+if(shade)shade.classList.remove('visible');
+if(scene){scene.className='celestial-scene';}
+};
+const currentlyNight=document.body.classList.contains('dark-theme');
+if(currentlyNight===!!enabled){finish();return}
+if(!animate||document.body.classList.contains('reduce-motion')||!scene||!shade){finish();return}
+scene.className='celestial-scene active '+(enabled?'to-night':'to-day');
+shade.classList.add('visible');
+window.setTimeout(finish,1200);
+}
+function applySettings(animateTheme=false){
 let saved={};try{saved=JSON.parse(localStorage.getItem('banditoSettings')||'{}')||{}}catch{}
 const cfg={...settingsDefaults,...saved};
 document.body.style.zoom='1';
 document.body.classList.toggle('reduce-motion',!!cfg.reduceMotion);
-document.body.classList.toggle('dark-theme',!!cfg.darkTheme);
 const motion=$('#reduceMotion');
 if(motion)motion.checked=!!cfg.reduceMotion;
 const dark=$('#darkTheme');
 if(dark)dark.checked=!!cfg.darkTheme;
+setNightTheme(!!cfg.darkTheme,animateTheme);
 }
-function saveSettings(){const cfg={reduceMotion:$('#reduceMotion').checked,darkTheme:$('#darkTheme').checked};localStorage.setItem('banditoSettings',JSON.stringify(cfg));applySettings()}
+function saveSettings(){
+const cfg={reduceMotion:$('#reduceMotion').checked,darkTheme:$('#darkTheme').checked};
+localStorage.setItem('banditoSettings',JSON.stringify(cfg));
+applySettings(true);
+}
 applySettings();
 let all=[],deck=[],hand=[],placed=[],selected=-1,rotation=0,finished=false,exits=6,turnCount=0,hoverSpot=null,lastPlaced=null,animateLastPlacement=false;const defaultStats={games:0,wins:0,losses:0,best:null};let playerStats={...defaultStats,...(()=>{try{return JSON.parse(localStorage.getItem('banditoStats')||localStorage.getItem('bandidoStats')||'{}')||{}}catch{return {}}})()};function saveStats(){localStorage.setItem('banditoStats',JSON.stringify(playerStats));updateStats()}function updateStats(){const set=(id,v)=>{const el=$('#'+id);if(el)el.textContent=v};set('menuGames',playerStats.games);set('menuWins',playerStats.wins);set('menuLosses',playerStats.losses);set('menuBest',playerStats.best??'—');set('gameWins',playerStats.wins);set('turnCount',turnCount)}function finishGame(won){if(finished)return;finished=true;playerStats.games++;if(won){playerStats.wins++;if(playerStats.best===null||turnCount<playerStats.best)playerStats.best=turnCount}else playerStats.losses++;saveStats()}const clone=m=>m.map(r=>r.slice());function rot(m){let h=m.length,w=m[0].length,o=Array.from({length:w},()=>Array(h));for(let y=0;y<h;y++)for(let x=0;x<w;x++)o[x][h-1-y]=m[y][x];return o}function dims(m){return[m[0].length,m.length]}function edges(m){return{top:m[0],bottom:m[m.length-1],left:m.map(r=>r[0]),right:m.map(r=>r[r.length-1])}}function at(x,y){return placed.find(p=>p.x===x&&p.y===y)}
 let boardIndex=null,indexedBoard=null,indexedBoardLength=-1;
