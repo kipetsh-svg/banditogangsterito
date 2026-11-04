@@ -29,7 +29,25 @@
 .place-pin:hover::before,.place-pin:focus-visible::before{transform:scale(1.2)}
 .rematch-choice{margin:8px 0 28px;font-size:16px;font-weight:600;justify-content:center;transform:translateY(5px)}
 .rematch-choice select{min-width:126px;padding:9px 13px;border-radius:10px}
+.lobby-code-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 10px;padding:12px;border:1px solid var(--line);border-radius:11px;background:#f7f5ef}
+#mpRoomCode{display:block;margin-top:2px;font:700 23px/1.2 ui-monospace,monospace;letter-spacing:.12em}
+#mpCopyCode{flex:0 0 auto;padding:9px 11px;font-size:12px}
+.lobby-meta{margin:8px 0;font-size:12px;color:var(--muted)}
+.lobby-players{display:grid;gap:7px;margin-top:10px}
+.lobby-player{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.lobby-player.offline{background:#f8f7f3;color:#88867e}
+.lobby-player-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600}
+.lobby-badges{display:flex;gap:4px}
+.lobby-badge{padding:3px 6px;border-radius:6px;background:#f0eee7;color:#64645b;font-size:10px;white-space:nowrap}
+.lobby-player-state{font-size:11px;color:#657b5c;white-space:nowrap}
+.lobby-player.offline .lobby-player-state{color:#9a6c5c}
 @media(max-width:760px){
+.lobby-code-row{padding:10px}
+#mpRoomCode{font-size:21px}
+.lobby-player{gap:6px;padding:9px}
+.lobby-player-name{font-size:12px}
+.lobby-badge,.lobby-player-state{font-size:10px}
+
 main{padding:14px 10px 24px}
 .top{font-size:10px;letter-spacing:.08em}
 #play>.game-head{gap:8px;margin-bottom:8px}
@@ -87,16 +105,59 @@ main{padding-left:8px;padding-right:8px}
 <p id="mpMessage" class="muted" style="font-size:13px;margin:10px 0 0">Подключение к кооперативу…</p>
 </div>
 <section id="mpLobby" class="panel hidden" style="margin-top:14px">
-<h2>Комната <span id="mpRoomCode"></span></h2>
-<p id="mpPlayers" class="muted"></p>
+<h2>Комната</h2>
+<div class="lobby-code-row"><div><div class="muted">Код для друзей</div><strong id="mpRoomCode"></strong></div><button id="mpCopyCode" type="button">Копировать код</button></div>
+<div id="mpLobbyMeta" class="lobby-meta"></div>
+<div id="mpPlayers" class="lobby-players" aria-live="polite"></div>
 <div style="margin:14px 0"><label for="mpExits"><b>Сложность — количество выходов:</b></label><select id="mpExits" style="margin-left:8px;padding:9px;border:1px solid var(--line);border-radius:10px;font:inherit"><option value="2">2 выхода · легко</option><option value="5">5 выходов · нормально</option><option value="6" selected>6 выходов · сложно</option></select></div><div class="choices"><button id="mpStart" class="primary">Начать общую партию</button><button id="mpLeave">Выйти из комнаты</button></div>
 <p id="mpLobbyMessage" class="muted"></p>
 </section></section><section id="play" class="hidden"><div class="game-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="game-intro"><h2 id="heading"></h2><div class="muted">Выбери карту и нажми на точку нужного поворота.</div></div><button id="newgame">Новая партия</button></div><div class="layout"><div class="boardbox"><div id="camera" class="camera" aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."><div id="board" class="board"></div></div></div><aside class="side"><div class="side-metrics"><div class="stats"><span>В колоде</span><b id="deckcount">0</b></div><div class="stats"><span>Выходы</span><b id="openCount">0</b></div><div class="stats"><span>Ход</span><b id="turnCount">0</b></div><div class="stats"><span>Победы</span><b id="gameWins">0</b></div></div><div class="hand-section"><div class="side-label">Карты в руке</div><div class="hand" id="hand" aria-label="Карты в руке"></div></div><div class="side-actions"><div class="controls"><button id="exchange" type="button">Сбросить карты</button></div><div class="camera-tools"><button id="zoomOut" type="button" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button><button id="zoomReset" type="button" title="Сбросить масштаб">100%</button><button id="zoomIn" type="button" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button></div></div><div id="mpTimer" class="status" style="font-weight:700;display:none">⏱ До конца хода: 60 сек.</div><div id="status" class="status">Загрузка карт…</div><div class="hint">Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью или пальцем.</div></aside></div></section></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script>
-const $=s=>document.querySelector(s);let all=[],deck=[],hand=[],placed=[],selected=-1,rotation=0,finished=false,exits=6,turnCount=0,hoverSpot=null,lastPlaced=null,animateLastPlacement=false;const defaultStats={games:0,wins:0,losses:0,best:null};let playerStats={...defaultStats,...(()=>{try{return JSON.parse(localStorage.getItem('bandidoStats')||'{}')||{}}catch{return {}}})()};function saveStats(){localStorage.setItem('bandidoStats',JSON.stringify(playerStats));updateStats()}function updateStats(){const set=(id,v)=>{const el=$('#'+id);if(el)el.textContent=v};set('menuGames',playerStats.games);set('menuWins',playerStats.wins);set('menuLosses',playerStats.losses);set('menuBest',playerStats.best??'—');set('gameWins',playerStats.wins);set('turnCount',turnCount)}function finishGame(won){if(finished)return;finished=true;playerStats.games++;if(won){playerStats.wins++;if(playerStats.best===null||turnCount<playerStats.best)playerStats.best=turnCount}else playerStats.losses++;saveStats()}const clone=m=>m.map(r=>r.slice());function rot(m){let h=m.length,w=m[0].length,o=Array.from({length:w},()=>Array(h));for(let y=0;y<h;y++)for(let x=0;x<w;x++)o[x][h-1-y]=m[y][x];return o}function dims(m){return[m[0].length,m.length]}function edges(m){return{top:m[0],bottom:m[m.length-1],left:m.map(r=>r[0]),right:m.map(r=>r[r.length-1])}}function at(x,y){return placed.find(p=>p.x===x&&p.y===y)}function cellAt(gx,gy){for(const p of placed){const [pw,ph]=dims(p.m);if(gx>=p.x&&gx<p.x+pw&&gy>=p.y&&gy<p.y+ph)return {p,v:p.m[gy-p.y][gx-p.x]}}return null}function valid(m,x,y){const [w,h]=dims(m);let connected=false;for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){if(cellAt(x+xx,y+yy))return false;for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){const n=cellAt(x+xx+dx,y+yy+dy);if(!n)continue;if(n.v!==m[yy][xx])return false;if(n.v===1&&m[yy][xx]===1)connected=true}}return connected}function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}function draw(){while(hand.length<3&&deck.length)hand.push(deck.pop())}function status(t,k=''){ $('#status').textContent=t;$('#status').className='status '+k}function opens(){let n=0;for(const p of placed){const [w,h]=dims(p.m);for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++)if(p.m[yy][xx]===1)for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]])if(!cellAt(p.x+xx+dx,p.y+yy+dy))n++}return n}function begin(n){if(!all.length)return;if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null}$('#mpTimer').style.display='none';exits=n;let s=all.find(c=>c.id===(n===2?75:n===6?71:72));deck=shuffle(all.filter(c=>c.kind==='tunnel').map(c=>({id:c.id,m:clone(c.matrix)})));hand=[];placed=[{id:s.id,x:0,y:0,m:clone(s.matrix)}];lastPlaced=null;animateLastPlacement=false;selected=-1;rotation=0;finished=false;turnCount=0;hoverSpot=null;draw();$('#menu').classList.add('hidden');$('#play').classList.remove('hidden');$('#heading').textContent=n===2?'Bandido · супер пупер альфа легко':'Bandido · '+n+' выходов';status('Выбери карту в руке.');render()}function rotated(m,r){let a=clone(m);for(let i=0;i<r;i++)a=rot(a);return a}function legalSpots(m){const [w,h]=dims(m),candidates=new Set();for(const p of placed){const [pw,ph]=dims(p.m);for(let py=0;py<ph;py++)for(let px=0;px<pw;px++)for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]])for(let y=0;y<h;y++)for(let x=0;x<w;x++){const ax=p.x+px+dx-x,ay=p.y+py+dy-y;candidates.add(ax+','+ay)}}const spots=[];for(const key of candidates){const [x,y]=key.split(',').map(Number);if(valid(m,x,y))spots.push([x,y])}return spots}function bestRotation(m){let best=0,count=-1;for(let r=0;r<4;r++){let n=legalSpots(rotated(m,r)).length;if(n>count){count=n;best=r}}return best}function canPlayAny(){return hand.some(card=>[0,1,2,3].some(r=>legalSpots(rotated(card.m,r)).length>0))}function render(){
+const $=s=>document.querySelector(s);let all=[],deck=[],hand=[],placed=[],selected=-1,rotation=0,finished=false,exits=6,turnCount=0,hoverSpot=null,lastPlaced=null,animateLastPlacement=false;const defaultStats={games:0,wins:0,losses:0,best:null};let playerStats={...defaultStats,...(()=>{try{return JSON.parse(localStorage.getItem('bandidoStats')||'{}')||{}}catch{return {}}})()};function saveStats(){localStorage.setItem('bandidoStats',JSON.stringify(playerStats));updateStats()}function updateStats(){const set=(id,v)=>{const el=$('#'+id);if(el)el.textContent=v};set('menuGames',playerStats.games);set('menuWins',playerStats.wins);set('menuLosses',playerStats.losses);set('menuBest',playerStats.best??'—');set('gameWins',playerStats.wins);set('turnCount',turnCount)}function finishGame(won){if(finished)return;finished=true;playerStats.games++;if(won){playerStats.wins++;if(playerStats.best===null||turnCount<playerStats.best)playerStats.best=turnCount}else playerStats.losses++;saveStats()}const clone=m=>m.map(r=>r.slice());function rot(m){let h=m.length,w=m[0].length,o=Array.from({length:w},()=>Array(h));for(let y=0;y<h;y++)for(let x=0;x<w;x++)o[x][h-1-y]=m[y][x];return o}function dims(m){return[m[0].length,m.length]}function edges(m){return{top:m[0],bottom:m[m.length-1],left:m.map(r=>r[0]),right:m.map(r=>r[r.length-1])}}function at(x,y){return placed.find(p=>p.x===x&&p.y===y)}
+let boardIndex=null,indexedBoard=null,indexedBoardLength=-1;
+function ensureBoardIndex(){
+if(boardIndex&&indexedBoard===placed&&indexedBoardLength===placed.length)return boardIndex;
+const index=new Map();
+for(const p of placed)for(let y=0;y<p.m.length;y++)for(let x=0;x<p.m[y].length;x++)index.set((p.x+x)+','+(p.y+y),p.m[y][x]);
+boardIndex=index;indexedBoard=placed;indexedBoardLength=placed.length;return index
+}
+function cellAt(gx,gy){const value=ensureBoardIndex().get(gx+','+gy);return value===undefined?null:value}
+function valid(m,x,y){
+const [w,h]=dims(m),index=ensureBoardIndex();let connected=false;
+for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){
+if(index.has((x+xx)+','+(y+yy)))return false;
+const value=m[yy][xx];
+for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){
+const adjacent=index.get((x+xx+dx)+','+(y+yy+dy));
+if(adjacent===undefined)continue;
+if(adjacent!==value)return false;
+if(adjacent===1&&value===1)connected=true
+}
+}
+return connected
+}function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}function draw(){while(hand.length<3&&deck.length)hand.push(deck.pop())}function status(t,k=''){ $('#status').textContent=t;$('#status').className='status '+k}function opens(){let n=0;for(const p of placed){const [w,h]=dims(p.m);for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++)if(p.m[yy][xx]===1)for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]])if(cellAt(p.x+xx+dx,p.y+yy+dy)===null)n++}return n}function begin(n){if(!all.length)return;if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null}$('#mpTimer').style.display='none';exits=n;let s=all.find(c=>c.id===(n===2?75:n===6?71:72));deck=shuffle(all.filter(c=>c.kind==='tunnel').map(c=>({id:c.id,m:clone(c.matrix)})));hand=[];placed=[{id:s.id,x:0,y:0,m:clone(s.matrix)}];lastPlaced=null;animateLastPlacement=false;selected=-1;rotation=0;finished=false;turnCount=0;hoverSpot=null;draw();$('#menu').classList.add('hidden');$('#play').classList.remove('hidden');$('#heading').textContent=n===2?'Bandido · супер пупер альфа легко':'Bandido · '+n+' выходов';status('Выбери карту в руке.');render()}function rotated(m,r){let a=clone(m);for(let i=0;i<r;i++)a=rot(a);return a}function legalSpots(m){
+const [w,h]=dims(m),candidates=new Set();
+for(const p of placed)for(let py=0;py<p.m.length;py++)for(let px=0;px<p.m[py].length;px++){
+if(p.m[py][px]!==1)continue;
+for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]])for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+if(m[y][x]!==1)continue;
+candidates.add((p.x+px+dx-x)+','+(p.y+py+dy-y))
+}
+}
+const spots=[];
+for(const key of candidates){const comma=key.indexOf(','),x=Number(key.slice(0,comma)),y=Number(key.slice(comma+1));if(valid(m,x,y))spots.push([x,y])}
+return spots
+}function bestRotation(m){let best=0,count=-1;for(let r=0;r<4;r++){let n=legalSpots(rotated(m,r)).length;if(n>count){count=n;best=r}}return best}function canPlayAny(){return hand.some(card=>[0,1,2,3].some(r=>legalSpots(rotated(card.m,r)).length>0))}function render(){
 const camera=$('#camera'),savedLeft=camera?.scrollLeft||0,savedTop=camera?.scrollTop||0;
 if(selected>=hand.length)selected=-1;if(finished)selected=-1;
 let minX=Math.min(...placed.map(p=>p.x)),minY=Math.min(...placed.map(p=>p.y)),maxX=Math.max(...placed.map(p=>p.x+dims(p.m)[0])),maxY=Math.max(...placed.map(p=>p.y+dims(p.m)[1]));
-if(selected>=0&&hand[selected]){for(let r=0;r<4;r++){const m=rotated(hand[selected].m,r),[w,h]=dims(m);for(const [x,y] of legalSpots(m)){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x+w);maxY=Math.max(maxY,y+h)}}}
+const legalByRotation=[];
+if(selected>=0&&hand[selected]){
+for(let r=0;r<4;r++){
+const m=rotated(hand[selected].m,r),[w,h]=dims(m),spots=legalSpots(m);
+legalByRotation.push({m,w,h,spots});
+for(const [x,y] of spots){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x+w);maxY=Math.max(maxY,y+h)}
+}
+}
 const c=cellSize,pad=36,b=$('#board');b.innerHTML='';b.style.width=(maxX-minX)*c+pad*2+'px';b.style.height=(maxY-minY)*c+pad*2+'px';
 for(const p of placed){const [w,h]=dims(p.m),el=document.createElement('div');const isLatest=!!lastPlaced&&p.id===lastPlaced.id&&p.x===lastPlaced.x&&p.y===lastPlaced.y;const highlightLatest=!!mpRoomCode&&isLatest;const animateThis=isLatest&&animateLastPlacement;el.className='piece'+(highlightLatest?' latest':'')+(animateThis?' fresh':'');if(animateThis)animateLastPlacement=false;el.style.cssText=`left:${pad+(p.x-minX)*c}px;top:${pad+(p.y-minY)*c}px;width:${w*c}px;height:${h*c}px;grid-template-columns:repeat(${w},${c}px);grid-template-rows:repeat(${h},${c}px)`;p.m.flat().forEach(v=>{const q=document.createElement('i');q.className='pixel'+(v?'':' wall');el.append(q)});b.append(el)}
 $('#hand').innerHTML='';const canAct=!mpRoomCode||mpRoomData?.game?.turnUid===mpUid;
@@ -105,9 +166,9 @@ $('#deckcount').textContent=deck.length;$('#openCount').textContent=opens();$('#
 if(selected>=0&&hand[selected]&&!finished&&canAct){
 const ghost=document.createElement('div');ghost.className='piece';ghost.style.cssText='display:none;opacity:.62;pointer-events:none;border:1px dashed #64735f;z-index:5;left:0;top:0';b.append(ghost);
 const offsets=[[-17,-17],[17,-17],[17,17],[-17,17]];
-for(let r=0;r<4;r++){
-const m=rotated(hand[selected].m,r),[mw,mh]=dims(m);
-for(const [sx,sy] of legalSpots(m)){
+for(let r=0;r<legalByRotation.length;r++){
+const {m,w:mw,h:mh,spots}=legalByRotation[r];
+for(const [sx,sy] of spots){
 const pin=document.createElement('button');pin.className='place-pin angle-'+r;pin.type='button';pin.title='Поставить карту · '+(r*90)+'°';pin.setAttribute('aria-label','Поставить карту, поворот '+(r*90)+' градусов, позиция '+sx+', '+sy);
 pin.style.cssText='position:absolute;z-index:7;left:'+(pad+(sx-minX)*c+mw*c/2-16+offsets[r][0])+'px;top:'+(pad+(sy-minY)*c+mh*c/2-16+offsets[r][1])+'px';
 pin.onmouseenter=()=>{
@@ -140,15 +201,50 @@ function celebrate(){const layer=document.createElement('div');layer.className='
 function play(x,y,m){if(mpRoomCode){mpPlay(x,y,m);return}if(finished||selected<0||!valid(m,x,y))return;let card=hand.splice(selected,1)[0];const newPiece={id:card.id,x,y,m};placed.push(newPiece);lastPlaced=newPiece;animateLastPlacement=true;turnCount++;selected=-1;rotation=0;draw();let n=opens();if(n===0){finishGame(true);status('Победа! Все туннели закрыты.','win');showEndScreen(true);celebrate()}else if(!deck.length&&!hand.length){finishGame(false);status('Поражение. Карты закончились, выходы остались.','lose');showEndScreen(false)}else status('Карта размещена.');render()}$('#exchange').onclick=()=>{if(mpRoomCode){mpExchange();return}if(finished||!hand.length)return;const count=hand.length;hand.forEach(c=>deck.unshift(c));hand=[];draw();selected=-1;rotation=0;hoverSpot=null;status('Тестовый сброс: '+count+' карт возвращены под низ колоды, взяты новые.');render()};$('#newgame').onclick=()=>{if(mpRoomCode){leaveMultiplayer();return}$('#play').classList.add('hidden');$('#menu').classList.remove('hidden')};document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(+b.dataset.start));updateStats();fetch('./resources/bandido-matrices/cards.json').then(r=>{if(!r.ok)throw Error('Ошибка загрузки колоды');return r.json()}).then(d=>{all=d.cards.filter(c=>c.matrix);document.querySelectorAll('[data-start]').forEach(b=>b.disabled=false);$('#loadstate').textContent='Колода загружена. Можно начинать.'}).catch(e=>{$('#loadstate').textContent='Не удалось загрузить колоду: '+e.message+'. Обнови страницу.';document.querySelectorAll('[data-start]').forEach(b=>b.disabled=true)});
 
 const firebaseConfig={apiKey:"AIzaSyDCBEArE3TebFxTiaK-6Q7DxWf8GloOuUg",authDomain:"bandito-83823.firebaseapp.com",databaseURL:"https://bandito-83823-default-rtdb.firebaseio.com/",projectId:"bandito-83823",storageBucket:"bandito-83823.firebasestorage.app",messagingSenderId:"434862103332",appId:"1:434862103332:web:f470c708e8d88a4f69b1b1",measurementId:"G-TTN8Z732BH"};
-let mpAuth=null,mpDb=null,mpUid=null,mpRoomCode=null,mpRoomRef=null,mpRoomListener=null,mpRoomData=null,mpBusy=false,mpCelebrated=false,mpTimerInterval=null;
+let mpAuth=null,mpDb=null,mpUid=null,mpRoomCode=null,mpRoomRef=null,mpRoomListener=null,mpRoomData=null,mpBusy=false,mpCelebrated=false,mpTimerInterval=null,mpPresenceRef=null,mpPresenceHandler=null;
 function mpMessage(t){const e=$('#mpMessage');if(e)e.textContent=t}
 function mpName(){return ($('#mpName').value.trim()||'Игрок').slice(0,18)}
 function mpCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
-function mpShowLobby(room){$('#menu').classList.remove('hidden');$('#play').classList.add('hidden');$('#mpLobby').classList.remove('hidden');$('#mpRoomCode').textContent=mpRoomCode;const players=Object.entries(room.players||{});$('#mpPlayers').textContent='Игроки: '+players.map(([id,p])=>p.name+(id===mpUid?' (ты)':'')).join(', ');$('#mpStart').disabled=room.owner!==mpUid||players.length<1;$('#mpLobbyMessage').textContent=room.owner===mpUid?'Ты создатель комнаты. Начни, когда все подключатся.':'Ждём, пока создатель начнёт игру.'}
-function mpAttach(code){mpRoomCode=code;mpRoomRef=mpDb.ref('rooms/'+code);if(mpRoomListener)mpRoomRef.off('value',mpRoomListener);mpRoomListener=s=>{const room=s.val();if(!room){mpMessage('Комната больше не существует.');leaveMultiplayer(false);return}mpRoomData=room;if(!room.game||!room.game.started){mpShowLobby(room);return}if(!room.game.finished){document.querySelector('.end-screen')?.remove();mpCelebrated=false}$('#mpLobby').classList.add('hidden');$('#menu').classList.add('hidden');$('#play').classList.remove('hidden');const g=room.game;const previouslySelected=selected>=0&&hand[selected]?hand[selected].id:null;const previousLastKey=lastPlaced?lastPlaced.id+'@'+lastPlaced.x+','+lastPlaced.y:null;placed=g.board||[];lastPlaced=placed.length?placed[placed.length-1]:null;const currentLastKey=lastPlaced?lastPlaced.id+'@'+lastPlaced.x+','+lastPlaced.y:null;animateLastPlacement=!!previousLastKey&&!!currentLastKey&&previousLastKey!==currentLastKey&&(g.turnCount||0)>0;deck=g.deck||[];hand=(g.hands&&g.hands[mpUid])||[];turnCount=g.turnCount||0;exits=g.exits||6;finished=!!g.finished;if(finished){if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null}$('#mpTimer').style.display='none'}else{$('#mpTimer').style.display='block';mpStartTimer(g.turnStartedAt||Date.now())}selected=previouslySelected===null?-1:hand.findIndex(c=>c.id===previouslySelected);rotation=0;$('#heading').textContent='Bandido · кооператив · '+(g.exits||6)+' выходов · '+code;render();const current=(room.players&&room.players[g.turnUid]&&room.players[g.turnUid].name)||'игрок';status(finished?(g.won?'Победа! Все туннели закрыты.':'Поражение. Карты закончились.'):(g.turnUid===mpUid?'Твой ход. Выбери карту.':'Ходит '+current+'. Подожди своей очереди.'));if(finished){showEndScreen(!!g.won);if(g.won&&!mpCelebrated){mpCelebrated=true;celebrate()}}$('#exchange').disabled=finished||g.turnUid!==mpUid||!hand.length;};mpRoomRef.on('value',mpRoomListener,e=>mpMessage('Ошибка Firebase: '+e.message))}
+function mpShowLobby(room){
+$('#menu').classList.remove('hidden');$('#play').classList.add('hidden');$('#mpLobby').classList.remove('hidden');
+$('#mpRoomCode').textContent=mpRoomCode;
+const players=Object.entries(room.players||{}),online=players.filter(([,p])=>p.online!==false).length,list=$('#mpPlayers');
+$('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 мест занято';
+list.replaceChildren();
+players.forEach(([id,p])=>{
+const row=document.createElement('div');row.className='lobby-player'+(p.online===false?' offline':'');
+const name=document.createElement('span');name.className='lobby-player-name';name.textContent=(p.name||'Игрок')+(id===mpUid?' (ты)':'');
+const badges=document.createElement('span');badges.className='lobby-badges';
+if(id===room.owner){const badge=document.createElement('span');badge.className='lobby-badge';badge.textContent='Создатель';badges.append(badge)}
+if(id===mpUid){const badge=document.createElement('span');badge.className='lobby-badge';badge.textContent='Ты';badges.append(badge)}
+const state=document.createElement('span');state.className='lobby-player-state';state.textContent=p.online===false?'Не в сети':'В сети';
+row.append(name,badges,state);list.append(row)
+});
+$('#mpStart').disabled=room.owner!==mpUid||players.length<1;
+$('#mpLobbyMessage').textContent=room.owner===mpUid?'Ты создатель комнаты. Отправь код друзьям и начинай, когда они подключатся.':'Ждём, пока создатель начнёт игру. Если связь прервётся, статус обновится автоматически.'
+}
+function mpAttach(code){mpRoomCode=code;mpRoomRef=mpDb.ref('rooms/'+code);if(mpRoomListener)mpRoomRef.off('value',mpRoomListener);mpRoomListener=s=>{const room=s.val();if(!room){mpMessage('Комната больше не существует.');leaveMultiplayer(false);return}mpRoomData=room;if(!room.game||!room.game.started){mpShowLobby(room);return}if(!room.game.finished){document.querySelector('.end-screen')?.remove();mpCelebrated=false}$('#mpLobby').classList.add('hidden');$('#menu').classList.add('hidden');$('#play').classList.remove('hidden');const g=room.game;const previouslySelected=selected>=0&&hand[selected]?hand[selected].id:null;const previousLastKey=lastPlaced?lastPlaced.id+'@'+lastPlaced.x+','+lastPlaced.y:null;placed=g.board||[];lastPlaced=placed.length?placed[placed.length-1]:null;const currentLastKey=lastPlaced?lastPlaced.id+'@'+lastPlaced.x+','+lastPlaced.y:null;animateLastPlacement=!!previousLastKey&&!!currentLastKey&&previousLastKey!==currentLastKey&&(g.turnCount||0)>0;deck=g.deck||[];hand=(g.hands&&g.hands[mpUid])||[];turnCount=g.turnCount||0;exits=g.exits||6;finished=!!g.finished;if(finished){if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null}$('#mpTimer').style.display='none'}else{$('#mpTimer').style.display='block';mpStartTimer(g.turnStartedAt||Date.now())}selected=previouslySelected===null?-1:hand.findIndex(c=>c.id===previouslySelected);rotation=0;$('#heading').textContent='Bandido · кооператив · '+(g.exits||6)+' выходов · '+code;render();const current=(room.players&&room.players[g.turnUid]&&room.players[g.turnUid].name)||'игрок';status(finished?(g.won?'Победа! Все туннели закрыты.':'Поражение. Карты закончились.'):(g.turnUid===mpUid?'Твой ход. Выбери карту.':'Ходит '+current+'. Подожди своей очереди.'));if(finished){showEndScreen(!!g.won);if(g.won&&!mpCelebrated){mpCelebrated=true;celebrate()}}$('#exchange').disabled=finished||g.turnUid!==mpUid||!hand.length;};mpRoomRef.on('value',mpRoomListener,e=>mpMessage('Ошибка Firebase: '+e.message));mpWatchPresence(code)}
+function mpWatchPresence(code){
+if(mpPresenceRef&&mpPresenceHandler)mpPresenceRef.off('value',mpPresenceHandler);
+mpPresenceRef=mpDb.ref('.info/connected');
+mpPresenceHandler=async snap=>{
+if(snap.val()!==true||mpRoomCode!==code||!mpUid)return;
+const playerRef=mpDb.ref('rooms/'+code+'/players/'+mpUid);
+try{
+await playerRef.onDisconnect().update({online:false,lastSeen:firebase.database.ServerValue.TIMESTAMP});
+await playerRef.update({online:true,lastSeen:firebase.database.ServerValue.TIMESTAMP})
+}catch(e){mpMessage('Не удалось обновить статус подключения: '+e.message)}
+};
+mpPresenceRef.on('value',mpPresenceHandler)
+}
+async function mpClearPresence(code,uid){
+if(mpPresenceRef&&mpPresenceHandler)mpPresenceRef.off('value',mpPresenceHandler);
+mpPresenceRef=null;mpPresenceHandler=null;
+if(code&&uid&&mpDb){try{await mpDb.ref('rooms/'+code+'/players/'+uid).onDisconnect().cancel()}catch{}}
+}
 async function mpStartTimer(startedAt){if(mpTimerInterval)clearInterval(mpTimerInterval);const el=$('#mpTimer');if(!el)return;const draw=()=>{const left=Math.max(0,60-Math.floor((Date.now()-startedAt)/1000));el.textContent=left?'⏱ До конца хода: '+left+' сек.':'⏱ Время хода истекло';el.style.background=left<=10?'#f5e6df':'#f1eee6';el.style.color=left<=10?'#8a3f2d':'inherit'};draw();mpTimerInterval=setInterval(draw,250)}
 async function mpEnsureAuth(){if(mpUid)return mpUid;try{const cred=await mpAuth.signInAnonymously();mpUid=cred.user.uid;return mpUid}catch(e){throw new Error(e.code==='auth/operation-not-allowed'?'В Firebase включи Authentication → Sign-in method → Anonymous.':e.message)}}
-async function mpCreate(){if(mpBusy)return;mpBusy=true;mpMessage('Создаю комнату…');try{await mpEnsureAuth();let code=mpCode();await mpDb.ref('rooms/'+code).set({owner:mpUid,players:{[mpUid]:{name:mpName()}},createdAt:Date.now(),game:null});mpAttach(code);mpMessage('Комната создана. Отправь друзьям код: '+code)}catch(e){mpMessage('Не получилось создать комнату: '+e.message)}finally{mpBusy=false}}
+async function mpCreate(){if(mpBusy)return;mpBusy=true;mpMessage('Создаю комнату…');try{await mpEnsureAuth();let code=mpCode();await mpDb.ref('rooms/'+code).set({owner:mpUid,players:{[mpUid]:{name:mpName(),online:true,joinedAt:Date.now()}},createdAt:Date.now(),game:null});mpAttach(code);mpMessage('Комната создана. Отправь друзьям код: '+code)}catch(e){mpMessage('Не получилось создать комнату: '+e.message)}finally{mpBusy=false}}
 async function mpJoin(){
 if(mpBusy)return;
 const code=$('#mpCode').value.trim().toUpperCase();
@@ -157,10 +253,10 @@ mpBusy=true;mpMessage('Подключаюсь к комнате…');
 let roomRef=null,added=false;
 try{
 await mpEnsureAuth();roomRef=mpDb.ref('rooms/'+code);
-await roomRef.child('players/'+mpUid).set({name:mpName()});added=true;
+await roomRef.child('players/'+mpUid).set({name:mpName(),online:true,joinedAt:Date.now()});added=true;
 const snap=await roomRef.once('value');const room=snap.val();
 if(!room||!room.owner||!room.players||!room.players[mpUid]){
-await roomRef.remove();added=false;
+await roomRef.child('players/'+mpUid).remove();added=false;
 mpMessage('Комната '+code+' не найдена. Проверь код или попроси создателя прислать его ещё раз.');return
 }
 const count=Object.keys(room.players).length;
@@ -183,6 +279,7 @@ async function mpPlay(x,y,m){if(!mpRoomCode||finished||selected<0||mpBusy)return
 async function mpExchange(){if(!mpRoomCode||finished||mpBusy||mpRoomData?.game?.turnUid!==mpUid)return;mpBusy=true;try{await mpRoomRef.child('game').transaction(g=>{if(!g||g.finished||g.turnUid!==mpUid)return;const own=(g.hands&&g.hands[mpUid])||[];if(!own.length)return;g.deck=(g.deck||[]).concat(own);g.hands[mpUid]=g.deck.splice(0,3);const ids=Object.keys(g.hands||{});const i=ids.indexOf(mpUid);g.turnUid=ids[(i+1)%ids.length];g.turnCount=(g.turnCount||0)+1;g.turnStartedAt=Date.now();return g})}catch(e){status('Ошибка сброса: '+e.message)}finally{mpBusy=false}}
 async function leaveMultiplayer(showMenu=true){
 const ref=mpRoomRef,uid=mpUid,listener=mpRoomListener;
+await mpClearPresence(mpRoomCode,uid);
 $('#mpTimer').style.display='none';
 if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null}
 if(ref&&listener)ref.off('value',listener);
@@ -221,5 +318,14 @@ if(showMenu)$('#menu').classList.remove('hidden');
 mpMessage('Ты вышел из комнаты.')
 }
 $('#mpCreate').onclick=mpCreate;$('#mpJoin').onclick=mpJoin;$('#mpStart').onclick=mpStart;$('#mpLeave').onclick=()=>leaveMultiplayer();
+$('#mpCopyCode').onclick=async()=>{
+if(!mpRoomCode)return;
+try{await navigator.clipboard.writeText(mpRoomCode);$('#mpLobbyMessage').textContent='Код комнаты скопирован.'}
+catch{
+const field=document.createElement('textarea');field.value=mpRoomCode;field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();
+try{document.execCommand('copy');$('#mpLobbyMessage').textContent='Код комнаты скопирован.'}catch{$('#mpLobbyMessage').textContent='Не удалось скопировать код. Выдели его вручную.'}
+field.remove()
+}
+};
 try{firebase.initializeApp(firebaseConfig);mpAuth=firebase.auth();mpDb=firebase.database();mpAuth.onAuthStateChanged(u=>{if(u){mpUid=u.uid;mpMessage('Кооператив готов. Создай комнату или введи код.')}else mpMessage('Войди анонимно, чтобы играть онлайн.')})}catch(e){mpMessage('Firebase не загрузился: '+e.message)}
 </script></body></html>
