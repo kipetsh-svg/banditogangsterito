@@ -16,7 +16,13 @@ let c=18,pad=36,b=$('#board');b.innerHTML='';b.style.width=(maxX-minX)*c+pad*2+'
 const ghost=document.createElement('div');ghost.className='piece';
 ghost.style.cssText='display:none;opacity:.62;pointer-events:none;border:1px dashed #64735f;z-index:5;left:0;top:0';
 b.append(ghost);
-const orientations=allAngles?[0,1,2,3]:[rotation];
+const rawOrientations=allAngles?[0,1,2,3]:[rotation];
+const seenOrientations=new Set();
+const orientations=rawOrientations.filter(r=>{
+const key=rotated(hand[selected].m,r).map(row=>row.join('')).join('/');
+if(seenOrientations.has(key))return false;
+seenOrientations.add(key);return true;
+});
 for(const r of orientations){
 const m=rotated(hand[selected].m,r),[mw,mh]=dims(m),spots=legalSpots(m);
 for(const [sx,sy] of spots){
