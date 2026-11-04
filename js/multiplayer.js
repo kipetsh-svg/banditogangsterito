@@ -1,0 +1,167 @@
+/* Firebase, lobby UI, room presence, and cooperative game flow. */
+const firebaseConfig={apiKey:"AIzaSyDCBEArE3TebFxTiaK-6Q7DxWf8GloOuUg",authDomain:"bandito-83823.firebaseapp.com",databaseURL:"https://bandito-83823-default-rtdb.firebaseio.com/",projectId:"bandito-83823",storageBucket:"bandito-83823.firebasestorage.app",messagingSenderId:"434862103332",appId:"1:434862103332:web:f470c708e8d88a4f69b1b1",measurementId:"G-TTN8Z732BH"};
+let mpAuth=null,mpDb=null,mpUid=null,mpRoomCode=null,mpRoomRef=null,mpRoomListener=null,mpRoomData=null,mpBusy=false,mpCelebrated=false,mpTimerInterval=null,mpPresenceRef=null,mpPresenceHandler=null;
+function mpMessage(t){const e=$('#mpMessage');if(e)e.textContent=t}
+function mpName(){return (localStorage.getItem('banditoPlayerName')||'Игрок').trim().slice(0,18)||'Игрок'}
+function mpCode(){return Math.random().toString(36).slice(2,8).toUpperCase()};
+const lobbyNameInput=$('#mpName');
+if(lobbyNameInput){
+lobbyNameInput.value=mpName()==='Игрок'?'':mpName();
+lobbyNameInput.addEventListener('change',async()=>{
+const value=(lobbyNameInput.value.trim()||'Игрок').slice(0,18);
+lobbyNameInput.value=value;
+localStorage.setItem('banditoPlayerName',value);
+if(mpRoomRef&&mpUid){
+try{await mpRoomRef.child('players/'+mpUid+'/name').set(value)}
+catch(e){$('#mpLobbyMessage').textContent='Не удалось обновить имя: '+e.message}
+}
+});
+}
+/* Keep both states inside one fixed multiplayer card. */
+const coopPanel=document.querySelector('.coop-card'),lobbyPanel=$('#mpLobby');
+let coopContent=null;
+if(coopPanel&&lobbyPanel){
+coopContent=document.createElement('div');
+coopContent.className='coop-card-content';
+while(coopPanel.firstChild)coopContent.append(coopPanel.firstChild);
+coopPanel.append(coopContent,lobbyPanel);
+}
+function mpSwapPanel(showLobby){
+const lobby=$('#mpLobby');
+if(!coopContent||!lobby)return;
+const apply=()=>{
+coopContent.classList.toggle('hidden',showLobby);
+lobby.classList.toggle('hidden',!showLobby);
+};
+if(document.startViewTransition)document.startViewTransition(apply);
+else apply();
+}
+function mpShowLobby(room){
+$('#menu').classList.remove('hidden');$('#play').classList.add('hidden');
+if($('#mpLobby').classList.contains('hidden'))mpSwapPanel(true);
+$('#mpRoomCode').textContent=mpRoomCode;const nameInput=$('#mpName');if(nameInput&&!nameInput.matches(':focus'))nameInput.value=room.players?.[mpUid]?.name||mpName();
+const players=Object.entries(room.players||{}),online=players.filter(([,p])=>p.online!==false).length,list=$('#mpPlayers');
+$('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 игроков';
+const freeSlots=$('#mpFreeSlots');if(freeSlots)freeSlots.textContent=String(Math.max(0,4-players.length));
+list.replaceChildren();
+players.forEach(([id,p],index)=>{
+const row=document.createElement('div');row.className='lobby-player'+(p.online===false?' offline':'');
+const avatar=document.createElement('span');avatar.className='lobby-player-avatar';avatar.textContent=(p.name||'И').trim().slice(0,1).toUpperCase()||'И';
+const copy=document.createElement('span');copy.className='lobby-player-copy';
+const name=document.createElement('span');name.className='lobby-player-name';name.textContent=(p.name||'Игрок')+(id===mpUid?' (ты)':'');
+const badges=document.createElement('span');badges.className='lobby-badges';
+if(id===room.owner){const badge=document.createElement('span');badge.className='lobby-badge';badge.textContent='Создатель';badges.append(badge)}
+if(id===mpUid){const badge=document.createElement('span');badge.className='lobby-badge';badge.textContent='Ты';badges.append(badge)}
+const state=document.createElement('span');state.className='lobby-player-state';state.textContent=p.online===false?'Не в сети':'В сети';
+copy.append(name,badges);row.append(avatar,copy,state);list.append(row)
+});
+/* Show connected players only; free slots are summarized in the heading. */
+$('#mpStart').disabled=room.owner!==mpUid||players.length<1;
+$('#mpLobbyMessage').textContent=room.owner===mpUid?'Ты создатель комнаты. Отправь код друзьям и начинай, когда они подключатся.':'Ждём, пока создатель начнёт игру. Если связь прервётся, статус обновится автоматически.'
+}
+function mpAttach(code){mpRoomCode=code;mpRoomRef=mpDb.ref('rooms/'+code);if(mpRoomListener)mpRoomRef.off('value',mpRoomListener);mpRoomListener=s=>{const room=s.val();if(!room){mpMessage('Комната больше не существует.');leaveMultiplayer(false);return}mpRoomData=room;if(!room.game||!room.game.started){mpShowLobby(room);return}if(!room.game.finished){document.querySelector('.end-screen')?.remove();mpCelebrated=false}$('#mpLobby').classList.add('hidden');$('#menu').classList.add('hidden');$('#play').classList.remove('hidden');const g=room.game;const previouslySelected=selected>=0&&hand[selected]?hand[selected].id:null;const previousLastKey=lastPlaced?lastPlaced.id+'@'+lastPlaced.x+','+lastPlaced.y:null;placed=g.board||[];lastPlaced=placed.length?placed[placed.length-1]:null;const currentLastKey=lastPlaced?lastPlaced.id+'@'+lastPlaced.x+','+lastPlaced.y:null;animateLastPlacement=!!previousLastKey&&!!currentLastKey&&previousLastKey!==currentLastKey&&(g.turnCount||0)>0;deck=g.deck||[];hand=(g.hands&&g.hands[mpUid])||[];turnCount=g.turnCount||0;exits=g.exits||6;finished=!!g.finished;if(finished){if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null}$('#mpTimer').style.display='none'}else{$('#mpTimer').style.display='block';mpStartTimer(g.turnStartedAt||Date.now())}selected=previouslySelected===null?-1:hand.findIndex(c=>c.id===previouslySelected);rotation=0;$('#heading').textContent='Bandito · кооператив · '+(g.exits||6)+' выходов · '+code;render();const current=(room.players&&room.players[g.turnUid]&&room.players[g.turnUid].name)||'игрок';status(finished?(g.won?'Победа! Все туннели закрыты.':'Поражение. Карты закончились.'):(g.turnUid===mpUid?'Твой ход. Выбери карту.':'Ходит '+current+'. Подожди своей очереди.'));if(finished){showEndScreen(!!g.won);if(g.won&&!mpCelebrated){mpCelebrated=true;celebrate()}}$('#exchange').disabled=finished||g.turnUid!==mpUid||!hand.length;};mpRoomRef.on('value',mpRoomListener,e=>mpMessage('Ошибка Firebase: '+e.message));mpWatchPresence(code)}
+function mpWatchPresence(code){
+if(mpPresenceRef&&mpPresenceHandler)mpPresenceRef.off('value',mpPresenceHandler);
+mpPresenceRef=mpDb.ref('.info/connected');
+mpPresenceHandler=async snap=>{
+if(snap.val()!==true||mpRoomCode!==code||!mpUid)return;
+const playerRef=mpDb.ref('rooms/'+code+'/players/'+mpUid);
+try{
+await playerRef.onDisconnect().update({online:false,lastSeen:firebase.database.ServerValue.TIMESTAMP});
+await playerRef.update({online:true,lastSeen:firebase.database.ServerValue.TIMESTAMP})
+}catch(e){mpMessage('Не удалось обновить статус подключения: '+e.message)}
+};
+mpPresenceRef.on('value',mpPresenceHandler)
+}
+async function mpClearPresence(code,uid){
+if(mpPresenceRef&&mpPresenceHandler)mpPresenceRef.off('value',mpPresenceHandler);
+mpPresenceRef=null;mpPresenceHandler=null;
+if(code&&uid&&mpDb){try{await mpDb.ref('rooms/'+code+'/players/'+uid).onDisconnect().cancel()}catch{}}
+}
+async function mpStartTimer(startedAt){if(mpTimerInterval)clearInterval(mpTimerInterval);const el=$('#mpTimer');if(!el)return;const draw=()=>{const left=Math.max(0,60-Math.floor((Date.now()-startedAt)/1000));el.textContent=left?'⏱ До конца хода: '+left+' сек.':'⏱ Время хода истекло';el.style.background=left<=10?'#f5e6df':'#f1eee6';el.style.color=left<=10?'#8a3f2d':'inherit'};draw();mpTimerInterval=setInterval(draw,250)}
+async function mpEnsureAuth(){if(mpUid)return mpUid;try{const cred=await mpAuth.signInAnonymously();mpUid=cred.user.uid;return mpUid}catch(e){throw new Error(e.code==='auth/operation-not-allowed'?'В Firebase включи Authentication → Sign-in method → Anonymous.':e.message)}}
+async function mpCreate(){if(mpBusy)return;mpBusy=true;mpMessage('Создаю комнату…');try{await mpEnsureAuth();let code=mpCode();await mpDb.ref('rooms/'+code).set({owner:mpUid,players:{[mpUid]:{name:mpName(),online:true,joinedAt:Date.now()}},createdAt:Date.now(),game:null});mpAttach(code);mpMessage('Комната создана. Отправь друзьям код: '+code)}catch(e){mpMessage('Не получилось создать комнату: '+e.message)}finally{mpBusy=false}}
+async function mpJoin(){
+if(mpBusy)return;
+const code=$('#mpCode').value.trim().toUpperCase();
+if(!/^[A-Z0-9]{6}$/.test(code)){mpMessage('Введи шестизначный код комнаты, например 779742.');return}
+mpBusy=true;mpMessage('Подключаюсь к комнате…');
+let roomRef=null,added=false;
+try{
+await mpEnsureAuth();roomRef=mpDb.ref('rooms/'+code);
+await roomRef.child('players/'+mpUid).set({name:mpName(),online:true,joinedAt:Date.now()});added=true;
+const snap=await roomRef.once('value');const room=snap.val();
+if(!room||!room.owner||!room.players||!room.players[mpUid]){
+await roomRef.child('players/'+mpUid).remove();added=false;
+mpMessage('Комната '+code+' не найдена. Проверь код или попроси создателя прислать его ещё раз.');return
+}
+const count=Object.keys(room.players).length;
+if(count>4){
+await roomRef.child('players/'+mpUid).remove();added=false;
+mpMessage('В комнате уже максимальное количество игроков.');return
+}
+if(room.game?.started&&!room.game.finished){
+await roomRef.child('players/'+mpUid).remove();added=false;
+mpMessage('В этой комнате уже идёт партия. Подключиться можно после её завершения.');return
+}
+mpAttach(code);mpMessage('Ты в комнате '+code)
+}catch(e){
+if(added&&roomRef){try{await roomRef.child('players/'+mpUid).remove()}catch{}}
+mpMessage('Не удалось войти. '+e.message)
+}finally{mpBusy=false}
+}
+async function mpStart(){if(!mpRoomCode||mpRoomData?.owner!==mpUid)return;mpCelebrated=false;animateLastPlacement=false;const chosen=$('#mpExits').value;const n=chosen==='2'?2:chosen==='5'?5:6;const startId=({2:75,5:72,6:71})[n];const s=all.find(c=>c.id===startId);if(!s){$('#mpLobbyMessage').textContent='Стартовая карта не найдена в колоде.';return}const players=Object.keys(mpRoomData.players||{});const cards=shuffle(all.filter(c=>c.kind==='tunnel'&&c.id!==s.id).map(c=>({id:c.id,m:clone(c.matrix)})));const hands={};players.forEach(id=>hands[id]=cards.splice(0,3));const game={started:true,exits:n,startCardId:s.id,board:[{id:s.id,x:0,y:0,m:clone(s.matrix)}],deck:cards,hands,turnUid:players[0],turnCount:0,turnStartedAt:Date.now(),finished:false,won:false};try{await mpRoomRef.child('game').set(game)}catch(e){$('#mpLobbyMessage').textContent='Не удалось начать: '+e.message}}
+async function mpPlay(x,y,m){if(!mpRoomCode||finished||selected<0||mpBusy)return;if(mpRoomData?.game?.turnUid!==mpUid){status('Сейчас ход другого игрока.');return}mpBusy=true;try{const card=hand[selected];const result=await mpRoomRef.child('game').transaction(g=>{if(!g||g.finished||g.turnUid!==mpUid)return;const own=(g.hands&&g.hands[mpUid])||[];const idx=own.findIndex(c=>c.id===card.id);if(idx<0)return;placed=g.board||[];if(!valid(m,x,y))return;const board=g.board.slice();board.push({id:card.id,x,y,m});own.splice(idx,1);const pile=g.deck||[];if(pile.length)own.push(pile.pop());g.board=board;g.deck=pile;g.hands[mpUid]=own;g.turnCount=(g.turnCount||0)+1;g.turnStartedAt=Date.now();const oldPlaced=placed;placed=board;const open=opens();placed=oldPlaced;if(open===0){g.finished=true;g.won=true}else if(!pile.length&&Object.values(g.hands||{}).every(a=>!a.length)){g.finished=true;g.won=false}else{const ids=Object.keys(g.hands||{});const i=ids.indexOf(mpUid);g.turnUid=ids[(i+1)%ids.length]}return g});if(!result.committed)status('Ход не принят: возможно, очередь уже перешла другому игроку.')}catch(e){status('Ошибка хода: '+e.message)}finally{mpBusy=false}}
+async function mpExchange(){if(!mpRoomCode||finished||mpBusy||mpRoomData?.game?.turnUid!==mpUid)return;mpBusy=true;try{await mpRoomRef.child('game').transaction(g=>{if(!g||g.finished||g.turnUid!==mpUid)return;const own=(g.hands&&g.hands[mpUid])||[];if(!own.length)return;g.deck=(g.deck||[]).concat(own);g.hands[mpUid]=g.deck.splice(0,3);const ids=Object.keys(g.hands||{});const i=ids.indexOf(mpUid);g.turnUid=ids[(i+1)%ids.length];g.turnCount=(g.turnCount||0)+1;g.turnStartedAt=Date.now();return g})}catch(e){status('Ошибка сброса: '+e.message)}finally{mpBusy=false}}
+async function leaveMultiplayer(showMenu=true){
+const ref=mpRoomRef,uid=mpUid,listener=mpRoomListener;
+await mpClearPresence(mpRoomCode,uid);
+$('#mpTimer').style.display='none';
+if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null}
+if(ref&&listener)ref.off('value',listener);
+if(ref&&uid){
+try{
+await ref.transaction(room=>{
+if(!room||!room.players||!room.players[uid])return;
+delete room.players[uid];
+const remaining=Object.keys(room.players);
+if(!remaining.length)return null;
+if(room.owner===uid)room.owner=remaining[0];
+const game=room.game;
+if(game?.hands)delete game.hands[uid];
+if(game?.started&&!game.finished){
+if(game.turnUid===uid){game.turnUid=remaining[0];game.turnStartedAt=Date.now()}
+const noDeck=!(game.deck||[]).length;
+const noHands=Object.values(game.hands||{}).every(cards=>!cards.length);
+if(noDeck&&noHands){
+let openings=0;
+const tileAt=(x,y)=>{
+for(const p of game.board||[]){const w=p.m[0].length,h=p.m.length;if(x>=p.x&&x<p.x+w&&y>=p.y&&y<p.y+h)return p.m[y-p.y][x-p.x]}
+return null
+};
+for(const p of game.board||[]){for(let y=0;y<p.m.length;y++)for(let x=0;x<p.m[y].length;x++)if(p.m[y][x]===1)for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]])if(tileAt(p.x+x+dx,p.y+y+dy)===null)openings++}
+game.finished=true;game.won=openings===0
+}
+}
+return room
+});
+}catch(e){mpMessage('Не удалось обновить комнату при выходе: '+e.message)}
+}
+mpRoomRef=null;mpRoomListener=null;mpRoomCode=null;mpRoomData=null;mpCelebrated=false;
+hand=[];placed=[];deck=[];selected=-1;
+$('#play').classList.add('hidden');
+mpSwapPanel(false);
+if(showMenu)$('#menu').classList.remove('hidden');
+mpMessage('Ты вышел из комнаты.')
+}
+$('#mpCreate').onclick=mpCreate;$('#mpJoin').onclick=mpJoin;$('#mpStart').onclick=mpStart;$('#mpLeave').onclick=()=>leaveMultiplayer();
+$('#mpCopyCode').onclick=async()=>{
+if(!mpRoomCode)return;
+try{await navigator.clipboard.writeText(mpRoomCode);$('#mpLobbyMessage').textContent='Код комнаты скопирован.'}
+catch{
+const field=document.createElement('textarea');field.value=mpRoomCode;field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();
+try{document.execCommand('copy');$('#mpLobbyMessage').textContent='Код комнаты скопирован.'}catch{$('#mpLobbyMessage').textContent='Не удалось скопировать код. Выдели его вручную.'}
+field.remove()
+}
+};
+try{firebase.initializeApp(firebaseConfig);mpAuth=firebase.auth();mpDb=firebase.database();mpAuth.onAuthStateChanged(u=>{if(u){mpUid=u.uid;mpMessage('Кооператив готов. Создай комнату или введи код.')}else mpMessage('Войди анонимно, чтобы играть онлайн.')})}catch(e){mpMessage('Firebase не загрузился: '+e.message)}

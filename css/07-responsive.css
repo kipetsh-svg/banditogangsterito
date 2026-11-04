@@ -1,0 +1,57 @@
+/* Original style block 15 */
+/* Keep natural vertical page scrolling on every device and viewport size. */
+html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+main{height:auto;min-height:100svh;overflow:visible}
+.settings-backdrop{overscroll-behavior:contain}
+
+/* Original style block 16 */
+/* Responsive sizing: desktop, compact laptop, tablet and phone. Scrolling stays natural. */
+@media (min-width: 1200px){
+  main{padding-left:clamp(28px,3vw,48px);padding-right:clamp(28px,3vw,48px)}
+  #menu{max-width:1180px}
+}
+@media (min-width:761px) and (max-width:1050px){
+  main{padding:26px 22px 44px}
+  #menu{max-width:940px}
+  .brand-header{min-height:178px;margin-bottom:18px}
+  .brand-logo{width:clamp(230px,34vw,340px);max-height:128px}
+  .menu-grid{gap:15px}
+  .menu-card{padding:18px 17px}
+  .menu-card-heading{gap:10px}
+  .menu-card-heading h2{font-size:20px}
+  .mode-option{min-height:62px;padding:9px 10px}
+  .mode-info strong{font-size:13px}
+  .mode-info small{font-size:10px}
+  .menu-stats{margin-top:16px}
+  .player-name-card{margin-top:14px}
+}
+@media (min-width:561px) and (max-width:760px){
+  main{padding:20px 18px 38px}
+  #menu{width:100%;max-width:650px;margin:0 auto}
+  .brand-header{min-height:166px;margin-bottom:16px}
+  .brand-logo{width:clamp(210px,42vw,300px);max-height:112px}
+  .menu-grid{grid-template-columns:minmax(0,1fr);gap:14px}
+  .menu-card{padding:19px 20px}
+  .mode-list{gap:8px}
+  .mode-option{min-height:64px}
+  .menu-stats{margin-top:16px}
+  .player-name-card{margin-top:14px}
+}
+@media (max-height:620px) and (min-width:761px){
+  .brand-header{min-height:150px;margin-bottom:14px}
+  .brand-logo{max-height:112px}
+  .menu-stats{margin-top:14px}
+  .player-name-card{margin-top:12px}
+}
+@media (max-width:560px){
+  .brand-logo{width:clamp(190px,58vw,300px);max-height:105px}
+  .menu-card,.menu-stats,.player-name-card{max-width:100%}
+  .menu-stats{overflow-wrap:anywhere}
+}
+@media (max-width:360px){
+  .brand-logo{width:min(82vw,230px)}
+  .brand-header{min-height:145px}
+  .menu-card-heading h2{font-size:17px}
+  .mode-info strong{font-size:12px}
+  .player-name-control{gap:6px}
+}

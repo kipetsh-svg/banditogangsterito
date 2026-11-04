@@ -1,0 +1,53 @@
+/* Original style block 14 */
+/* Final neutral graphite overrides for every night-theme control */
+body.dark-theme{
+ --bg:#17191c!important;--paper:#24272b!important;--ink:#eceef0!important;
+ --muted:#a7abb1!important;--line:#41464d!important;--green:#353a40!important;
+ --wall:#747b84!important;background-color:var(--bg)!important;color:var(--ink)!important
+}
+body.dark-theme .panel,body.dark-theme .boardbox,body.dark-theme .side,
+body.dark-theme .coop-card,body.dark-theme .menu-stats,body.dark-theme .player-name-card,
+body.dark-theme .lobby-shell,body.dark-theme .settings-dialog,
+body.dark-theme .menu-card,body.dark-theme .menu-stat{
+ background:#24272b!important;color:#eceef0!important;border-color:#41464d!important
+}
+body.dark-theme button,body.dark-theme input,body.dark-theme select,
+body.dark-theme textarea,body.dark-theme .handcard{
+ background:#2b2f34!important;color:#eceef0!important;border-color:#484e56!important
+}
+body.dark-theme button.primary,body.dark-theme .menu-create,
+body.dark-theme .menu-join-row button,body.dark-theme .player-name-control button,
+body.dark-theme .lobby-actions button.primary{
+ background:#353a40!important;color:#f1f2f4!important;border-color:#555c65!important
+}
+body.dark-theme button.primary:hover,body.dark-theme .menu-create:hover,
+body.dark-theme .menu-join-row button:hover,body.dark-theme .player-name-control button:hover{
+ background:#444a52!important;border-color:#69717b!important
+}
+body.dark-theme .mode-option,body.dark-theme .mode-option:hover:not(:disabled),
+body.dark-theme .mode-option.selected,body.dark-theme .mode-option[aria-pressed="true"]{
+ background:#2b2f34!important;color:#eceef0!important;border-color:#4a5058!important
+}
+body.dark-theme .mode-option.selected,body.dark-theme .mode-option[aria-pressed="true"]{
+ background:#3a4047!important;border-color:#747c86!important
+}
+body.dark-theme .mode-symbol{background:#30353b!important;color:#e2e5e9!important;border-color:#555c65!important}
+body.dark-theme .settings-open,body.dark-theme .stats-link{
+ background:#292d32ed!important;color:#e5e8ec!important;border-color:#4b5159!important
+}
+body.dark-theme .settings-open:hover,body.dark-theme .stats-link:hover{background:#383e45f5!important}
+body.dark-theme .piece{background:#292d32!important;outline-color:#aeb4bc!important}
+body.dark-theme .piece .pixel{background:#30353b!important;border-color:#454b53!important}
+body.dark-theme .piece .pixel.wall{background:#747b84!important;border-color:#747b84!important}
+body.dark-theme #mpName,body.dark-theme #mpCode,body.dark-theme .player-name-control input{
+ background:#202328!important;border-color:#484e56!important;color:#eceef0!important
+}
+body.dark-theme .mode-info strong,body.dark-theme .menu-stats-heading h2,
+body.dark-theme .menu-stat b{color:#eceef0!important}
+body.dark-theme .mode-info small,body.dark-theme .mode-count,
+body.dark-theme .mode-arrow,body.dark-theme .mode-info small{color:#b1b6bd!important}
+body.dark-theme .menu-icon,body.dark-theme .brand-mark{color:#d5d9de!important}
+body.dark-theme .place-pin::before,body.dark-theme .place-pin.angle-0::before,
+body.dark-theme .place-pin.angle-1::before,body.dark-theme .place-pin.angle-2::before,
+body.dark-theme .place-pin.angle-3::before{background:#777f89!important}
+.mode-symbol svg{width:29px;height:29px;display:block}
