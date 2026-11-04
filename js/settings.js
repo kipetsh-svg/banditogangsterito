@@ -6,9 +6,9 @@ const left=$('.bandito-corner-left'),right=$('.bandito-corner-right'),logo=$('.b
 const scene=$('#celestialScene'),shade=$('#themeShade');
 const finish=()=>{
 document.body.classList.toggle('dark-theme',!!enabled);
-if(left)left.src=enabled?'bandito-corner-left-night.png':'bandito-corner-left.png';
-if(right)right.src=enabled?'bandito-corner-right-night.png':'bandito-corner-right.png';
-if(logo)logo.src=enabled?'bandito-logo-night-512.png':'bandito-logo.png';
+if(left)left.src=enabled?'assets/images/bandito-corner-left-night.png':'assets/images/bandito-corner-left.png';
+if(right)right.src=enabled?'assets/images/bandito-corner-right-night.png':'assets/images/bandito-corner-right.png';
+if(logo)logo.src=enabled?'assets/images/bandito-logo-night-512.png':'assets/images/bandito-logo.png';
 if(shade)shade.classList.remove('visible');
 if(scene){scene.className='celestial-scene';}
 };
