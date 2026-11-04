@@ -1,10 +1,13 @@
-/* Restore the original bold serif heading style with a soft warm shadow. */
+/* Restore the same bold serif type and warm aura across every heading. */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6,
+.brand-title,
+.end-title,
+.menu-intro h1,
 .menu-card-heading h2,
 .menu-stats-heading h2,
 .settings-head h2,
