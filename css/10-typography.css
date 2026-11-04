@@ -1,4 +1,4 @@
-/* Unified heading typography: match the waiting-room title across the whole app. */
+/* One consistent decorative serif for headings throughout Bandito. */
 h1,
 h2,
 h3,
@@ -9,10 +9,10 @@ h6,
 .menu-stats-heading h2,
 .settings-head h2,
 .game-intro h2,
-.lobby-heading h2,
-.lobby-section-head h3 {
-  font-family: ui-sans-serif, system-ui, sans-serif !important;
-  font-weight: 350 !important;
+#mpLobby .lobby-heading h2,
+#mpLobby .lobby-section-head h3 {
+  font-family: "Cormorant Garamond", Georgia, serif !important;
+  font-weight: 400 !important;
   font-style: normal !important;
   text-shadow: none !important;
 }
