@@ -197,25 +197,23 @@ main{padding-left:8px;padding-right:8px}
 @media(prefers-reduced-motion:reduce){.handcard,.place-pin::before{transition:none}}
 
 
-/* BANDITO western lobby redesign */
-:root{--bg:#ead0b2;--paper:#fff7ec;--ink:#482b1d;--muted:#876b56;--line:#ddbea0;--green:#633b28;--wall:#41443d}
-body{min-height:100vh;background:#e8c9a8;color:var(--ink);font-family:ui-sans-serif,system-ui,sans-serif}
-body:before{content:"";position:fixed;inset:0;z-index:-2;background:
-radial-gradient(ellipse at 76% 19%,#fff0d2 0 8%,transparent 8.2%),
-linear-gradient(180deg,#e9c9a8 0%,#f2d9bb 48%,#d6ad84 100%)}
-body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.94;background-repeat:no-repeat;background-position:center bottom;background-size:100% 100%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMidYMax slice'%3E%3Cdefs%3E%3ClinearGradient id='sky' x2='0' y2='1'%3E%3Cstop stop-color='%23f4dfc5' stop-opacity='.12'/%3E%3Cstop offset='1' stop-color='%23c08e65' stop-opacity='.18'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23sky)' d='M0 0h1600v1000H0z'/%3E%3Cpath fill='%23c99d78' opacity='.38' d='M0 475 95 430 160 455 255 350 350 395 440 310 530 380 650 330 760 395 880 320 990 390 1100 340 1200 410 1320 330 1430 395 1510 350 1600 390v610H0z'/%3E%3Cpath fill='%23b98762' opacity='.45' d='M0 575 130 510 230 550 330 465 430 525 560 450 680 530 810 455 930 530 1050 470 1180 540 1300 460 1410 530 1510 470 1600 510v490H0z'/%3E%3Cpath fill='%23d5ad88' d='M0 670q200-90 390-20t390 0 390-20 430 0v370H0z'/%3E%3Cpath fill='%23bd906d' opacity='.65' d='M0 790q220-95 430-20t410 0 390-25 370 5v250H0z'/%3E%3Cg fill='%23774b32' opacity='.65'%3E%3Cpath d='M100 770v-125h16v125zm-42-87q-8-68 42-75-8 43-42 75zm52-32q3-55 52-61-8 39-52 61zm-9 5q-42-42-28-83 37 26 28 83z'/%3E%3Cpath d='M1450 820V690h17v130zm-40-75q-10-64 42-75-5 43-42 75zm48-39q8-53 54-55-12 39-54 55zm-6 10q-45-40-34-82 40 26 34 82z'/%3E%3C/g%3E%3Cg fill='%23f8e5cd' opacity='.6'%3E%3Cpath d='M110 160q25-28 53 0 22-20 44 5H90q-8-5 20-5zm1220 80q22-25 46 0 20-17 40 4h-108q-5-4 22-4z'/%3E%3C/g%3E%3Cpath d='M0 900q180-45 330 0t330 0 330 0 330 0 280-5v105H0z' fill='%23845a3d' opacity='.38'/%3E%3C/svg%3E")}
+/* BANDITO — restrained Texas western lobby */
+:root{--bg:#f3eadb;--paper:#fffaf1;--ink:#39291f;--muted:#806b58;--line:#d9c6aa;--green:#53634c;--wall:#41443d}
+body{min-height:100vh;background:#f3eadb;color:var(--ink);font-family:ui-sans-serif,system-ui,sans-serif}
+body:before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 50% 4%,#fff8e9 0%,transparent 52%),linear-gradient(180deg,#f5ecdf 0%,#efe2ce 70%,#e8d8c0 100%)}
+body:after{content:"";position:fixed;left:0;right:0;bottom:0;height:18vh;z-index:-1;pointer-events:none;opacity:.36;background:#b68c68;clip-path:polygon(0 74%,12% 60%,24% 72%,35% 45%,47% 67%,60% 55%,72% 72%,84% 48%,100% 68%,100% 100%,0 100%)}
 main{max-width:1240px;padding:34px 34px 56px}
 .menu-screen{max-width:1120px;margin:0 auto;padding:16px 0 30px}
-.brand-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:150px;margin:0 auto 28px;text-align:center;width:100%}
+.brand-header{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;margin:0 auto 28px;text-align:center;width:100%;gap:0}
 .brand-title-wrap{text-align:center;width:100%;margin:0 auto}
-.brand-mark{width:70px;height:48px;margin:0 auto 5px;color:#482b1d;display:block}
-.brand-title{margin:0!important;color:#482b1d;font-family:Georgia,serif;font-size:clamp(48px,6vw,76px)!important;font-weight:1000;letter-spacing:.025em!important;line-height:.95!important;text-shadow:0 2px 0 #d5b08d}
-.brand-title-wrap p{margin:10px 0 0;color:#75543e;font-size:14px;letter-spacing:.02em}
+.brand-mark{width:112px;height:58px;margin:0 auto 0;color:#39291f;display:block;filter:drop-shadow(0 2px 0 #d7c2a4)}
+.brand-title{margin:0!important;color:#39291f;font-family:Georgia,serif;font-size:clamp(48px,6vw,76px)!important;font-weight:1000;letter-spacing:.07em!important;line-height:.92!important;text-shadow:0 2px 0 #d8c3a5}
+.brand-title-wrap p{margin:9px 0 0;color:#806b58;font-size:14px;letter-spacing:.02em}
 .brand-kicker{font-size:9px;font-weight:800;letter-spacing:.24em;color:#87664d}
 .stats-link{position:absolute;right:0;top:18px;display:flex;align-items:center;gap:9px;padding:12px 18px;border:1px solid #d8b897;border-radius:999px;background:#fff4e5d9;color:#573722;box-shadow:0 5px 14px #754b2c18;font-weight:650}
 .stats-link span{font-size:19px}
 .menu-grid{grid-template-columns:1fr 1fr;gap:20px}
-.menu-card{padding:25px 26px 22px;border:1px solid #e2c4a6;border-radius:25px;background:rgba(255,248,238,.91);box-shadow:0 14px 35px #754b2c1c, inset 0 1px 0 #fff9}
+.menu-card{padding:25px 26px 22px;border:1px solid #ddcdb5;border-radius:22px;background:rgba(255,250,242,.94);box-shadow:0 10px 28px #59412b12,inset 0 1px 0 #fff}
 .menu-card-heading{gap:15px;margin-bottom:22px}
 .menu-icon{width:56px;height:56px;flex:0 0 56px;display:grid;place-items:center;color:#603b27}
 .menu-icon svg{width:52px;height:48px}
@@ -275,7 +273,7 @@ main{max-width:1240px;padding:34px 34px 56px}
 @media(max-width:390px){.brand-title{font-size:41px!important}.stats-link{font-size:10px;padding:7px 9px}.menu-card{padding:15px}.mode-option{min-height:105px}}
 </style></head><body><main><section id="menu" class="menu-screen">
 <header class="brand-header">
-  <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 90 54"><path d="M9 29 Q18 24 29 25 L36 8 Q43 1 52 8 L61 25 Q74 24 82 29 Q70 39 45 39 Q20 39 9 29Z" fill="currentColor"/><path d="M34 24 Q45 19 63 25" fill="none" stroke="#e7c8a7" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+  <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 120 62"><path d="M8 43 Q18 35 39 37 L47 13 Q50 7 60 7 Q70 7 73 13 L81 37 Q102 35 112 43 Q99 54 60 54 Q21 54 8 43Z" fill="currentColor"/><path d="M42 37 Q60 31 78 37" fill="none" stroke="#f1dfc8" stroke-width="2.2" stroke-linecap="round"/><path d="M49 13 Q60 17 71 13" fill="none" stroke="#f1dfc8" stroke-width="1.8" stroke-linecap="round"/></svg></div>
   <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><h1 class="brand-title">BANDITO</h1><p>Прокладывай тоннели. Закрой все выходы.</p></div>
   
 </header>
