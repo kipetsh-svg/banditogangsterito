@@ -271,6 +271,34 @@ main{max-width:1240px;padding:34px 34px 56px}
  .menu-stats{padding:14px;border-radius:17px}
 }
 @media(max-width:390px){.brand-title{font-size:41px!important}.stats-link{font-size:10px;padding:7px 9px}.menu-card{padding:15px}.mode-option{min-height:105px}}
+</style><style id="desert-menu-theme">
+#menu{position:relative;isolation:isolate;max-width:1180px;padding-top:10px}
+#menu:before{content:"";position:absolute;z-index:-2;left:50%;top:118px;transform:translateX(-50%);width:min(1400px,calc(100vw - 24px));height:570px;pointer-events:none;border-radius:30px;background:radial-gradient(circle at 80% 22%,#f7c66f 0 5%,transparent 5.5%),linear-gradient(180deg,#cbd9d6 0%,#edcfaa 55%,#bd8057 100%);box-shadow:inset 0 -50px 70px #70452b55}
+#menu:after{content:"";position:absolute;z-index:-1;left:50%;top:118px;transform:translateX(-50%);width:min(1400px,calc(100vw - 24px));height:570px;pointer-events:none;border-radius:30px;background:
+radial-gradient(ellipse at 10% 80%,#a96845 0 12%,transparent 12.5%),radial-gradient(ellipse at 34% 75%,#bd8054 0 17%,transparent 17.5%),radial-gradient(ellipse at 63% 82%,#a96845 0 18%,transparent 18.5%),radial-gradient(ellipse at 94% 77%,#8d563d 0 18%,transparent 18.5%),
+linear-gradient(145deg,transparent 0 34%,#85776c 34.2% 43%,transparent 43.2%),linear-gradient(35deg,transparent 0 38%,#a18b79 38.2% 48%,transparent 48.2%),
+linear-gradient(180deg,transparent 0 55%,#c28a60 55.2% 73%,#9c6345 73.2% 100%)}
+.brand-header{position:relative;z-index:2;min-height:205px;margin-bottom:24px}
+.brand-mark{width:124px;height:64px;color:#493020;filter:drop-shadow(0 3px 0 #f1d3a4)}
+.brand-title{color:#4a2d20;text-shadow:0 2px 0 #f4d7aa,0 5px 15px #65391f30}
+.brand-title-wrap p,.brand-kicker{color:#684b36}
+.menu-grid{position:relative;z-index:2;gap:22px}
+.menu-card{position:relative;overflow:visible;padding:23px 25px 21px;border:1px solid #e0c39d;border-radius:18px;background:#fff5e8e8;box-shadow:0 14px 36px #57351f30,inset 0 1px #fff9;backdrop-filter:blur(5px)}
+.solo-card:before{content:"";position:absolute;left:29px;top:-22px;width:55px;height:42px;border:5px solid #75452d;border-bottom:0;border-radius:55px 55px 0 0;filter:drop-shadow(0 2px 1px #f8dfb8)}
+.menu-card>*{position:relative;z-index:1}
+.menu-card-heading h2{color:#4d3022}.menu-card-heading p,.menu-coop-note{color:#80604a}.menu-icon{color:#765037}
+.mode-option{background:#fff9ef;border-color:#dfc5a5;color:#4b3427}.mode-option:hover:not(:disabled),.mode-option.selected{background:#f3dfbf;border-color:#a9794e}
+.mode-symbol{background:#ead3ae;color:#69472e;border-color:#d6b78e}
+#mpName,#mpCode{background:#fffaf1;border-color:#ddc4a3;color:#4b3427}
+.menu-create{background:#765039!important;border-color:#765039!important}
+.menu-stats{position:relative;z-index:2;margin:22px auto 0;background:#fff7e9e8;border-color:#e0c39d;box-shadow:0 10px 28px #57351f20;backdrop-filter:blur(5px)}
+.player-name-card{position:relative;z-index:2;width:min(370px,calc(100% - 24px));margin:20px auto 0;padding:12px 15px 14px;border:1px solid #dfc29e;border-radius:15px;background:#fff8eced;box-shadow:0 9px 25px #57351f25}
+.player-name-card>label{display:block;margin:0 0 6px 3px;color:#886347;font-size:9px;font-weight:800;letter-spacing:.17em}
+.player-name-control{display:flex;align-items:center;gap:8px}
+.player-name-control input{width:100%;min-width:0;padding:10px 12px;border:1px solid #e2c9a8;border-radius:9px;background:#fffdf8;color:#4b3427;font:inherit}
+.player-name-control button{width:42px;height:42px;padding:0;border:1px solid #ddc4a3;border-radius:10px;background:#f2e0c5;color:#704b31;font-size:21px}
+@media(max-width:700px){#menu:before,#menu:after{top:100px;height:680px}.brand-header{min-height:175px}.menu-grid{gap:14px}.menu-card{padding:18px 16px}}
+@media(max-width:560px){.menu-grid{grid-template-columns:1fr}.brand-header{min-height:168px}.menu-card{padding:18px}.menu-stats{margin-top:17px}}
 </style></head><body><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 120 62"><path d="M8 43 Q18 35 39 37 L47 13 Q50 7 60 7 Q70 7 73 13 L81 37 Q102 35 112 43 Q99 54 60 54 Q21 54 8 43Z" fill="currentColor"/><path d="M42 37 Q60 31 78 37" fill="none" stroke="#f1dfc8" stroke-width="2.2" stroke-linecap="round"/><path d="M49 13 Q60 17 71 13" fill="none" stroke="#f1dfc8" stroke-width="1.8" stroke-linecap="round"/></svg></div>
@@ -289,8 +317,7 @@ main{max-width:1240px;padding:34px 34px 56px}
 </section>
 <section class="menu-card coop-card">
   <div class="menu-card-heading"><span class="menu-icon coop-icon" aria-hidden="true"><svg viewBox="0 0 52 48"><circle cx="26" cy="12" r="8" fill="currentColor"/><circle cx="10" cy="17" r="6" fill="currentColor"/><circle cx="42" cy="17" r="6" fill="currentColor"/><path d="M11 40v-6c0-8 6-13 15-13s15 5 15 13v6Z" fill="currentColor"/><path d="M1 39v-5c0-6 4-10 10-10 3 0 5 1 7 3-3 3-4 7-4 13Zm50 0v-5c0-6-4-10-10-10-3 0-5 1-7 3 3 3 4 7 4 13Z" fill="currentColor"/></svg></span><div><h2>Мультиплеер</h2><p>Играй вместе с друзьями</p></div></div>
-  <label class="menu-field-label" for="mpName">Твоё имя</label>
-  <input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя">
+
   <button id="mpCreate" class="primary menu-create" type="button"><span class="plus" aria-hidden="true">＋</span>Создать комнату <span class="button-arrow" aria-hidden="true">↗</span></button>
   <div class="menu-divider"><span>ИЛИ ПОДКЛЮЧИСЬ ПО КОДУ</span></div>
   <div class="menu-join-row"><input id="mpCode" maxlength="6" placeholder="Код комнаты" aria-label="Код комнаты"><button id="mpJoin" type="button">Войти</button></div>
@@ -298,6 +325,7 @@ main{max-width:1240px;padding:34px 34px 56px}
   <p id="mpMessage" class="menu-connection" aria-live="polite">Подключение к кооперативу…</p>
 </section>
 </div>
+<div class="player-name-card"><label for="mpName">ИМЯ ИГРОКА</label><div class="player-name-control"><input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"><button id="editPlayerName" type="button" aria-label="Изменить имя" title="Изменить имя">✎</button></div></div>
 <section class="menu-stats">
   <div class="menu-stats-heading"><div><h2>Статистика</h2><p>Твои результаты на этом устройстве</p></div><span class="stats-stamp">BANDITO</span></div>
   <div class="menu-stat-list"><div class="menu-stat"><span>Партии</span><b id="menuGames">0</b></div><div class="menu-stat"><span>Победы</span><b id="menuWins">0</b></div><div class="menu-stat"><span>Поражения</span><b id="menuLosses">0</b></div><div class="menu-stat"><span>Лучший результат</span><div><b id="menuBest">—</b><small>ходов</small></div></div></div>
