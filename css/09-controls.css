@@ -37,3 +37,12 @@ body.dark-theme button:disabled {
   color:#9298a0!important;
   border-color:#41464d!important;
 }
+body.dark-theme button.place-pin,
+body.dark-theme .place-pin {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}

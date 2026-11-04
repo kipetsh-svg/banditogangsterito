@@ -47,7 +47,4 @@ body.dark-theme .menu-stat b{color:#eceef0!important}
 body.dark-theme .mode-info small,body.dark-theme .mode-count,
 body.dark-theme .mode-arrow,body.dark-theme .mode-info small{color:#b1b6bd!important}
 body.dark-theme .menu-icon,body.dark-theme .brand-mark{color:#d5d9de!important}
-body.dark-theme .place-pin::before,body.dark-theme .place-pin.angle-0::before,
-body.dark-theme .place-pin.angle-1::before,body.dark-theme .place-pin.angle-2::before,
-body.dark-theme .place-pin.angle-3::before{background:#777f89!important}
 .mode-symbol svg{width:29px;height:29px;display:block}

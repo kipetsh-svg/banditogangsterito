@@ -53,10 +53,11 @@ body.dark-theme .player-name-control button:hover{background:#3b4046!important}
 body.dark-theme .settings-open{background:#22262bed!important;border-color:#50565e!important;color:#e5e7ea!important}
 body.dark-theme .settings-open:hover{background:#34383eF5!important}
 body.dark-theme .piece .pixel.wall{background:#737980!important;border-color:#737980!important}
-body.dark-theme .place-pin::before{background:#41464c!important;border-color:#d5d9de!important}
-body.dark-theme .place-pin.angle-1::before{background:#59616b!important}
-body.dark-theme .place-pin.angle-2::before{background:#686d75!important}
-body.dark-theme .place-pin.angle-3::before{background:#505761!important}
+body.dark-theme .place-pin::before,
+body.dark-theme .place-pin.angle-0::before{background:#78a870!important;border-color:#ffffff!important;box-shadow:0 1px 6px #000a}
+body.dark-theme .place-pin.angle-1::before{background:#64a2cb!important;border-color:#ffffff!important;box-shadow:0 1px 6px #000a}
+body.dark-theme .place-pin.angle-2::before{background:#d69658!important;border-color:#ffffff!important;box-shadow:0 1px 6px #000a}
+body.dark-theme .place-pin.angle-3::before{background:#a78ac9!important;border-color:#ffffff!important;box-shadow:0 1px 6px #000a}
 body.dark-theme .menu-stat{border-color:#45494f!important}
 body.dark-theme .menu-stat b{color:#e5e8ec!important}
 body.dark-theme .stats-link{background:#22262bed!important;border-color:#50565e!important;color:#e5e7ea!important}
