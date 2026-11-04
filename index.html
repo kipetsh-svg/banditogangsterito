@@ -402,6 +402,67 @@ main{position:relative;z-index:1;min-height:100svh}
 @media(prefers-reduced-motion:reduce){
  ::view-transition-old(bandito-multiplayer-panel),::view-transition-new(bandito-multiplayer-panel){animation:none}
 }
+</style>
+<style id="fixed-size-lobby-card">
+/* Lobby is a compact alternate state of the multiplayer card, not a second page. */
+.coop-card{min-width:0}
+.coop-card-content{view-transition-name:bandito-multiplayer-panel}
+#mpLobby{view-transition-name:bandito-multiplayer-panel;width:100%;max-width:none;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.lobby-head{align-items:center;gap:8px;margin:0 0 11px}
+.lobby-eyebrow{font-size:9px;margin-bottom:3px}
+.lobby-heading h2{font-size:20px}
+.lobby-heading p{display:none}
+.lobby-presence{max-width:130px;padding:5px 7px;font-size:10px}
+.lobby-code-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 8px;padding:9px 10px;border-radius:10px}
+.lobby-code-caption{grid-column:1/-1;font-size:9px}
+.lobby-code-content{display:contents}
+#mpRoomCode{font-size:24px;letter-spacing:.12em}
+#mpCopyCode{grid-column:2;grid-row:2;padding:7px 9px;font-size:10px}
+.lobby-code-hint{display:none}
+.lobby-section-head{margin:11px 0 6px}
+.lobby-section-head h3{font-size:12px}
+.lobby-section-head>span{font-size:10px}
+.lobby-players{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.lobby-player{min-height:42px;padding:6px 7px;gap:7px;border-radius:8px}
+.lobby-player-avatar{width:26px;height:26px;flex-basis:26px;border-radius:7px;font-size:11px}
+.lobby-player-name{font-size:11px}
+.lobby-badge{padding:2px 4px;font-size:8px}
+.lobby-player-state{font-size:9px}
+.lobby-settings{margin-top:9px;padding:8px 9px;gap:7px;border-radius:8px}
+.lobby-settings-copy strong{font-size:11px}
+.lobby-settings-copy span{display:none}
+.lobby-settings select{max-width:145px;padding:7px 8px;font-size:10px}
+.lobby-footer{align-items:center;gap:7px;margin-top:9px;padding-top:9px}
+#mpLobbyMessage{font-size:10px;line-height:1.25}
+.lobby-actions{gap:5px}
+.lobby-actions button{min-height:34px;padding:7px 9px;font-size:10px}
+.lobby-actions #mpStart{min-width:105px}
+::view-transition-old(bandito-multiplayer-panel){animation:bandito-panel-out .18s ease both}
+::view-transition-new(bandito-multiplayer-panel){animation:bandito-panel-in .26s cubic-bezier(.2,.75,.25,1) both}
+@media(max-width:760px){
+.lobby-head{flex-direction:row;align-items:center;margin-bottom:9px}
+.lobby-presence{max-width:115px}
+.lobby-shell{margin:0;padding:0}
+.lobby-players{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lobby-player{min-height:40px}
+.lobby-footer{flex-direction:row;align-items:center}
+.lobby-actions{width:auto}
+.lobby-actions button{flex:0 0 auto;min-height:36px}
+.lobby-actions #mpStart{min-width:100px}
+}
+@media(max-width:420px){
+.lobby-code-content{display:contents}
+#mpCopyCode{width:auto;min-height:32px}
+.lobby-settings{align-items:center;flex-direction:row}
+.lobby-settings select{width:auto;max-width:125px;min-height:34px}
+.lobby-section-head{margin-top:10px}
+.lobby-footer{align-items:center;flex-direction:row}
+.lobby-actions{width:auto}
+.lobby-actions button{flex:0 0 auto}
+}
+@media(prefers-reduced-motion:reduce){
+::view-transition-old(bandito-multiplayer-panel),::view-transition-new(bandito-multiplayer-panel){animation:none}
+}
 </style></head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
@@ -448,7 +509,7 @@ main{position:relative;z-index:1;min-height:100svh}
 <div class="lobby-code-content"><strong id="mpRoomCode"></strong><button id="mpCopyCode" type="button">Копировать код</button></div>
 <div class="lobby-code-hint">Отправь этот код друзьям, чтобы они вошли в комнату.</div>
 </div>
-<div class="lobby-section-head"><h3>Игроки</h3><span>До 4 участников</span></div>
+<div class="lobby-section-head"><h3>Игроки</h3><span>До 4 участников · свободно <span id="mpFreeSlots">3</span></span></div>
 <div id="mpPlayers" class="lobby-players" aria-live="polite"></div>
 <div class="lobby-settings">
 <div class="lobby-settings-copy"><strong>Сложность партии</strong><span>Количество выходов, которые нужно закрыть</span></div>
@@ -552,13 +613,20 @@ let mpAuth=null,mpDb=null,mpUid=null,mpRoomCode=null,mpRoomRef=null,mpRoomListen
 function mpMessage(t){const e=$('#mpMessage');if(e)e.textContent=t}
 function mpName(){return ($('#mpName').value.trim()||'Игрок').slice(0,18)}
 function mpCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
-/* Keep the lobby in the multiplayer card's exact grid position. */
-document.querySelector('.coop-card')?.after($('#mpLobby'));
+/* Keep both states inside one fixed multiplayer card. */
+const coopPanel=document.querySelector('.coop-card'),lobbyPanel=$('#mpLobby');
+let coopContent=null;
+if(coopPanel&&lobbyPanel){
+coopContent=document.createElement('div');
+coopContent.className='coop-card-content';
+while(coopPanel.firstChild)coopContent.append(coopPanel.firstChild);
+coopPanel.append(coopContent,lobbyPanel);
+}
 function mpSwapPanel(showLobby){
-const coop=document.querySelector('.coop-card'),lobby=$('#mpLobby');
-if(!coop||!lobby)return;
+const lobby=$('#mpLobby');
+if(!coopContent||!lobby)return;
 const apply=()=>{
-coop.classList.toggle('hidden',showLobby);
+coopContent.classList.toggle('hidden',showLobby);
 lobby.classList.toggle('hidden',!showLobby);
 };
 if(document.startViewTransition)document.startViewTransition(apply);
@@ -570,6 +638,7 @@ if($('#mpLobby').classList.contains('hidden'))mpSwapPanel(true);
 $('#mpRoomCode').textContent=mpRoomCode;
 const players=Object.entries(room.players||{}),online=players.filter(([,p])=>p.online!==false).length,list=$('#mpPlayers');
 $('#mpLobbyMeta').textContent=online+' в сети · '+players.length+'/4 игроков';
+const freeSlots=$('#mpFreeSlots');if(freeSlots)freeSlots.textContent=String(Math.max(0,4-players.length));
 list.replaceChildren();
 players.forEach(([id,p],index)=>{
 const row=document.createElement('div');row.className='lobby-player'+(p.online===false?' offline':'');
@@ -582,14 +651,7 @@ if(id===mpUid){const badge=document.createElement('span');badge.className='lobby
 const state=document.createElement('span');state.className='lobby-player-state';state.textContent=p.online===false?'Не в сети':'В сети';
 copy.append(name,badges);row.append(avatar,copy,state);list.append(row)
 });
-for(let slot=players.length;slot<4;slot++){
-const row=document.createElement('div');row.className='lobby-player lobby-player-empty';
-const avatar=document.createElement('span');avatar.className='lobby-player-avatar';avatar.textContent='+';
-const copy=document.createElement('span');copy.className='lobby-player-copy';
-const name=document.createElement('span');name.className='lobby-player-name';name.textContent='Свободное место';
-const state=document.createElement('span');state.className='lobby-player-state';state.textContent='Ожидаем игрока';
-copy.append(name,state);row.append(avatar,copy);list.append(row)
-}
+/* Show connected players only; free slots are summarized in the heading. */
 $('#mpStart').disabled=room.owner!==mpUid||players.length<1;
 $('#mpLobbyMessage').textContent=room.owner===mpUid?'Ты создатель комнаты. Отправь код друзьям и начинай, когда они подключатся.':'Ждём, пока создатель начнёт игру. Если связь прервётся, статус обновится автоматически.'
 }
