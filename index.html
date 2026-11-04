@@ -625,14 +625,18 @@ body.dark-theme .lobby-player-empty {
 </style>
 
 <style id="lobby-typography-fix">
-/* Keep waiting-room typography consistent with the graphite night palette. */
-body.dark-theme #mpLobby,
-body.dark-theme #mpLobby *{font-family:inherit}
+/* Use the same plain system sans-serif as the ОНЛАЙН eyebrow. */
+#mpLobby,
+#mpLobby *{
+  font-family:ui-sans-serif,system-ui,sans-serif!important;
+  font-style:normal!important;
+  text-shadow:none!important;
+}
 body.dark-theme #mpLobby{color:#c9c8bd}
 body.dark-theme #mpLobby .lobby-heading h2,
 body.dark-theme #mpLobby .lobby-section-head h3,
 body.dark-theme #mpLobby .lobby-player-name,
-body.dark-theme #mpLobby .lobby-settings-copy strong{color:#d8d6ca;font-weight:650}
+body.dark-theme #mpLobby .lobby-settings-copy strong{color:#d8d6ca;font-weight:600}
 body.dark-theme #mpLobby .lobby-eyebrow,
 body.dark-theme #mpLobby .lobby-presence,
 body.dark-theme #mpLobby .lobby-code-caption,
