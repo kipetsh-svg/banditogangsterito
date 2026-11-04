@@ -199,9 +199,8 @@ main{padding-left:8px;padding-right:8px}
 
 /* BANDITO — restrained Texas western lobby */
 :root{--bg:#f3eadb;--paper:#fffaf1;--ink:#39291f;--muted:#806b58;--line:#d9c6aa;--green:#53634c;--wall:#41443d}
-body{min-height:100vh;background:#f3eadb;color:var(--ink);font-family:ui-sans-serif,system-ui,sans-serif}
-body:before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 50% 4%,#fff8e9 0%,transparent 52%),linear-gradient(180deg,#f5ecdf 0%,#efe2ce 70%,#e8d8c0 100%)}
-body:after{content:"";position:fixed;left:0;right:0;bottom:0;height:18vh;z-index:-1;pointer-events:none;opacity:.36;background:#b68c68;clip-path:polygon(0 74%,12% 60%,24% 72%,35% 45%,47% 67%,60% 55%,72% 72%,84% 48%,100% 68%,100% 100%,0 100%)}
+body{min-height:100vh;background:#f3eadb url("bandito-background-clean.jpg") center center / cover fixed no-repeat;color:var(--ink);font-family:ui-sans-serif,system-ui,sans-serif}
+body:before,body:after{display:none}
 main{max-width:1240px;padding:34px 34px 56px}
 .menu-screen{max-width:1120px;margin:0 auto;padding:16px 0 30px}
 .brand-header{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;margin:0 auto 28px;text-align:center;width:100%;gap:0}
