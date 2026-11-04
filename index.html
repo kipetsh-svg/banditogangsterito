@@ -463,11 +463,38 @@ main{position:relative;z-index:1;min-height:100svh}
 @media(prefers-reduced-motion:reduce){
 ::view-transition-old(bandito-multiplayer-panel),::view-transition-new(bandito-multiplayer-panel){animation:none}
 }
+
+/* Readability and settings */
+body{zoom:1.12}
+.brand-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.settings-open{display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:11px 15px;border-radius:12px;background:var(--paper);font-size:15px;font-weight:650}
+.settings-backdrop{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:20px;background:#25251f66;backdrop-filter:blur(7px)}
+.settings-backdrop.hidden{display:none!important}
+.settings-dialog{width:min(460px,100%);padding:25px;border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 24px 80px #25251f30;animation:end-pop .22s ease both}
+.settings-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:27px}
+.settings-kicker{color:var(--muted);font-size:11px;font-weight:750;letter-spacing:.12em}
+.settings-head h2{margin:6px 0 0;font-size:30px;letter-spacing:-.05em}
+.settings-close{width:38px;height:38px;padding:0;border-radius:10px;font-size:25px;line-height:1}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.settings-row strong,.settings-toggle strong{font-size:16px}
+.settings-row p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.settings-row output{font-size:18px;font-weight:750;font-variant-numeric:tabular-nums}
+.settings-range{width:100%;margin:22px 0 7px;accent-color:var(--green)}
+.settings-range-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}
+.settings-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:26px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.settings-toggle span{display:flex;flex-direction:column;gap:4px}
+.settings-toggle small{color:var(--muted);font-size:12px}
+.settings-toggle input{width:20px;height:20px;accent-color:var(--green)}
+.settings-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px}
+.settings-footer span{color:var(--muted);font-size:11px}
+.settings-footer button{padding:9px 12px;font-size:13px}
+body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+@media(max-width:760px){.brand-header{align-items:flex-start}.settings-open{padding:9px 11px}.settings-open span{display:none}.settings-dialog{padding:20px;border-radius:16px}}
 </style></head><body><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
   <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
-  
+  <button id="openSettings" class="settings-open" type="button" aria-label="Настройки" title="Настройки">⚙ <span>Настройки</span></button>
 </header>
 <div class="menu-grid">
 <section class="menu-card solo-card">
@@ -519,8 +546,30 @@ main{position:relative;z-index:1;min-height:100svh}
 <p id="mpLobbyMessage" aria-live="polite">Ждём подключения игроков.</p>
 <div class="lobby-actions"><button id="mpLeave" type="button">Выйти</button><button id="mpStart" class="primary" type="button">Начать партию</button></div>
 </footer>
+<div id="settingsModal" class="settings-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <section class="settings-dialog">
+    <header class="settings-head"><div><div class="settings-kicker">BANDITO · ПЕРСОНАЛИЗАЦИЯ</div><h2 id="settingsTitle">Настройки</h2></div><button id="closeSettings" class="settings-close" type="button" aria-label="Закрыть">×</button></header>
+    <div class="settings-row"><div><strong>Размер интерфейса</strong><p>Увеличивает текст и элементы игры</p></div><output id="uiScaleValue">112%</output></div>
+    <input id="uiScale" class="settings-range" type="range" min="100" max="125" step="1" value="112" aria-label="Размер интерфейса">
+    <div class="settings-range-labels"><span>Компактнее</span><span>Крупнее</span></div>
+    <label class="settings-toggle"><span><strong>Уменьшить анимации</strong><small>Отключает лишние движения интерфейса</small></span><input id="reduceMotion" type="checkbox"></label>
+    <footer class="settings-footer"><span>Настройки сохраняются автоматически</span><button id="resetSettings" type="button">Сбросить</button></footer>
+  </section>
+</div>
 </section></section><section id="play" class="hidden"><div class="game-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="game-intro"><h2 id="heading"></h2><div class="muted">Выбери карту и нажми на точку нужного поворота.</div></div><button id="newgame">Новая партия</button></div><div class="layout"><div class="boardbox"><div id="camera" class="camera" aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."><div id="board" class="board"></div></div></div><aside class="side"><div class="side-metrics"><div class="stats"><span>В колоде</span><b id="deckcount">0</b></div><div class="stats"><span>Выходы</span><b id="openCount">0</b></div><div class="stats"><span>Ход</span><b id="turnCount">0</b></div><div class="stats"><span>Победы</span><b id="gameWins">0</b></div></div><div class="hand-section"><div class="side-label">Карты в руке</div><div class="hand" id="hand" aria-label="Карты в руке"></div></div><div class="side-actions"><div class="controls"><button id="exchange" type="button">Сбросить карты</button></div><div class="camera-tools"><button id="zoomOut" type="button" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button><button id="zoomReset" type="button" title="Сбросить масштаб">100%</button><button id="zoomIn" type="button" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button></div></div><div id="mpTimer" class="status" style="font-weight:700;display:none">⏱ До конца хода: 60 сек.</div><div id="status" class="status">Загрузка карт…</div><div class="hint">Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью или пальцем.</div></aside></div></section></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script>
-const $=s=>document.querySelector(s);let all=[],deck=[],hand=[],placed=[],selected=-1,rotation=0,finished=false,exits=6,turnCount=0,hoverSpot=null,lastPlaced=null,animateLastPlacement=false;const defaultStats={games:0,wins:0,losses:0,best:null};let playerStats={...defaultStats,...(()=>{try{return JSON.parse(localStorage.getItem('banditoStats')||localStorage.getItem('bandidoStats')||'{}')||{}}catch{return {}}})()};function saveStats(){localStorage.setItem('banditoStats',JSON.stringify(playerStats));updateStats()}function updateStats(){const set=(id,v)=>{const el=$('#'+id);if(el)el.textContent=v};set('menuGames',playerStats.games);set('menuWins',playerStats.wins);set('menuLosses',playerStats.losses);set('menuBest',playerStats.best??'—');set('gameWins',playerStats.wins);set('turnCount',turnCount)}function finishGame(won){if(finished)return;finished=true;playerStats.games++;if(won){playerStats.wins++;if(playerStats.best===null||turnCount<playerStats.best)playerStats.best=turnCount}else playerStats.losses++;saveStats()}const clone=m=>m.map(r=>r.slice());function rot(m){let h=m.length,w=m[0].length,o=Array.from({length:w},()=>Array(h));for(let y=0;y<h;y++)for(let x=0;x<w;x++)o[x][h-1-y]=m[y][x];return o}function dims(m){return[m[0].length,m.length]}function edges(m){return{top:m[0],bottom:m[m.length-1],left:m.map(r=>r[0]),right:m.map(r=>r[r.length-1])}}function at(x,y){return placed.find(p=>p.x===x&&p.y===y)}
+const $=s=>document.querySelector(s);
+const settingsDefaults={scale:112,reduceMotion:false};
+function applySettings(){
+let saved={};try{saved=JSON.parse(localStorage.getItem('banditoSettings')||'{}')||{}}catch{}
+const cfg={...settingsDefaults,...saved};
+document.body.style.zoom=(cfg.scale/100).toString();
+document.body.classList.toggle('reduce-motion',!!cfg.reduceMotion);
+const slider=$('#uiScale'),value=$('#uiScaleValue'),motion=$('#reduceMotion');
+if(slider)slider.value=cfg.scale;if(value)value.textContent=cfg.scale+'%';if(motion)motion.checked=!!cfg.reduceMotion;
+}
+function saveSettings(){const cfg={scale:Number($('#uiScale').value),reduceMotion:$('#reduceMotion').checked};localStorage.setItem('banditoSettings',JSON.stringify(cfg));applySettings()}
+applySettings();
+let all=[],deck=[],hand=[],placed=[],selected=-1,rotation=0,finished=false,exits=6,turnCount=0,hoverSpot=null,lastPlaced=null,animateLastPlacement=false;const defaultStats={games:0,wins:0,losses:0,best:null};let playerStats={...defaultStats,...(()=>{try{return JSON.parse(localStorage.getItem('banditoStats')||localStorage.getItem('bandidoStats')||'{}')||{}}catch{return {}}})()};function saveStats(){localStorage.setItem('banditoStats',JSON.stringify(playerStats));updateStats()}function updateStats(){const set=(id,v)=>{const el=$('#'+id);if(el)el.textContent=v};set('menuGames',playerStats.games);set('menuWins',playerStats.wins);set('menuLosses',playerStats.losses);set('menuBest',playerStats.best??'—');set('gameWins',playerStats.wins);set('turnCount',turnCount)}function finishGame(won){if(finished)return;finished=true;playerStats.games++;if(won){playerStats.wins++;if(playerStats.best===null||turnCount<playerStats.best)playerStats.best=turnCount}else playerStats.losses++;saveStats()}const clone=m=>m.map(r=>r.slice());function rot(m){let h=m.length,w=m[0].length,o=Array.from({length:w},()=>Array(h));for(let y=0;y<h;y++)for(let x=0;x<w;x++)o[x][h-1-y]=m[y][x];return o}function dims(m){return[m[0].length,m.length]}function edges(m){return{top:m[0],bottom:m[m.length-1],left:m.map(r=>r[0]),right:m.map(r=>r[r.length-1])}}function at(x,y){return placed.find(p=>p.x===x&&p.y===y)}
 let boardIndex=null,indexedBoard=null,indexedBoardLength=-1;
 function ensureBoardIndex(){
 if(boardIndex&&indexedBoard===placed&&indexedBoardLength===placed.length)return boardIndex;
@@ -608,6 +657,14 @@ function showEndScreen(won){if(document.querySelector('.end-screen'))return;cons
 function celebrate(){const layer=document.createElement('div');layer.className='confetti-layer';layer.setAttribute('aria-hidden','true');for(const cls of ['confetti-ring','confetti-ring second']){const ring=document.createElement('i');ring.className=cls;layer.append(ring)}const colors=['#e6b85c','#718568','#d98272','#8b83b7','#6b9caf','#e8d9a8','#f08a5d'];for(let burst=0;burst<3;burst++){const group=document.createElement('div');group.className='confetti-burst';group.style.transform='translate('+((burst-1)*2)+'px,'+((burst-1)*-9)+'px)';for(let i=0;i<85;i++){const bit=document.createElement('i'),angle=Math.random()*Math.PI*2,speed=100+Math.random()*260;bit.className='confetti-bit'+(i%5===0?' circle':i%7===0?' ribbon':'');bit.style.background=colors[Math.floor(Math.random()*colors.length)];bit.style.setProperty('--dx',(Math.cos(angle)*speed)+'px');bit.style.setProperty('--dy',(Math.sin(angle)*speed)+'px');bit.style.setProperty('--duration',(0.65+Math.random()*0.45)+'s');bit.style.setProperty('--delay',(burst*.18+Math.random()*.12)+'s');bit.style.setProperty('--turn',(Math.random()*1100-550)+'deg');group.append(bit)}layer.append(group)}document.body.append(layer);setTimeout(()=>layer.remove(),1800)}
 function play(x,y,m){if(mpRoomCode){mpPlay(x,y,m);return}if(finished||selected<0||!valid(m,x,y))return;let card=hand.splice(selected,1)[0];const newPiece={id:card.id,x,y,m};placed.push(newPiece);lastPlaced=newPiece;animateLastPlacement=true;turnCount++;selected=-1;rotation=0;draw();let n=opens();if(n===0){finishGame(true);status('Победа! Все туннели закрыты.','win');showEndScreen(true);celebrate()}else if(!deck.length&&!hand.length){finishGame(false);status('Поражение. Карты закончились, выходы остались.','lose');showEndScreen(false)}else status('Карта размещена.');render()}$('#exchange').onclick=()=>{if(mpRoomCode){mpExchange();return}if(finished||!hand.length)return;const count=hand.length;hand.forEach(c=>deck.unshift(c));hand=[];draw();selected=-1;rotation=0;hoverSpot=null;status('Тестовый сброс: '+count+' карт возвращены под низ колоды, взяты новые.');render()};$('#newgame').onclick=()=>{if(mpRoomCode){leaveMultiplayer();return}$('#play').classList.add('hidden');$('#menu').classList.remove('hidden')};document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(+b.dataset.start));updateStats();fetch('./resources/bandido-matrices/cards.json').then(r=>{if(!r.ok)throw Error('Ошибка загрузки колоды');return r.json()}).then(d=>{all=d.cards.filter(c=>c.matrix);document.querySelectorAll('[data-start]').forEach(b=>b.disabled=false);$('#loadstate').textContent='Колода загружена. Можно начинать.'}).catch(e=>{$('#loadstate').textContent='Не удалось загрузить колоду: '+e.message+'. Обнови страницу.';document.querySelectorAll('[data-start]').forEach(b=>b.disabled=true)});
 
+$('#openSettings').onclick=()=>$('#settingsModal').classList.remove('hidden');
+$('#closeSettings').onclick=()=>$('#settingsModal').classList.add('hidden');
+$('#settingsModal').addEventListener('click',e=>{if(e.target.id==='settingsModal')$('#settingsModal').classList.add('hidden')});
+$('#uiScale').addEventListener('input',()=>{const v=Number($('#uiScale').value);document.body.style.zoom=(v/100).toString();$('#uiScaleValue').textContent=v+'%'});
+$('#uiScale').addEventListener('change',saveSettings);
+$('#reduceMotion').addEventListener('change',saveSettings);
+$('#resetSettings').onclick=()=>{localStorage.removeItem('banditoSettings');applySettings()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#settingsModal').classList.add('hidden')});
 const firebaseConfig={apiKey:"AIzaSyDCBEArE3TebFxTiaK-6Q7DxWf8GloOuUg",authDomain:"bandito-83823.firebaseapp.com",databaseURL:"https://bandito-83823-default-rtdb.firebaseio.com/",projectId:"bandito-83823",storageBucket:"bandito-83823.firebasestorage.app",messagingSenderId:"434862103332",appId:"1:434862103332:web:f470c708e8d88a4f69b1b1",measurementId:"G-TTN8Z732BH"};
 let mpAuth=null,mpDb=null,mpUid=null,mpRoomCode=null,mpRoomRef=null,mpRoomListener=null,mpRoomData=null,mpBusy=false,mpCelebrated=false,mpTimerInterval=null,mpPresenceRef=null,mpPresenceHandler=null;
 function mpMessage(t){const e=$('#mpMessage');if(e)e.textContent=t}
