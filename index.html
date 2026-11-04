@@ -587,9 +587,9 @@ body.dark-theme .lobby-player-state{color:#b3bac2!important}
 <section class="menu-card solo-card">
   <div class="menu-card-heading"><span class="menu-icon solo-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4 30 9 38 9 39 17 44 24 39 31 38 39 30 39 24 44 18 39 10 39 9 31 4 24 9 17 10 9 18 9Z" fill="currentColor"/><path d="m24 13 3.4 7 7.6 1.1-5.5 5.4 1.3 7.6-6.8-3.6-6.8 3.6 1.3-7.6-5.5-5.4 7.6-1.1Z" fill="#f5dfc5"/></svg></span><div><h2>Одиночная игра</h2><p>Выбери количество выходов</p></div></div>
   <div class="mode-list">
-    <button class="mode-option" data-start="2" disabled type="button"><span class="mode-symbol" aria-hidden="true">02</span><span class="mode-info"><strong>2 выхода</strong><small>Лёгкая партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
-    <button class="mode-option" data-start="5" disabled type="button"><span class="mode-symbol" aria-hidden="true">05</span><span class="mode-info"><strong>5 выходов</strong><small>Стандартная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
-    <button class="mode-option" data-start="6" disabled type="button"><span class="mode-symbol" aria-hidden="true">06</span><span class="mode-info"><strong>6 выходов</strong><small>Сложная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
+    <button class="mode-option" data-start="2" disabled type="button"><span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="5" width="16" height="21" rx="3" transform="rotate(-8 7 5)" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="7" width="15" height="21" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M16 13h5M16 17h5M16 21h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m19 10 1.5 1.5L22 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="mode-info"><strong>2 выхода</strong><small>Лёгкая партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
+    <button class="mode-option" data-start="5" disabled type="button"><span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="5" width="16" height="21" rx="3" transform="rotate(-8 7 5)" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="7" width="15" height="21" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M16 13h5M16 17h5M16 21h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m19 10 1.5 1.5L22 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="mode-info"><strong>5 выходов</strong><small>Стандартная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
+    <button class="mode-option" data-start="6" disabled type="button"><span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="5" width="16" height="21" rx="3" transform="rotate(-8 7 5)" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="7" width="15" height="21" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M16 13h5M16 17h5M16 21h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m19 10 1.5 1.5L22 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="mode-info"><strong>6 выходов</strong><small>Сложная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
   </div>
   <p id="loadstate" class="menu-loadstate">Загружаю колоду…</p>
 </section>
@@ -927,4 +927,57 @@ field.remove()
 }
 };
 try{firebase.initializeApp(firebaseConfig);mpAuth=firebase.auth();mpDb=firebase.database();mpAuth.onAuthStateChanged(u=>{if(u){mpUid=u.uid;mpMessage('Кооператив готов. Создай комнату или введи код.')}else mpMessage('Войди анонимно, чтобы играть онлайн.')})}catch(e){mpMessage('Firebase не загрузился: '+e.message)}
-</script></body></html>
+</script><style id="bandito-final-graphite-overrides">
+/* Final neutral graphite overrides for every night-theme control */
+body.dark-theme{
+ --bg:#17191c!important;--paper:#24272b!important;--ink:#eceef0!important;
+ --muted:#a7abb1!important;--line:#41464d!important;--green:#353a40!important;
+ --wall:#747b84!important;background:var(--bg)!important;color:var(--ink)!important
+}
+body.dark-theme .panel,body.dark-theme .boardbox,body.dark-theme .side,
+body.dark-theme .coop-card,body.dark-theme .menu-stats,body.dark-theme .player-name-card,
+body.dark-theme .lobby-shell,body.dark-theme .settings-dialog,
+body.dark-theme .menu-card,body.dark-theme .menu-stat{
+ background:#24272b!important;color:#eceef0!important;border-color:#41464d!important
+}
+body.dark-theme button,body.dark-theme input,body.dark-theme select,
+body.dark-theme textarea,body.dark-theme .handcard{
+ background:#2b2f34!important;color:#eceef0!important;border-color:#484e56!important
+}
+body.dark-theme button.primary,body.dark-theme .menu-create,
+body.dark-theme .menu-join-row button,body.dark-theme .player-name-control button,
+body.dark-theme .lobby-actions button.primary{
+ background:#353a40!important;color:#f1f2f4!important;border-color:#555c65!important
+}
+body.dark-theme button.primary:hover,body.dark-theme .menu-create:hover,
+body.dark-theme .menu-join-row button:hover,body.dark-theme .player-name-control button:hover{
+ background:#444a52!important;border-color:#69717b!important
+}
+body.dark-theme .mode-option,body.dark-theme .mode-option:hover:not(:disabled),
+body.dark-theme .mode-option.selected,body.dark-theme .mode-option[aria-pressed="true"]{
+ background:#2b2f34!important;color:#eceef0!important;border-color:#4a5058!important
+}
+body.dark-theme .mode-option.selected,body.dark-theme .mode-option[aria-pressed="true"]{
+ background:#3a4047!important;border-color:#747c86!important
+}
+body.dark-theme .mode-symbol{background:#30353b!important;color:#e2e5e9!important;border-color:#555c65!important}
+body.dark-theme .settings-open,body.dark-theme .stats-link{
+ background:#292d32ed!important;color:#e5e8ec!important;border-color:#4b5159!important
+}
+body.dark-theme .settings-open:hover,body.dark-theme .stats-link:hover{background:#383e45f5!important}
+body.dark-theme .piece{background:#292d32!important;outline-color:#aeb4bc!important}
+body.dark-theme .piece .pixel{background:#30353b!important;border-color:#454b53!important}
+body.dark-theme .piece .pixel.wall{background:#747b84!important;border-color:#747b84!important}
+body.dark-theme #mpName,body.dark-theme #mpCode,body.dark-theme .player-name-control input{
+ background:#202328!important;border-color:#484e56!important;color:#eceef0!important
+}
+body.dark-theme .mode-info strong,body.dark-theme .menu-stats-heading h2,
+body.dark-theme .menu-stat b{color:#eceef0!important}
+body.dark-theme .mode-info small,body.dark-theme .mode-count,
+body.dark-theme .mode-arrow,body.dark-theme .mode-info small{color:#b1b6bd!important}
+body.dark-theme .menu-icon,body.dark-theme .brand-mark{color:#d5d9de!important}
+body.dark-theme .place-pin::before,body.dark-theme .place-pin.angle-0::before,
+body.dark-theme .place-pin.angle-1::before,body.dark-theme .place-pin.angle-2::before,
+body.dark-theme .place-pin.angle-3::before{background:#777f89!important}
+.mode-symbol svg{width:29px;height:29px;display:block}
+</style></body></html>
