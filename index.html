@@ -577,7 +577,53 @@ body.dark-theme .menu-stat{border-color:#45494f!important}
 body.dark-theme .menu-stat b{color:#e5e8ec!important}
 body.dark-theme .stats-link{background:#22262bed!important;border-color:#50565e!important;color:#e5e7ea!important}
 body.dark-theme .lobby-player-state{color:#b3bac2!important}
-</style></head><body><div id="themeShade" class="theme-shade" aria-hidden="true"></div><div id="celestialScene" class="celestial-scene" aria-hidden="true"><span class="celestial-sun">☀</span><span class="celestial-moon">☾</span></div><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
+</style><style id="bandito-night-lobby-surfaces">
+/* Match player cards and party difficulty controls to the graphite night palette */
+body.dark-theme .lobby-player,
+body.dark-theme .lobby-player.offline,
+body.dark-theme .lobby-settings,
+body.dark-theme .lobby-code-card {
+  background:#292d32!important;
+  color:#eceef0!important;
+  border-color:#454b53!important;
+  box-shadow:none!important;
+}
+body.dark-theme .lobby-player-avatar,
+body.dark-theme .lobby-player.offline .lobby-player-avatar,
+body.dark-theme .lobby-badge {
+  background:#383e45!important;
+  color:#e2e5e9!important;
+  border-color:#555c65!important;
+}
+body.dark-theme .lobby-player-name,
+body.dark-theme .lobby-settings-copy strong,
+body.dark-theme .lobby-section-head h3 {
+  color:#eceef0!important;
+}
+body.dark-theme .lobby-player-state,
+body.dark-theme .lobby-player.offline .lobby-player-state,
+body.dark-theme .lobby-section-head>span,
+body.dark-theme .lobby-settings-copy span {
+  color:#aeb4bc!important;
+}
+body.dark-theme .lobby-settings select,
+body.dark-theme #mpExits {
+  background-color:#34383e!important;
+  background-image:none!important;
+  color:#eef0f2!important;
+  border-color:#555c65!important;
+  color-scheme:dark;
+}
+body.dark-theme #mpExits option {
+  background:#292d32!important;
+  color:#eef0f2!important;
+}
+body.dark-theme .lobby-player-empty {
+  background:transparent!important;
+  border-color:#555c65!important;
+}
+</style>
+</head><body><div id="themeShade" class="theme-shade" aria-hidden="true"></div><div id="celestialScene" class="celestial-scene" aria-hidden="true"><span class="celestial-sun">☀</span><span class="celestial-moon">☾</span></div><img class="bandito-corner-art bandito-corner-left" src="bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="bandito-logo.png" alt="BANDITO">
   <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
