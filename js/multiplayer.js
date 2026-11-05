@@ -27,16 +27,28 @@ function mpMessage(t) {
     if (e) e.textContent = t;
 }
 function mpName() {
-    return (localStorage.getItem('banditoPlayerName') || 'Игрок').trim().slice(0, 18) || 'Игрок';
+    return (localStorage.getItem('banditoPlayerName') || '').trim().slice(0, 18);
+}
+function mpEnsureName() {
+    const input = $('#mpName');
+    const value = (input?.value || '').trim().slice(0, 18);
+    if (!value) {
+        input?.focus();
+        snackbar('Сначала введи имя — так друзья узнают тебя в комнате', 'error');
+        return false;
+    }
+    localStorage.setItem('banditoPlayerName', value);
+    if (input) input.value = value;
+    return true;
 }
 function mpCode() {
     return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 const lobbyNameInput = $('#mpName');
 if (lobbyNameInput) {
-    lobbyNameInput.value = mpName() === 'Игрок' ? '' : mpName();
+    lobbyNameInput.value = mpName();
     lobbyNameInput.addEventListener('change', async () => {
-        const value = (lobbyNameInput.value.trim() || 'Игрок').slice(0, 18);
+        const value = lobbyNameInput.value.trim().slice(0, 18);
         lobbyNameInput.value = value;
         localStorage.setItem('banditoPlayerName', value);
         if (mpRoomRef && mpUid) {
@@ -78,7 +90,8 @@ function mpShowLobby(room) {
     const players = Object.entries(room.players || {}),
         online = players.filter(([, p]) => p.online !== false).length,
         list = $('#mpPlayers');
-    $('#mpLobbyMeta').textContent = online + ' в сети · ' + players.length + '/4 игроков';
+    const playerCount = $('#mpPlayerCount');
+    if (playerCount) playerCount.textContent = 'Игроки · ' + online + ' из 4 в сети';
     const freeSlots = $('#mpFreeSlots');
     if (freeSlots) freeSlots.textContent = String(Math.max(0, 4 - players.length));
     list.replaceChildren();
@@ -119,12 +132,24 @@ function mpShowLobby(room) {
         row.append(avatar, copy);
         list.append(row);
     });
-    /* Show connected players only; free slots are summarized in the heading. */
-    $('#mpStart').disabled = room.owner !== mpUid || players.length < 1;
+    for (let i = players.length; i < 4; i++) {
+        const slot = document.createElement('button');
+        slot.className = 'lobby__player lobby__player--empty';
+        slot.type = 'button';
+        slot.innerHTML = '<span class="avatar avatar--empty">＋</span><span class="item__title">Пригласить игрока</span>';
+        slot.addEventListener('click', () => $('#mpInvite').click());
+        list.append(slot);
+    }
+    const startButton = $('#mpStart');
+    startButton.disabled = room.owner !== mpUid;
+    startButton.textContent = players.length < 2 ? 'Начать одному' : 'Начать партию (' + players.length + ' игрока)';
+    startButton.classList.toggle('btn--primary', players.length >= 2);
     $('#mpLobbyMessage').textContent =
         room.owner === mpUid
-            ? 'Ты создатель комнаты. Отправь код друзьям и начинай, когда они подключатся.'
-            : 'Ждём, пока создатель начнёт игру. Если связь прервётся, статус обновится автоматически.';
+            ? players.length < 2
+                ? 'Можно начать одному или пригласить друзей.'
+                : 'Все готовы? Начинай партию.'
+            : 'Ждём, пока создатель начнёт игру.';
 }
 function mpAttach(code) {
     mpRoomCode = code;
@@ -290,7 +315,7 @@ async function mpEnsureAuth() {
     }
 }
 async function mpCreate() {
-    if (mpBusy) return;
+    if (mpBusy || !mpEnsureName()) return;
     mpBusy = true;
     mpMessage('Создаю комнату…');
     try {
@@ -312,10 +337,11 @@ async function mpCreate() {
     }
 }
 async function mpJoin() {
-    if (mpBusy) return;
-    const code = $('#mpCode').value.trim().toUpperCase();
+    if (mpBusy || !mpEnsureName()) return;
+    const code = $('#mpCode').value.replace(/\s+/g, '').toUpperCase();
+    $('#mpCode').value = code;
     if (!/^[A-Z0-9]{6}$/.test(code)) {
-        snackbar('Введи шестизначный код комнаты, например 779742', 'error');
+        snackbar('Код должен состоять из 6 латинских букв и цифр, например K3F9QX', 'error');
         return;
     }
     mpBusy = true;
@@ -563,8 +589,39 @@ async function leaveMultiplayer(showMenu = true) {
 }
 $('#mpCreate').onclick = mpCreate;
 $('#mpJoin').onclick = mpJoin;
+$('#mpCode').addEventListener('input', () => {
+    const input = $('#mpCode');
+    input.value = input.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6);
+    $('#mpJoin').disabled = input.value.length !== 6;
+});
+$('#mpCode').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && $('#mpCode').value.length === 6) mpJoin();
+});
 $('#mpStart').onclick = mpStart;
-$('#mpLeave').onclick = () => leaveMultiplayer();
+$('#mpLeave').onclick = () => {
+    if (confirm('Выйти из комнаты? Если ты создатель, права перейдут другому игроку.')) leaveMultiplayer();
+};
+async function mpInvite() {
+    if (!mpRoomCode) return;
+    const url = location.origin + location.pathname + '#' + mpRoomCode;
+    try {
+        if (navigator.share) await navigator.share({ title: 'Комната Bandito', text: 'Присоединяйся к моей партии!', url });
+        else {
+            await navigator.clipboard.writeText(url);
+            snackbar('Ссылка-приглашение скопирована');
+        }
+    } catch (e) {
+        if (e.name !== 'AbortError') {
+            try {
+                await navigator.clipboard.writeText(url);
+                snackbar('Ссылка-приглашение скопирована');
+            } catch {
+                snackbar('Не удалось скопировать ссылку', 'error');
+            }
+        }
+    }
+}
+$('#mpInvite').onclick = mpInvite;
 $('#mpCopyCode').onclick = async () => {
     if (!mpRoomCode) return;
     try {
@@ -594,6 +651,11 @@ try {
         if (u) {
             mpUid = u.uid;
             mpMessage(mpReadyMessage);
+            const invite = location.hash.slice(1).toUpperCase();
+            if (/^[A-Z0-9]{6}$/.test(invite) && !mpRoomCode) {
+                $('#mpCode').value = invite;
+                if (confirm('Войти в комнату ' + invite + '?')) mpJoin();
+            }
         } else mpMessage('Войди анонимно, чтобы играть онлайн.');
     });
 } catch (e) {
