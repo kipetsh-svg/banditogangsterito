@@ -137,9 +137,8 @@
                                 ></span>
                                 <span class="mode-option__info">
                                     <strong class="mode-option__title">2 выхода</strong>
-                                    <small class="mode-option__hint">Лёгкая партия</small>
+                                    <small class="mode-option__hint">▶ Играть · легко</small>
                                 </span>
-                                <span class="mode-option__check" aria-hidden="true">✓</span>
                             </button>
                             <button class="mode-option" data-start="5" type="button" disabled>
                                 <span class="mode-option__symbol" aria-hidden="true"
@@ -164,9 +163,8 @@
                                 ></span>
                                 <span class="mode-option__info">
                                     <strong class="mode-option__title">5 выходов</strong>
-                                    <small class="mode-option__hint">Стандартная партия</small>
+                                    <small class="mode-option__hint">▶ Играть · стандартно</small>
                                 </span>
-                                <span class="mode-option__check" aria-hidden="true">✓</span>
                             </button>
                             <button class="mode-option" data-start="6" type="button" disabled>
                                 <span class="mode-option__symbol" aria-hidden="true"
@@ -192,9 +190,8 @@
                                 ></span>
                                 <span class="mode-option__info">
                                     <strong class="mode-option__title">6 выходов</strong>
-                                    <small class="mode-option__hint">Сложная партия</small>
+                                    <small class="mode-option__hint">▶ Играть · сложно</small>
                                 </span>
-                                <span class="mode-option__check" aria-hidden="true">✓</span>
                             </button>
                         </div>
                         <p id="loadstate" class="note menu__status">Загружаю колоду…</p>
@@ -318,9 +315,8 @@
                     <aside class="card game__side">
                         <div class="game__metrics">
                             <div class="stat"><span>В колоде</span><b id="deckcount" class="stat__value">0</b></div>
-                            <div class="stat"><span>Выходы</span><b id="openCount" class="stat__value">0</b></div>
+                            <div class="stat"><span>Открытые пути</span><b id="openCount" class="stat__value">0</b></div>
                             <div class="stat"><span>Ход</span><b id="turnCount" class="stat__value">0</b></div>
-                            <div class="stat"><span>Победы</span><b id="gameWins" class="stat__value">0</b></div>
                         </div>
                         <div class="game__hand-section">
                             <div class="caption">Карты в руке</div>
@@ -361,6 +357,12 @@
                         </div>
                         <div id="mpTimer" class="notice notice--strong hidden">⏱ До конца хода: 60 сек.</div>
                         <div id="status" class="notice">Загрузка карт…</div>
+                        <div class="game__rotation-legend" aria-label="Цвета точек обозначают поворот карты">
+                            <span><i class="rotation-dot rotation-dot--0"></i> 0°</span>
+                            <span><i class="rotation-dot rotation-dot--1"></i> 90°</span>
+                            <span><i class="rotation-dot rotation-dot--2"></i> 180°</span>
+                            <span><i class="rotation-dot rotation-dot--3"></i> 270°</span>
+                        </div>
                     </aside>
                 </div>
             </section>
