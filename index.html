@@ -229,14 +229,14 @@
                                 id="mpCode"
                                 class="input input--lg input--code"
                                 maxlength="6"
-                                placeholder="Код комнаты"
-                                aria-label="Код комнаты"
+                                placeholder="Код · 6 символов"
+                                aria-label="Код комнаты" autocomplete="off" autocapitalize="characters"
                             />
                             <button id="mpJoin" class="btn btn--lg btn--soft coop__join-button" type="button">
                                 Войти
                             </button>
                         </div>
-                        <p class="note coop__note">До 4 игроков · одно общее поле</p>
+                        <p class="note coop__note">Код — 6 латинских букв и цифр · до 4 игроков</p>
                         <p id="mpMessage" class="note coop__connection" aria-live="polite">
                             Подключение к кооперативу…
                         </p>
@@ -319,7 +319,7 @@
                             <div class="stat"><span>Ход</span><b id="turnCount" class="stat__value">0</b></div>
                         </div>
                         <div class="game__hand-section">
-                            <div class="caption">Карты в руке</div>
+                            <div class="caption">Карты в руке · клавиши 1–3</div>
                             <div id="hand" class="game__hand" aria-label="Карты в руке"></div>
                         </div>
                         <div class="game__actions">
@@ -379,10 +379,10 @@
                     <button id="closeHowToPlay" class="btn btn--icon" type="button" aria-label="Закрыть">×</button>
                 </header>
                 <ol class="howto__steps">
-                    <li><strong>Найди выходы.</strong> На стартовой карте отмечены открытые концы тоннелей — их нужно закрыть.</li>
+                    <li><strong>Найди открытые тоннели.</strong> Они отмечены на стартовой карте. Цель — перекрыть каждый из них.</li>
                     <li><strong>Выбери карту.</strong> Карты в руке показывают форму тоннеля, который можно добавить к полю.</li>
                     <li><strong>Выбери точку и поворот.</strong> Цветные точки показывают допустимые места и повороты карты. Наведи курсор, чтобы увидеть превью.</li>
-                    <li><strong>Победи.</strong> Соедини тоннели так, чтобы не осталось открытых выходов. Если колода и карты закончились раньше — партия проиграна.</li>
+                    <li><strong>Победи.</strong> Перекрой все выходы тупиками или замкни тоннельные пути. Если колода закончилась, а открытые проходы остались, победил Бандито.</li>
                 </ol>
                 <footer class="modal__footer">
                     <span class="note note--sm">Подсказки по цветам точек доступны на поле.</span>
