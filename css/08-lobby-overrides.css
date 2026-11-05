@@ -1,9 +1,30 @@
-/* Original style block 17 */
-.coop-card .player-name-card{width:100%;max-width:none;margin:0 0 14px;padding:11px 14px}.coop-card .player-name-card>label{margin-bottom:6px}.coop-card .player-name-control input{min-width:0}
+/* Responsive lobby adjustments and alignment */
 
-/* Original style block 18 */
-.lobby-name-card{width:100%;max-width:none;margin:0 0 12px;padding:11px 14px;background:var(--paper);border-color:var(--line);box-shadow:none}
-.lobby-name-card>label{color:var(--muted)}
-.lobby-name-card .player-name-control input{width:100%;min-width:0;background:var(--bg);color:var(--ink);border-color:var(--line)}
-body.dark-theme .lobby-code-card{background:#252a25!important;border-color:#485044!important}
-body.dark-theme #mpRoomCode{color:#f1f0e8!important;background:transparent!important}
+@media (max-width: 560px) {
+  .lobby-head {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lobby-presence {
+    align-self: flex-start;
+  }
+
+  .lobby-players {
+    grid-template-columns: 1fr;
+  }
+
+  .lobby-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .lobby-actions {
+    width: 100%;
+  }
+
+  .lobby-actions button {
+    flex: 1;
+  }
+}

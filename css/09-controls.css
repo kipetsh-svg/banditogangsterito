@@ -1,48 +1,72 @@
-/* Original style block 19 */
-/* One consistent graphite button style in the night theme */
-body.dark-theme button,
-body.dark-theme button.primary,
-body.dark-theme .menu-create,
-body.dark-theme .menu-join-row button,
-body.dark-theme .player-name-control button,
-body.dark-theme .lobby-actions button,
-body.dark-theme .controls button,
-body.dark-theme .camera-tools button,
-body.dark-theme .end-actions button,
-body.dark-theme .settings-footer button,
-body.dark-theme .rematch-choice button {
-  background-color:#34383e!important;
-  background-image:none!important;
-  color:#eef0f2!important;
-  border-color:#555c65!important;
-  box-shadow:none!important;
+/* Game controls, camera tools and in-game buttons */
+
+.game-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
-body.dark-theme button:hover:not(:disabled),
-body.dark-theme button.primary:hover:not(:disabled),
-body.dark-theme .menu-create:hover:not(:disabled),
-body.dark-theme .menu-join-row button:hover:not(:disabled),
-body.dark-theme .player-name-control button:hover:not(:disabled),
-body.dark-theme .lobby-actions button:hover:not(:disabled),
-body.dark-theme .controls button:hover:not(:disabled),
-body.dark-theme .camera-tools button:hover:not(:disabled),
-body.dark-theme .end-actions button:hover:not(:disabled),
-body.dark-theme .settings-footer button:hover:not(:disabled),
-body.dark-theme .rematch-choice button:hover:not(:disabled) {
-  background-color:#454a51!important;
-  color:#ffffff!important;
-  border-color:#707780!important;
+
+.game-heading {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: normal;
 }
-body.dark-theme button:disabled {
-  background-color:#292d32!important;
-  color:#9298a0!important;
-  border-color:#41464d!important;
+
+.game-new-btn {
+  padding: 10px 18px;
+  font-size: 16px;
+  border-radius: 12px;
 }
-body.dark-theme button.place-pin,
-body.dark-theme .place-pin {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: 0 !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+
+.side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.side-exchange-btn {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+.camera-tools {
+  display: flex;
+  gap: 6px;
+}
+
+.zoom-btn,
+.zoom-reset-btn {
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  cursor: pointer;
+}
+
+.zoom-reset-btn {
+  min-width: 56px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.timer-status {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.side-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 700;
 }

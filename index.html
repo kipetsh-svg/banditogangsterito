@@ -1,15 +1,8 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bandito — карточная игра</title>
-
-
-
-
-
-
-
-
-
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/01-base.css">
   <link rel="stylesheet" href="css/02-menu.css">
   <link rel="stylesheet" href="css/03-components.css">
@@ -23,7 +16,7 @@
 </head><body><div id="themeShade" class="theme-shade" aria-hidden="true"></div><div id="celestialScene" class="celestial-scene" aria-hidden="true"><span class="celestial-sun">☀</span><span class="celestial-moon">☾</span></div><img class="bandito-corner-art bandito-corner-left" src="assets/images/bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="assets/images/bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
 <header class="brand-header">
   <img class="brand-logo" src="assets/images/bandito-logo.png" alt="BANDITO">
-  <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
+  <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели, закрой все выходы</p></div>
   <button id="openSettings" class="settings-open" type="button" aria-label="Настройки" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.1.9-1.4 2.4-1.4-.5a7.9 7.9 0 0 1-1.5.9l-.2 1.5h-2.8l-.3-1.5a7.9 7.9 0 0 1-1.6-.9l-1.4.5-1.4-2.4 1.1-.9a7.2 7.2 0 0 1 0-1.8l-1.1-.9 1.4-2.4 1.4.5a7.9 7.9 0 0 1 1.6-.9l.3-1.5h2.8l.2 1.5a7.9 7.9 0 0 1 1.5.9l1.4-.5 1.4 2.4-1.1.9a7.2 7.2 0 0 1 0 1.8Z" transform="translate(-1 -1)"/></svg></button>
 </header>
 <div class="menu-grid">
@@ -41,7 +34,7 @@
 
   <button id="mpCreate" class="primary menu-create" type="button"><span class="plus" aria-hidden="true">＋</span>Создать комнату <span class="button-arrow" aria-hidden="true">↗</span></button>
   <div class="menu-divider"><span>ИЛИ ПОДКЛЮЧИСЬ ПО КОДУ</span></div>
-  <div class="menu-join-row"><input id="mpCode" maxlength="6" placeholder="Код комнаты" aria-label="Код комнаты"><button id="mpJoin" type="button">Войти</button></div>
+  <div class="menu-join-row"><input id="mpCode" class="menu-code-input" maxlength="6" placeholder="Код комнаты" aria-label="Код комнаты"><button id="mpJoin" class="menu-join-btn" type="button">Войти</button></div>
   <p class="menu-coop-note">До 4 игроков · одно общее поле</p>
   <p id="mpMessage" class="menu-connection" aria-live="polite">Подключение к кооперативу…</p>
 </section>
@@ -50,37 +43,36 @@
 <section id="mpLobby" class="panel lobby-shell hidden" aria-label="Лобби кооперативной игры">
 <header class="lobby-head">
 <div class="lobby-heading">
-<div class="lobby-eyebrow">ОНЛАЙН · КООПЕРАТИВ</div>
-<h2>Комната ожидания</h2>
-<p>Пригласи друзей по коду и соберитесь за одним игровым полем.</p>
+  <h2>Комната ожидания</h2>
+  <p class="lobby-eyebrow">ОНЛАЙН · КООПЕРАТИВ</p>
 </div>
 <div class="lobby-presence"><span class="lobby-presence-dot"></span><span id="mpLobbyMeta">Подключаем игроков…</span></div>
 </header>
-<div class="player-name-card lobby-name-card"><label for="mpName">ТВОЁ ИМЯ В КОМНАТЕ</label><div class="player-name-control"><input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"></div></div>
+<div class="player-name-card lobby-name-card"><label for="mpName">ТВОЁ ИМЯ В КОМНАТЕ</label><div class="player-name-control"><input id="mpName" class="player-name-input" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"></div></div>
 <div class="lobby-code-card">
 <div class="lobby-code-caption">КОД ПРИГЛАШЕНИЯ</div>
-<div class="lobby-code-content"><strong id="mpRoomCode"></strong><button id="mpCopyCode" type="button">Копировать код</button></div>
+<div class="lobby-code-content"><strong id="mpRoomCode" class="lobby-room-code"></strong><button id="mpCopyCode" class="lobby-copy-btn" type="button">Копировать код</button></div>
 <div class="lobby-code-hint">Отправь этот код друзьям, чтобы они вошли в комнату.</div>
 </div>
 <div class="lobby-section-head"><h3>Игроки</h3><span>До 4 участников · свободно <span id="mpFreeSlots">3</span></span></div>
 <div id="mpPlayers" class="lobby-players" aria-live="polite"></div>
 <div class="lobby-settings">
 <div class="lobby-settings-copy"><strong>Сложность партии</strong><span>Количество выходов, которые нужно закрыть</span></div>
-<select id="mpExits" aria-label="Сложность партии"><option value="2">2 выхода · легко</option><option value="5">5 выходов · нормально</option><option value="6" selected>6 выходов · сложно</option></select>
+<select id="mpExits" class="lobby-exits-select" aria-label="Сложность партии"><option value="2">2 выхода · легко</option><option value="5">5 выходов · нормально</option><option value="6" selected>6 выходов · сложно</option></select>
 </div>
 <footer class="lobby-footer">
-<p id="mpLobbyMessage" aria-live="polite">Ждём подключения игроков.</p>
-<div class="lobby-actions"><button id="mpLeave" type="button">Выйти</button><button id="mpStart" class="primary" type="button">Начать партию</button></div>
+<p id="mpLobbyMessage" class="lobby-message" aria-live="polite">Ждём подключения игроков.</p>
+<div class="lobby-actions"><button id="mpLeave" class="lobby-leave-btn" type="button">Выйти</button><button id="mpStart" class="primary lobby-start-btn" type="button">Начать партию</button></div>
 </footer>
 
 </section><div id="settingsModal" class="settings-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <section class="settings-dialog">
     <header class="settings-head"><div><div class="settings-kicker">BANDITO · ПЕРСОНАЛИЗАЦИЯ</div><h2 id="settingsTitle">Настройки</h2></div><button id="closeSettings" class="settings-close" type="button" aria-label="Закрыть">×</button></header>
-    <label class="settings-toggle"><span><strong>Ночная тема</strong><small>Ночной фон и оформление Bandito</small></span><input id="darkTheme" type="checkbox"></label>
-    <label class="settings-toggle"><span><strong>Уменьшить анимации</strong><small>Отключает лишние движения интерфейса</small></span><input id="reduceMotion" type="checkbox"></label>
-    <footer class="settings-footer"><span>Настройки сохраняются автоматически</span><button id="resetSettings" type="button">Сбросить</button></footer>
+    <label class="settings-toggle"><span><strong>Ночная тема</strong><small>Ночной фон и оформление Bandito</small></span><input id="darkTheme" class="settings-theme-toggle" type="checkbox"></label>
+    <label class="settings-toggle"><span><strong>Уменьшить анимации</strong><small>Отключает лишние движения интерфейса</small></span><input id="reduceMotion" class="settings-motion-toggle" type="checkbox"></label>
+    <footer class="settings-footer"><span>Настройки сохраняются автоматически</span><button id="resetSettings" class="settings-reset-btn" type="button">Сбросить</button></footer>
   </section>
-</div></section><section id="play" class="hidden"><div class="game-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="game-intro"><h2 id="heading"></h2><div class="muted">Выбери карту и нажми на точку нужного поворота.</div></div><button id="newgame">Новая партия</button></div><div class="layout"><div class="boardbox"><div id="camera" class="camera" aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."><div id="board" class="board"></div></div></div><aside class="side"><div class="side-metrics"><div class="stats"><span>В колоде</span><b id="deckcount">0</b></div><div class="stats"><span>Выходы</span><b id="openCount">0</b></div><div class="stats"><span>Ход</span><b id="turnCount">0</b></div><div class="stats"><span>Победы</span><b id="gameWins">0</b></div></div><div class="hand-section"><div class="side-label">Карты в руке</div><div class="hand" id="hand" aria-label="Карты в руке"></div></div><div class="side-actions"><div class="controls"><button id="exchange" type="button">Сбросить карты</button></div><div class="camera-tools"><button id="zoomOut" type="button" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button><button id="zoomReset" type="button" title="Сбросить масштаб">100%</button><button id="zoomIn" type="button" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button></div></div><div id="mpTimer" class="status" style="font-weight:700;display:none">⏱ До конца хода: 60 сек.</div><div id="status" class="status">Загрузка карт…</div><div class="hint">Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью или пальцем.</div></aside></div></section></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script src="js/settings.js"></script>
+</div></section><section id="play" class="play-screen hidden"><div class="game-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="game-intro"><h2 id="heading" class="game-heading"></h2><div class="muted">Выбери карту и нажми на точку нужного поворота.</div></div><button id="newgame" class="game-new-btn">Новая партия</button></div><div class="layout"><div class="boardbox"><div id="camera" class="camera" aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."><div id="board" class="board"></div></div></div><aside class="side"><div class="side-metrics"><div class="stats"><span>В колоде</span><b id="deckcount">0</b></div><div class="stats"><span>Выходы</span><b id="openCount">0</b></div><div class="stats"><span>Ход</span><b id="turnCount">0</b></div><div class="stats"><span>Победы</span><b id="gameWins">0</b></div></div><div class="hand-section"><div class="side-label">Карты в руке</div><div class="hand" id="hand" aria-label="Карты в руке"></div></div><div class="side-actions"><div class="controls"><button id="exchange" class="side-exchange-btn" type="button">Сбросить карты</button></div><div class="camera-tools"><button id="zoomOut" class="zoom-btn" type="button" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button><button id="zoomReset" class="zoom-reset-btn" type="button" title="Сбросить масштаб">100%</button><button id="zoomIn" class="zoom-btn" type="button" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button></div></div><div id="mpTimer" class="status timer-status" style="font-weight:700;display:none">⏱ До конца хода: 60 сек.</div><div id="status" class="status">Загрузка карт…</div><div class="hint">Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью или пальцем.</div></aside></div></section></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script src="js/settings.js"></script>
 <script src="js/game.js"></script>
 <script src="js/multiplayer.js"></script>
 

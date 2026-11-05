@@ -1,50 +1,309 @@
-/* Original style block 13 */
-/* Use the same plain system sans-serif as the ОНЛАЙН eyebrow. */
-#mpLobby,
-#mpLobby *{
-  font-family:ui-sans-serif,system-ui,sans-serif!important;
-  font-style:normal!important;
-  text-shadow:none!important;
-}
-body.dark-theme #mpLobby{color:#c9c8bd}
-/* Keep every lobby heading in the same light system type style. */
-#mpLobby .lobby-eyebrow,
-#mpLobby .lobby-heading h2,
-#mpLobby .lobby-code-caption,
-#mpLobby .lobby-name-card>label,
-#mpLobby .lobby-section-head h3,
-#mpLobby .lobby-settings-copy strong{
-  font-family:ui-sans-serif,system-ui,sans-serif!important;
-  font-weight:350!important;
-}
-#mpLobby .lobby-player-name{font-weight:350!important}
+/* Cooperative Multiplayer Lobby */
 
-/* Give the lobby sections a little more consistent breathing room. */
-#mpLobby .lobby-head{margin-bottom:24px}
-#mpLobby .lobby-name-card{margin-bottom:16px}
-#mpLobby .lobby-code-card{padding:17px 18px}
-#mpLobby .lobby-section-head{margin:24px 0 12px}
-#mpLobby .lobby-players{gap:11px}
-#mpLobby .lobby-settings{margin-top:20px;padding:16px}
-#mpLobby .lobby-footer{margin-top:22px;padding-top:18px}
-body.dark-theme #mpLobby .lobby-heading h2,
-body.dark-theme #mpLobby .lobby-section-head h3,
-body.dark-theme #mpLobby .lobby-player-name,
-body.dark-theme #mpLobby .lobby-settings-copy strong{color:#d8d6ca}
-body.dark-theme #mpLobby .lobby-eyebrow,
-body.dark-theme #mpLobby .lobby-presence,
-body.dark-theme #mpLobby .lobby-code-caption,
-body.dark-theme #mpLobby .lobby-code-hint,
-body.dark-theme #mpLobby .lobby-section-head>span,
-body.dark-theme #mpLobby .lobby-settings-copy span,
-body.dark-theme #mpLobby #mpLobbyMessage{color:#aaa99e}
-body.dark-theme #mpLobby .lobby-code-card,
-body.dark-theme #mpLobby .lobby-player,
-body.dark-theme #mpLobby .lobby-settings{background:#20251f;border-color:#3b4339}
-body.dark-theme #mpLobby .lobby-player.offline{background:#1c211c;color:#92948a}
-body.dark-theme #mpLobby .lobby-player-avatar,
-body.dark-theme #mpLobby .lobby-badge{background:#30372e;color:#c1c2b5}
-body.dark-theme #mpLobby .lobby-player-state{color:#9eaf91}
-body.dark-theme #mpLobby .lobby-player.offline .lobby-player-state{color:#b18a7c}
-body.dark-theme #mpLobby .lobby-settings select{background:#2b3129;color:#d8d6ca;border-color:#485044}
-body.dark-theme #mpLobby #mpRoomCode{color:#d8d6ca}
+.lobby-shell {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto 24px;
+  padding: 24px 22px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 0 10px 30px rgba(37, 37, 31, 0.06);
+}
+
+.lobby-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.lobby-heading {
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-heading h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+.lobby-eyebrow {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+.lobby-presence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.lobby-presence-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4caf50;
+  display: inline-block;
+}
+
+.lobby-name-card {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
+
+.lobby-name-card label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.lobby-code-card {
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  margin-bottom: 18px;
+}
+
+.lobby-code-caption {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.lobby-code-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lobby-room-code {
+  font-size: 24px;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+}
+
+.lobby-copy-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lobby-code-hint {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.lobby-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 18px 0 12px;
+}
+
+.lobby-section-head h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: normal;
+}
+
+.lobby-section-head span {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.lobby-players {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.lobby-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+
+.lobby-player.offline {
+  opacity: .6;
+}
+
+.lobby-player-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.lobby-player-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.lobby-player-state {
+  font-size: 14px;
+  color: #4caf50;
+}
+
+.lobby-player.offline .lobby-player-state {
+  color: var(--muted);
+}
+
+.lobby-badge {
+  font-size: 14px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--line);
+  color: var(--ink);
+}
+
+.lobby-settings {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  margin-top: 18px;
+}
+
+.lobby-settings-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-settings-copy strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.lobby-settings-copy span {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.lobby-exits-select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  font-size: 16px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lobby-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.lobby-message {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.lobby-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.lobby-leave-btn {
+  padding: 11px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.lobby-start-btn {
+  padding: 11px 22px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 12px;
+  background: var(--green);
+  color: #ffffff;
+  border: 1px solid var(--green);
+}
+
+/* Dark theme overrides for lobby components */
+.dark-theme .lobby-player,
+.dark-theme .lobby-code-card,
+.dark-theme .lobby-settings,
+.dark-theme .lobby-name-card {
+  background: #202328;
+  border-color: #41464d;
+}
+
+.dark-theme .lobby-player-avatar,
+.dark-theme .lobby-copy-btn,
+.dark-theme .lobby-exits-select {
+  background: #2b2f34;
+  border-color: #555c65;
+  color: #eef0f2;
+}
+
+.dark-theme .lobby-leave-btn {
+  background: #2b2f34;
+  border-color: #484e56;
+  color: #eceef0;
+}
