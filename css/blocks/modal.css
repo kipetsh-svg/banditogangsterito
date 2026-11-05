@@ -47,3 +47,27 @@
         }
     }
 }
+
+
+@layer blocks {
+    .howto__dialog {
+        width: min(560px, 100%);
+    }
+
+    .howto__steps {
+        display: grid;
+        gap: var(--space-4);
+        margin: 0 0 var(--space-6);
+        padding-left: 1.5rem;
+        color: var(--color-text);
+        line-height: var(--leading-normal);
+    }
+
+    .howto__steps li {
+        padding-left: var(--space-1);
+    }
+
+    .howto__steps strong {
+        color: var(--color-text-strong);
+    }
+}
