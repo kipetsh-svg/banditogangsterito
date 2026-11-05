@@ -36,7 +36,7 @@ Bandito — карточная игра (адаптация настольной
 - Порядок слоёв объявлен в `css/tokens.css`: `@layer tokens, base, components, blocks, utilities;`. Каждый файл целиком лежит в своём слое, поэтому специфичность между слоями не важна.
 - `css/tokens.css` — единственное место с «сырыми» значениями: цвета, шрифты, размеры, отступы, радиусы, тени, z-index. Тёмная тема — только переопределение переменных в `.dark-theme` в этом же файле.
 - `css/base.css` — сброс и умолчания. Селекторы по тегам разрешены только здесь.
-- `css/components/*.css` — переиспользуемые компоненты: `card`, `heading`, `button` (`.btn`), `input` (`.input`, `.select`), `field`, `caption`, `badge`, `avatar`, `presence`, `toggle`, `item`, `stat`, `divider`, `notice`, `note`, `mode-list`, `mode-option`.
+- `css/components/*.css` — переиспользуемые компоненты: `card`, `heading`, `button` (`.btn`), `input` (`.input`, `.select`), `field`, `caption`, `badge`, `avatar`, `presence`, `toggle`, `item`, `stat`, `divider`, `notice`, `note`, `snackbar`, `mode-list`, `mode-option`.
 - `css/blocks/*.css` — блоки экранов: `page`, `corner-art`, `theme-shade`, `celestial`, `brand`, `settings-launcher`, `modal`, `menu`, `coop`, `lobby`, `game`, `board`, `hand-card`, `end-screen`, `confetti`.
 - `css/utilities.css` — `.hidden`, `.visually-hidden`, правила уменьшения анимаций.
 - Новый файл стилей подключается в `index.html` в порядке: tokens → base → components → blocks → utilities.
@@ -52,6 +52,7 @@ Bandito — карточная игра (адаптация настольной
 #### JS и классы
 
 - JS находит элементы по `id` и `data-*` (`#coopCard`, `#brandLogo`, `#cornerLeft`, `[data-start]`, `[data-end-screen]`), а не по стилевым классам.
+- **Снекбар:** разовые сообщения о результате действия («Код комнаты скопирован», «Ты вышел из комнаты», отказ в действии, ошибки сети) показываются через `snackbar(text, kind)` из `js/snackbar.js` (`kind = 'error'` — ошибка: красный оттенок и иконка warning) и исчезают сами: обычные через 3 секунды, ошибки через 5. Все ошибки действий и сети показываются только снекбаром. Точку в конце сообщения снекбара не ставим. Постоянные инструкции, подсказки к форме и текущее состояние (например, «Ты создатель комнаты…», «Выбери карту в руке.», строка `#status`, таймер хода) остаются на странице.
 - Состояние — через модификаторы БЭМ (`hand-card--selected`, `game__camera--dragging`, `notice--urgent`) и `.hidden`. Инлайновые цвета и `style.display` запрещены; инлайн допустим только для вычисляемой геометрии (позиции и размеры клеток поля) и случайных параметров конфетти.
 
 #### Цвета
