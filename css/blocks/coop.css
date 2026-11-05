@@ -1,0 +1,79 @@
+/* Multiplayer card content: create, join by code, notes. */
+@layer blocks {
+    .coop__content,
+    .coop__lobby {
+        view-transition-name: bandito-multiplayer-panel;
+    }
+
+    .coop__create {
+        position: relative;
+    }
+
+    .coop__plus {
+        font-size: var(--text-2xl);
+        line-height: var(--leading-none);
+    }
+
+    .coop__arrow {
+        position: absolute;
+        right: var(--space-4);
+        opacity: 0.7;
+    }
+
+    .coop__divider {
+        margin: var(--space-6) 0 var(--space-3);
+    }
+
+    .coop__join {
+        display: flex;
+        gap: var(--space-2);
+    }
+
+    .coop__join-button {
+        flex: none;
+        min-width: 100px;
+    }
+
+    .coop__note {
+        margin-top: var(--space-3);
+    }
+
+    .coop__connection {
+        min-height: 20px;
+        margin-top: var(--space-1);
+    }
+
+    ::view-transition-old(bandito-multiplayer-panel) {
+        animation: coop-panel-out 0.18s ease both;
+    }
+
+    ::view-transition-new(bandito-multiplayer-panel) {
+        animation: coop-panel-in 0.26s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+    }
+
+    @keyframes coop-panel-out {
+        to {
+            opacity: 0;
+            transform: translateY(8px) scale(0.985);
+        }
+    }
+
+    @keyframes coop-panel-in {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.975);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        ::view-transition-old(bandito-multiplayer-panel),
+        ::view-transition-new(bandito-multiplayer-panel) {
+            animation: none;
+        }
+    }
+}

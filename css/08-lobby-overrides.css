@@ -1,9 +1,0 @@
-/* Original style block 17 */
-.coop-card .player-name-card{width:100%;max-width:none;margin:0 0 14px;padding:11px 14px}.coop-card .player-name-card>label{margin-bottom:6px}.coop-card .player-name-control input{min-width:0}
-
-/* Original style block 18 */
-.lobby-name-card{width:100%;max-width:none;margin:0 0 12px;padding:11px 14px;background:var(--paper);border-color:var(--line);box-shadow:none}
-.lobby-name-card>label{color:var(--muted)}
-.lobby-name-card .player-name-control input{width:100%;min-width:0;background:var(--bg);color:var(--ink);border-color:var(--line)}
-body.dark-theme .lobby-code-card{background:#252a25!important;border-color:#485044!important}
-body.dark-theme #mpRoomCode{color:#f1f0e8!important;background:transparent!important}

@@ -1,0 +1,36 @@
+/* Main column of the app. */
+@layer blocks {
+    .page {
+        position: relative;
+        z-index: var(--z-content);
+        max-width: 1240px;
+        min-height: 100svh;
+        margin: 0 auto;
+        padding: var(--space-8) clamp(32px, 3vw, 48px) var(--space-14);
+    }
+
+    @media (max-width: 1050px) {
+        .page {
+            padding: var(--space-6) var(--space-6) var(--space-12);
+        }
+    }
+
+    @media (max-width: 760px) {
+        .page {
+            padding: var(--space-5) var(--space-5) var(--space-10);
+        }
+    }
+
+    @media (max-width: 560px) {
+        .page {
+            padding: var(--space-4) var(--space-3) var(--space-10);
+        }
+    }
+
+    @media (max-width: 360px) {
+        .page {
+            padding-right: var(--space-2);
+            padding-left: var(--space-2);
+        }
+    }
+}
