@@ -115,7 +115,6 @@
                                 <p class="heading__subtitle">Выбери количество выходов</p>
                             </div>
                         </div>
-                        <button id="openHowToPlay" class="btn btn--sm menu__howto" type="button">Как играть</button>
                         <div class="mode-list">
                             <button class="mode-option" data-start="2" type="button" disabled>
                                 <span class="mode-option__symbol" aria-hidden="true"
@@ -137,10 +136,11 @@
                                 ></span>
                                 <span class="mode-option__info">
                                     <strong class="mode-option__title">2 выхода</strong>
-                                    <small class="mode-option__hint">▶ Играть · легко</small>
+                                    <small class="mode-option__hint">Лёгкая партия</small>
                                 </span>
+                                <span class="mode-option__check" aria-hidden="true">✓</span>
                             </button>
-                            <button class="mode-option mode-option--recommended" data-start="5" type="button" disabled>
+                            <button class="mode-option" data-start="5" type="button" disabled>
                                 <span class="mode-option__symbol" aria-hidden="true"
                                     ><svg
                                         viewBox="0 0 32 32"
@@ -163,8 +163,9 @@
                                 ></span>
                                 <span class="mode-option__info">
                                     <strong class="mode-option__title">5 выходов</strong>
-                                    <small class="mode-option__hint">▶ Играть · стандартно</small>
+                                    <small class="mode-option__hint">Стандартная партия</small>
                                 </span>
+                                <span class="mode-option__check" aria-hidden="true">✓</span>
                             </button>
                             <button class="mode-option" data-start="6" type="button" disabled>
                                 <span class="mode-option__symbol" aria-hidden="true"
@@ -190,8 +191,9 @@
                                 ></span>
                                 <span class="mode-option__info">
                                     <strong class="mode-option__title">6 выходов</strong>
-                                    <small class="mode-option__hint">▶ Играть · сложно</small>
+                                    <small class="mode-option__hint">Сложная партия</small>
                                 </span>
+                                <span class="mode-option__check" aria-hidden="true">✓</span>
                             </button>
                         </div>
                         <p id="loadstate" class="note menu__status">Загружаю колоду…</p>
@@ -214,14 +216,10 @@
                                 <p class="heading__subtitle">Играй вместе с друзьями</p>
                             </div>
                         </div>
-                        <label class="field coop__name-field" for="mpName">
-                            <span class="caption">Как тебя увидят друзья</span>
-                            <input id="mpName" class="input" maxlength="18" placeholder="Твоё имя" autocomplete="nickname" />
-                        </label>
-                        <button id="mpCreate" class="btn btn--lg btn--soft btn--block coop__create" type="button">
+                        <button id="mpCreate" class="btn btn--lg btn--accent btn--block coop__create" type="button">
                             <span class="coop__plus" aria-hidden="true">＋</span>
                             Создать комнату
-
+                            <span class="coop__arrow" aria-hidden="true">↗</span>
                         </button>
                         <div class="divider coop__divider">Или подключись по коду</div>
                         <div class="coop__join">
@@ -229,14 +227,14 @@
                                 id="mpCode"
                                 class="input input--lg input--code"
                                 maxlength="6"
-                                placeholder="Код · 6 символов"
-                                aria-label="Код комнаты" autocomplete="off" autocapitalize="characters"
+                                placeholder="Код комнаты"
+                                aria-label="Код комнаты"
                             />
                             <button id="mpJoin" class="btn btn--lg btn--soft coop__join-button" type="button">
                                 Войти
                             </button>
                         </div>
-                        <p class="note coop__note">Код — 6 латинских букв и цифр · до 4 игроков</p>
+                        <p class="note coop__note">До 4 игроков · одно общее поле</p>
                         <p id="mpMessage" class="note coop__connection" aria-live="polite">
                             Подключение к кооперативу…
                         </p>
@@ -251,14 +249,19 @@
                             <p class="heading__subtitle">Онлайн · кооператив</p>
                         </div>
                     </div>
+                    <div class="presence lobby__presence">
+                        <span class="presence__dot"></span>
+                        <span id="mpLobbyMeta">Подключаем игроков…</span>
+                    </div>
                 </header>
+                <div class="card card--raised field lobby__panel">
+                    <label class="caption" for="mpName">Твоё имя в комнате</label>
+                    <input id="mpName" class="input" maxlength="18" placeholder="Как тебя называть?" />
+                </div>
                 <div class="card card--sunken lobby__panel lobby__code">
                     <div class="caption lobby__code-caption">Код приглашения</div>
                     <strong id="mpRoomCode" class="lobby__code-value"></strong>
-                    <div class="lobby__invite-actions">
-                        <button id="mpInvite" class="btn btn--sm btn--primary" type="button">Пригласить</button>
-                        <button id="mpCopyCode" class="btn btn--sm" type="button" aria-label="Копировать код комнаты">Код</button>
-                    </div>
+                    <button id="mpCopyCode" class="btn btn--sm" type="button">Копировать код</button>
                 </div>
                 <div class="lobby__players">
                     <div class="lobby__players-head">
@@ -267,7 +270,7 @@
                                 <h3 class="heading__title">Игроки</h3>
                             </div>
                         </div>
-                        <span id="mpPlayerCount" class="note">Игроки · 1 из 4</span>
+                        <span class="note note--sm">До 4 участников · свободно <span id="mpFreeSlots">3</span></span>
                     </div>
                     <div id="mpPlayers" class="lobby__player-list" aria-live="polite"></div>
                 </div>
@@ -276,15 +279,10 @@
                         <strong class="item__title">Сложность партии</strong>
                         <span class="item__hint">Количество выходов, которые нужно закрыть</span>
                     </span>
-                    <div class="lobby__difficulty" role="group" aria-label="Сложность партии">
-                        <button class="lobby__difficulty-option" type="button" data-difficulty="2" aria-pressed="false">Лёгкая</button>
-                        <button class="lobby__difficulty-option is-active" type="button" data-difficulty="5" aria-pressed="true">Стандартная</button>
-                        <button class="lobby__difficulty-option" type="button" data-difficulty="6" aria-pressed="false">Сложная</button>
-                    </div>
-                    <select id="mpExits" class="select lobby__select" aria-label="Сложность партии" hidden>
-                        <option value="2">2 выхода · лёгкая партия</option>
-                        <option value="5" selected>5 выходов · стандартная партия</option>
-                        <option value="6">6 выходов · сложная партия</option>
+                    <select id="mpExits" class="select lobby__select" aria-label="Сложность партии">
+                        <option value="2">2 выхода · легко</option>
+                        <option value="5">5 выходов · нормально</option>
+                        <option value="6" selected>6 выходов · сложно</option>
                     </select>
                 </div>
                 <footer class="lobby__footer">
@@ -301,11 +299,11 @@
                         <div class="heading__text">
                             <h2 id="heading" class="heading__title"></h2>
                             <p class="heading__subtitle game__subtitle">
-                                Закрой все выходы, соединяя тоннели.
+                                Выбери карту и нажми на точку нужного поворота.
                             </p>
                         </div>
                     </div>
-                    <button id="newgame" class="btn" type="button">В меню</button>
+                    <button id="newgame" class="btn" type="button">Новая партия</button>
                 </header>
                 <div class="game__layout">
                     <div class="card game__boardbox">
@@ -320,11 +318,12 @@
                     <aside class="card game__side">
                         <div class="game__metrics">
                             <div class="stat"><span>В колоде</span><b id="deckcount" class="stat__value">0</b></div>
-                            <div class="stat"><span>Открытые пути</span><b id="openCount" class="stat__value">0</b></div>
+                            <div class="stat"><span>Выходы</span><b id="openCount" class="stat__value">0</b></div>
                             <div class="stat"><span>Ход</span><b id="turnCount" class="stat__value">0</b></div>
+                            <div class="stat"><span>Победы</span><b id="gameWins" class="stat__value">0</b></div>
                         </div>
                         <div class="game__hand-section">
-                            <div class="caption">Карты в руке · клавиши 1–3</div>
+                            <div class="caption">Карты в руке</div>
                             <div id="hand" class="game__hand" aria-label="Карты в руке"></div>
                         </div>
                         <div class="game__actions">
@@ -362,39 +361,14 @@
                         </div>
                         <div id="mpTimer" class="notice notice--strong hidden">⏱ До конца хода: 60 сек.</div>
                         <div id="status" class="notice">Загрузка карт…</div>
-                        <div class="game__rotation-legend" aria-label="Цвета точек обозначают поворот карты">
-                            <span><i class="rotation-dot rotation-dot--0"></i> 0°</span>
-                            <span><i class="rotation-dot rotation-dot--1"></i> 90°</span>
-                            <span><i class="rotation-dot rotation-dot--2"></i> 180°</span>
-                            <span><i class="rotation-dot rotation-dot--3"></i> 270°</span>
-                        </div>
+                        <p class="note note--sm">
+                            Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью
+                            или пальцем.
+                        </p>
                     </aside>
                 </div>
             </section>
         </main>
-        <div id="howToPlayModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="howToPlayTitle">
-            <section class="card card--dialog modal__dialog howto__dialog">
-                <header class="modal__head">
-                    <div class="heading">
-                        <div class="heading__text">
-                            <h2 id="howToPlayTitle" class="heading__title">Как играть</h2>
-                            <p class="heading__subtitle">Четыре шага до победы</p>
-                        </div>
-                    </div>
-                    <button id="closeHowToPlay" class="btn btn--icon" type="button" aria-label="Закрыть">×</button>
-                </header>
-                <ol class="howto__steps">
-                    <li><strong>Найди открытые тоннели.</strong> Они отмечены на стартовой карте. Цель — перекрыть каждый из них.</li>
-                    <li><strong>Выбери карту.</strong> Карты в руке показывают форму тоннеля. Размещай её рядом с полем так, чтобы все соприкасающиеся стороны точно совпадали.</li>
-                    <li><strong>Выбери точку и поворот.</strong> Цветные точки показывают допустимые места и повороты карты. Наведи курсор, чтобы увидеть превью.</li>
-                    <li><strong>Победи.</strong> Перекрой все выходы тупиками или замкни тоннельные пути. Если колода закончилась, а открытые проходы остались, победил Бандито.</li>
-                </ol>
-                <footer class="modal__footer">
-                    <span class="note note--sm">Подсказки по цветам точек доступны на поле.</span>
-                    <button id="closeHowToPlayAction" class="btn btn--sm btn--primary" type="button">Понятно</button>
-                </footer>
-            </section>
-        </div>
         <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
             <section class="card card--dialog modal__dialog">
                 <header class="modal__head">

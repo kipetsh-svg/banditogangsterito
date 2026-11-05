@@ -148,33 +148,3 @@
         }
     }
 }
-
-/* Explain the four placement-point colors directly beside the status. */
-@layer blocks {
-    .game__rotation-legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-2) var(--space-4);
-        color: var(--color-text-muted);
-        font-size: var(--text-sm);
-    }
-
-    .game__rotation-legend > span {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-1);
-    }
-
-    .rotation-dot {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 3px var(--color-border);
-    }
-
-    .rotation-dot--0 { background: var(--color-pin-0); }
-    .rotation-dot--1 { background: var(--color-pin-1); }
-    .rotation-dot--2 { background: var(--color-pin-2); }
-    .rotation-dot--3 { background: var(--color-pin-3); }
-}

@@ -27,53 +27,16 @@ function mpMessage(t) {
     if (e) e.textContent = t;
 }
 function mpName() {
-    return (localStorage.getItem('banditoPlayerName') || '').trim().slice(0, 18);
-}
-function mpEnsureName() {
-    const input = $('#mpName');
-    const value = (input?.value || '').trim().slice(0, 18);
-    if (!value) {
-        input?.focus();
-        snackbar('Сначала введи имя — так друзья узнают тебя в комнате', 'error');
-        return false;
-    }
-    localStorage.setItem('banditoPlayerName', value);
-    if (input) input.value = value;
-    return true;
+    return (localStorage.getItem('banditoPlayerName') || 'Игрок').trim().slice(0, 18) || 'Игрок';
 }
 function mpCode() {
     return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
-function mpSyncDifficulty(value, disabled = false) {
-    document.querySelectorAll('[data-difficulty]').forEach((button) => {
-        const active = button.dataset.difficulty === String(value);
-        button.classList.toggle('is-active', active);
-        button.setAttribute('aria-pressed', String(active));
-        button.disabled = disabled;
-    });
-}
-async function mpSetDifficulty(value) {
-    const select = $('#mpExits');
-    select.value = String(value);
-    mpSyncDifficulty(value, !!mpRoomCode && mpRoomData?.owner !== mpUid);
-    if (mpRoomRef && mpRoomData?.owner === mpUid) {
-        try {
-            await mpRoomRef.child('settings/exits').set(Number(value));
-        } catch (e) {
-            snackbar('Не удалось сохранить сложность: ' + e.message, 'error');
-        }
-    }
-}
-document.querySelectorAll('[data-difficulty]').forEach((button) => {
-    button.addEventListener('click', () => {
-        if (!button.disabled) mpSetDifficulty(button.dataset.difficulty);
-    });
-});
 const lobbyNameInput = $('#mpName');
 if (lobbyNameInput) {
-    lobbyNameInput.value = mpName();
+    lobbyNameInput.value = mpName() === 'Игрок' ? '' : mpName();
     lobbyNameInput.addEventListener('change', async () => {
-        const value = lobbyNameInput.value.trim().slice(0, 18);
+        const value = (lobbyNameInput.value.trim() || 'Игрок').slice(0, 18);
         lobbyNameInput.value = value;
         localStorage.setItem('banditoPlayerName', value);
         if (mpRoomRef && mpUid) {
@@ -95,13 +58,6 @@ if (coopPanel && lobbyPanel) {
     while (coopPanel.firstChild) coopContent.append(coopPanel.firstChild);
     coopPanel.append(coopContent, lobbyPanel);
 }
-function mpSetSoloAvailability(locked) {
-    document.querySelectorAll('[data-start]').forEach((button) => {
-        button.disabled = locked || !all.length;
-        button.title = locked ? 'Сначала выйди из комнаты' : '';
-        button.setAttribute('aria-disabled', String(locked || !all.length));
-    });
-}
 function mpSwapPanel(showLobby) {
     const lobby = $('#mpLobby');
     if (!coopContent || !lobby) return;
@@ -113,7 +69,6 @@ function mpSwapPanel(showLobby) {
     else apply();
 }
 function mpShowLobby(room) {
-    mpSetSoloAvailability(true);
     $('#menu').classList.remove('hidden');
     $('#play').classList.add('hidden');
     if ($('#mpLobby').classList.contains('hidden')) mpSwapPanel(true);
@@ -123,11 +78,7 @@ function mpShowLobby(room) {
     const players = Object.entries(room.players || {}),
         online = players.filter(([, p]) => p.online !== false).length,
         list = $('#mpPlayers');
-    const selectedDifficulty = room.settings?.exits || $('#mpExits').value || 5;
-    $('#mpExits').value = String(selectedDifficulty);
-    mpSyncDifficulty(selectedDifficulty, room.owner !== mpUid);
-    const playerCount = $('#mpPlayerCount');
-    if (playerCount) playerCount.textContent = 'Игроки · ' + players.length + ' из 4';
+    $('#mpLobbyMeta').textContent = online + ' в сети · ' + players.length + '/4 игроков';
     const freeSlots = $('#mpFreeSlots');
     if (freeSlots) freeSlots.textContent = String(Math.max(0, 4 - players.length));
     list.replaceChildren();
@@ -168,25 +119,12 @@ function mpShowLobby(room) {
         row.append(avatar, copy);
         list.append(row);
     });
-    for (let i = players.length; i < 4; i++) {
-        const slot = document.createElement('button');
-        slot.className = 'lobby__player lobby__player--empty';
-        slot.type = 'button';
-        slot.innerHTML = '<span class="avatar avatar--empty">＋</span><span class="item__title">Пригласить игрока</span>';
-        slot.addEventListener('click', () => $('#mpInvite').click());
-        list.append(slot);
-    }
-    const startButton = $('#mpStart');
-    startButton.disabled = room.owner !== mpUid;
-    startButton.textContent = players.length < 2 ? 'Начать одному' : 'Начать партию (' + players.length + ' игрока)';
-    startButton.classList.toggle('btn--primary', players.length >= 2);
-    $('#mpExits').disabled = room.owner !== mpUid;
+    /* Show connected players only; free slots are summarized in the heading. */
+    $('#mpStart').disabled = room.owner !== mpUid || players.length < 1;
     $('#mpLobbyMessage').textContent =
         room.owner === mpUid
-            ? players.length < 2
-                ? 'Можно начать одному или пригласить друзей.'
-                : 'Все готовы? Начинай партию.'
-            : 'Ждём, пока создатель начнёт игру.';
+            ? 'Ты создатель комнаты. Отправь код друзьям и начинай, когда они подключатся.'
+            : 'Ждём, пока создатель начнёт игру. Если связь прервётся, статус обновится автоматически.';
 }
 function mpAttach(code) {
     mpRoomCode = code;
@@ -352,7 +290,7 @@ async function mpEnsureAuth() {
     }
 }
 async function mpCreate() {
-    if (mpBusy || !mpEnsureName()) return;
+    if (mpBusy) return;
     mpBusy = true;
     mpMessage('Создаю комнату…');
     try {
@@ -361,7 +299,6 @@ async function mpCreate() {
         await mpDb.ref('rooms/' + code).set({
             owner: mpUid,
             players: { [mpUid]: { name: mpName(), online: true, joinedAt: Date.now() } },
-            settings: { exits: 5 },
             createdAt: Date.now(),
             game: null,
         });
@@ -375,11 +312,10 @@ async function mpCreate() {
     }
 }
 async function mpJoin() {
-    if (mpBusy || !mpEnsureName()) return;
-    const code = $('#mpCode').value.replace(/\s+/g, '').toUpperCase();
-    $('#mpCode').value = code;
+    if (mpBusy) return;
+    const code = $('#mpCode').value.trim().toUpperCase();
     if (!/^[A-Z0-9]{6}$/.test(code)) {
-        snackbar('Код должен состоять из 6 латинских букв и цифр, например K3F9QX', 'error');
+        snackbar('Введи шестизначный код комнаты, например 779742', 'error');
         return;
     }
     mpBusy = true;
@@ -553,8 +489,7 @@ async function mpExchange() {
 async function leaveMultiplayer(showMenu = true) {
     const ref = mpRoomRef,
         uid = mpUid,
-        listener = mpRoomListener,
-        oldCode = mpRoomCode;
+        listener = mpRoomListener;
     await mpClearPresence(mpRoomCode, uid);
     $('#mpTimer').classList.add('hidden');
     if (mpTimerInterval) {
@@ -613,12 +548,8 @@ async function leaveMultiplayer(showMenu = true) {
     }
     mpRoomRef = null;
     mpRoomListener = null;
-    mpSetSoloAvailability(false);
     mpRoomCode = null;
     mpRoomData = null;
-    if (oldCode && location.hash.slice(1).toUpperCase() === oldCode) {
-        history.replaceState(null, '', location.pathname + location.search);
-    }
     mpCelebrated = false;
     hand = [];
     placed = [];
@@ -632,47 +563,8 @@ async function leaveMultiplayer(showMenu = true) {
 }
 $('#mpCreate').onclick = mpCreate;
 $('#mpJoin').onclick = mpJoin;
-$('#mpCode').addEventListener('input', () => {
-    const input = $('#mpCode');
-    input.value = input.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6);
-    $('#mpJoin').disabled = input.value.length !== 6;
-});
-$('#mpJoin').disabled = $('#mpCode').value.length !== 6;
-$('#mpCode').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && $('#mpCode').value.length === 6) mpJoin();
-});
 $('#mpStart').onclick = mpStart;
-$('#mpLeave').onclick = () => {
-    if (confirm('Выйти из комнаты? Если ты создатель, права перейдут следующему игроку в списке.')) leaveMultiplayer();
-};
-async function mpInvite() {
-    if (!mpRoomCode) return;
-    const url = location.origin + location.pathname + '#' + mpRoomCode;
-    try {
-        if (navigator.share) await navigator.share({ title: 'Комната Bandito', text: 'Присоединяйся к моей партии!', url });
-        else {
-            await navigator.clipboard.writeText(url);
-            snackbar('Ссылка-приглашение скопирована');
-        }
-    } catch (e) {
-        if (e.name !== 'AbortError') {
-            const field = document.createElement('textarea');
-            field.value = url;
-            field.style.position = 'fixed';
-            field.style.opacity = '0';
-            document.body.append(field);
-            field.select();
-            try {
-                document.execCommand('copy');
-                snackbar('Ссылка-приглашение скопирована');
-            } catch {
-                snackbar('Не удалось скопировать ссылку. Скопируй её из адресной строки', 'error');
-            }
-            field.remove();
-        }
-    }
-}
-$('#mpInvite').onclick = mpInvite;
+$('#mpLeave').onclick = () => leaveMultiplayer();
 $('#mpCopyCode').onclick = async () => {
     if (!mpRoomCode) return;
     try {
@@ -702,12 +594,6 @@ try {
         if (u) {
             mpUid = u.uid;
             mpMessage(mpReadyMessage);
-            const invite = location.hash.slice(1).toUpperCase();
-            if (/^[A-Z0-9]{6}$/.test(invite) && !mpRoomCode) {
-                $('#mpCode').value = invite;
-                $('#mpJoin').disabled = false;
-                if (confirm('Войти в комнату ' + invite + '?')) mpJoin();
-            }
         } else mpMessage('Войди анонимно, чтобы играть онлайн.');
     });
 } catch (e) {
