@@ -115,6 +115,7 @@
                                 <p class="heading__subtitle">Выбери количество выходов</p>
                             </div>
                         </div>
+                        <button id="openHowToPlay" class="btn btn--sm menu__howto" type="button">Как играть</button>
                         <div class="mode-list">
                             <button class="mode-option" data-start="2" type="button" disabled>
                                 <span class="mode-option__symbol" aria-hidden="true"
@@ -216,10 +217,14 @@
                                 <p class="heading__subtitle">Играй вместе с друзьями</p>
                             </div>
                         </div>
-                        <button id="mpCreate" class="btn btn--lg btn--accent btn--block coop__create" type="button">
+                        <label class="field coop__name-field" for="mpName">
+                            <span class="caption">Как тебя увидят друзья</span>
+                            <input id="mpName" class="input" maxlength="18" placeholder="Твоё имя" autocomplete="nickname" />
+                        </label>
+                        <button id="mpCreate" class="btn btn--lg btn--soft btn--block coop__create" type="button">
                             <span class="coop__plus" aria-hidden="true">＋</span>
                             Создать комнату
-                            <span class="coop__arrow" aria-hidden="true">↗</span>
+
                         </button>
                         <div class="divider coop__divider">Или подключись по коду</div>
                         <div class="coop__join">
@@ -254,14 +259,13 @@
                         <span id="mpLobbyMeta">Подключаем игроков…</span>
                     </div>
                 </header>
-                <div class="card card--raised field lobby__panel">
-                    <label class="caption" for="mpName">Твоё имя в комнате</label>
-                    <input id="mpName" class="input" maxlength="18" placeholder="Как тебя называть?" />
-                </div>
                 <div class="card card--sunken lobby__panel lobby__code">
                     <div class="caption lobby__code-caption">Код приглашения</div>
                     <strong id="mpRoomCode" class="lobby__code-value"></strong>
-                    <button id="mpCopyCode" class="btn btn--sm" type="button">Копировать код</button>
+                    <div class="lobby__invite-actions">
+                        <button id="mpInvite" class="btn btn--sm btn--primary" type="button">Пригласить</button>
+                        <button id="mpCopyCode" class="btn btn--sm" type="button" aria-label="Копировать код комнаты">Код</button>
+                    </div>
                 </div>
                 <div class="lobby__players">
                     <div class="lobby__players-head">
@@ -299,11 +303,11 @@
                         <div class="heading__text">
                             <h2 id="heading" class="heading__title"></h2>
                             <p class="heading__subtitle game__subtitle">
-                                Выбери карту и нажми на точку нужного поворота.
+                                Закрой все выходы, соединяя тоннели.
                             </p>
                         </div>
                     </div>
-                    <button id="newgame" class="btn" type="button">Новая партия</button>
+                    <button id="newgame" class="btn" type="button">В меню</button>
                 </header>
                 <div class="game__layout">
                     <div class="card game__boardbox">
@@ -361,14 +365,33 @@
                         </div>
                         <div id="mpTimer" class="notice notice--strong hidden">⏱ До конца хода: 60 сек.</div>
                         <div id="status" class="notice">Загрузка карт…</div>
-                        <p class="note note--sm">
-                            Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью
-                            или пальцем.
-                        </p>
                     </aside>
                 </div>
             </section>
         </main>
+        <div id="howToPlayModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="howToPlayTitle">
+            <section class="card card--dialog modal__dialog howto__dialog">
+                <header class="modal__head">
+                    <div class="heading">
+                        <div class="heading__text">
+                            <h2 id="howToPlayTitle" class="heading__title">Как играть</h2>
+                            <p class="heading__subtitle">Четыре шага до победы</p>
+                        </div>
+                    </div>
+                    <button id="closeHowToPlay" class="btn btn--icon" type="button" aria-label="Закрыть">×</button>
+                </header>
+                <ol class="howto__steps">
+                    <li><strong>Найди выходы.</strong> На стартовой карте отмечены открытые концы тоннелей — их нужно закрыть.</li>
+                    <li><strong>Выбери карту.</strong> Карты в руке показывают форму тоннеля, который можно добавить к полю.</li>
+                    <li><strong>Выбери точку и поворот.</strong> Цветные точки показывают допустимые места и повороты карты. Наведи курсор, чтобы увидеть превью.</li>
+                    <li><strong>Победи.</strong> Соедини тоннели так, чтобы не осталось открытых выходов. Если колода и карты закончились раньше — партия проиграна.</li>
+                </ol>
+                <footer class="modal__footer">
+                    <span class="note note--sm">Подсказки по цветам точек доступны на поле.</span>
+                    <button id="closeHowToPlayAction" class="btn btn--sm btn--primary" type="button">Понятно</button>
+                </footer>
+            </section>
+        </div>
         <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
             <section class="card card--dialog modal__dialog">
                 <header class="modal__head">
