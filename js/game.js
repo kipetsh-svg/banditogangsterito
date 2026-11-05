@@ -451,7 +451,7 @@ function showEndScreen(won) {
         '</h2><p class="end-screen__subtitle">' +
         (won ? 'Все туннели закрыты. Бандито пойман!' : 'Карты закончились, но выходы ещё остались.') +
         '</p>' +
-        (!multi ? '<p class="end-screen__results">Ходов: ' + turnCount + ' · Открытых выходов: ' + opens() + '</p>' : '') +
+        (!multi ? '<p class="end-screen__results">Ходов: ' + turnCount + ' · Открытых участков: ' + opens() + '</p>' : '') +
         (multi
             ? host
                 ? '<label class="end-screen__rematch">Сложность реванша <select class="select" data-end="difficulty"><option value="2">2 выхода</option><option value="5">5 выходов</option><option value="6">6 выходов</option></select></label>'
@@ -597,7 +597,7 @@ fetch('./resources/bandido-matrices/cards.json')
     })
     .then((d) => {
         all = d.cards.filter((c) => c.matrix);
-        document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = false));
+        document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = !!mpRoomCode));
         $('#loadstate').textContent = '';
         $('#loadstate').classList.add('hidden');
     })
@@ -614,7 +614,7 @@ function closeSettings() {
 }
 settingsTrigger.onclick = () => {
     settingsModal.classList.remove('hidden');
-    settingsModal.querySelector('input,button')?.focus();
+    settingsModal.querySelector('#darkTheme')?.focus();
 };
 $('#closeSettings').onclick = closeSettings;
 settingsModal.addEventListener('click', (e) => {
