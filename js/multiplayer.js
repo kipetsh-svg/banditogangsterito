@@ -44,6 +44,31 @@ function mpEnsureName() {
 function mpCode() {
     return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
+function mpSyncDifficulty(value, disabled = false) {
+    document.querySelectorAll('[data-difficulty]').forEach((button) => {
+        const active = button.dataset.difficulty === String(value);
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+        button.disabled = disabled;
+    });
+}
+async function mpSetDifficulty(value) {
+    const select = $('#mpExits');
+    select.value = String(value);
+    mpSyncDifficulty(value, !!mpRoomCode && mpRoomData?.owner !== mpUid);
+    if (mpRoomRef && mpRoomData?.owner === mpUid) {
+        try {
+            await mpRoomRef.child('settings/exits').set(Number(value));
+        } catch (e) {
+            snackbar('Не удалось сохранить сложность: ' + e.message, 'error');
+        }
+    }
+}
+document.querySelectorAll('[data-difficulty]').forEach((button) => {
+    button.addEventListener('click', () => {
+        if (!button.disabled) mpSetDifficulty(button.dataset.difficulty);
+    });
+});
 const lobbyNameInput = $('#mpName');
 if (lobbyNameInput) {
     lobbyNameInput.value = mpName();
@@ -98,6 +123,9 @@ function mpShowLobby(room) {
     const players = Object.entries(room.players || {}),
         online = players.filter(([, p]) => p.online !== false).length,
         list = $('#mpPlayers');
+    const selectedDifficulty = room.settings?.exits || $('#mpExits').value || 5;
+    $('#mpExits').value = String(selectedDifficulty);
+    mpSyncDifficulty(selectedDifficulty, room.owner !== mpUid);
     const playerCount = $('#mpPlayerCount');
     if (playerCount) playerCount.textContent = 'Игроки · ' + players.length + ' из 4';
     const freeSlots = $('#mpFreeSlots');
@@ -333,6 +361,7 @@ async function mpCreate() {
         await mpDb.ref('rooms/' + code).set({
             owner: mpUid,
             players: { [mpUid]: { name: mpName(), online: true, joinedAt: Date.now() } },
+            settings: { exits: 5 },
             createdAt: Date.now(),
             game: null,
         });
