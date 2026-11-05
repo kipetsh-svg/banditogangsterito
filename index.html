@@ -254,10 +254,6 @@
                             <p class="heading__subtitle">Онлайн · кооператив</p>
                         </div>
                     </div>
-                    <div class="presence lobby__presence">
-                        <span class="presence__dot"></span>
-                        <span id="mpLobbyMeta">Подключаем игроков…</span>
-                    </div>
                 </header>
                 <div class="card card--sunken lobby__panel lobby__code">
                     <div class="caption lobby__code-caption">Код приглашения</div>
@@ -274,7 +270,7 @@
                                 <h3 class="heading__title">Игроки</h3>
                             </div>
                         </div>
-                        <span class="note note--sm">До 4 участников · свободно <span id="mpFreeSlots">3</span></span>
+                        <span id="mpPlayerCount" class="note">Игроки · 1 из 4</span>
                     </div>
                     <div id="mpPlayers" class="lobby__player-list" aria-live="polite"></div>
                 </div>
@@ -285,8 +281,8 @@
                     </span>
                     <select id="mpExits" class="select lobby__select" aria-label="Сложность партии">
                         <option value="2">2 выхода · легко</option>
-                        <option value="5">5 выходов · нормально</option>
-                        <option value="6" selected>6 выходов · сложно</option>
+                        <option value="5" selected>5 выходов · нормально</option>
+                        <option value="6">6 выходов · сложно</option>
                     </select>
                 </div>
                 <footer class="lobby__footer">
