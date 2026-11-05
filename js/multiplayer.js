@@ -623,12 +623,19 @@ async function mpInvite() {
         }
     } catch (e) {
         if (e.name !== 'AbortError') {
+            const field = document.createElement('textarea');
+            field.value = url;
+            field.style.position = 'fixed';
+            field.style.opacity = '0';
+            document.body.append(field);
+            field.select();
             try {
-                await navigator.clipboard.writeText(url);
+                document.execCommand('copy');
                 snackbar('Ссылка-приглашение скопирована');
             } catch {
-                snackbar('Не удалось скопировать ссылку', 'error');
+                snackbar('Не удалось скопировать ссылку. Скопируй её из адресной строки', 'error');
             }
+            field.remove();
         }
     }
 }
@@ -665,6 +672,7 @@ try {
             const invite = location.hash.slice(1).toUpperCase();
             if (/^[A-Z0-9]{6}$/.test(invite) && !mpRoomCode) {
                 $('#mpCode').value = invite;
+                $('#mpJoin').disabled = false;
                 if (confirm('Войти в комнату ' + invite + '?')) mpJoin();
             }
         } else mpMessage('Войди анонимно, чтобы играть онлайн.');
