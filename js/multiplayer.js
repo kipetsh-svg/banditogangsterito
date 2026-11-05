@@ -91,7 +91,7 @@ function mpShowLobby(room) {
         online = players.filter(([, p]) => p.online !== false).length,
         list = $('#mpPlayers');
     const playerCount = $('#mpPlayerCount');
-    if (playerCount) playerCount.textContent = 'Игроки · ' + online + ' из 4 в сети';
+    if (playerCount) playerCount.textContent = 'Игроки · ' + players.length + ' из 4';
     const freeSlots = $('#mpFreeSlots');
     if (freeSlots) freeSlots.textContent = String(Math.max(0, 4 - players.length));
     list.replaceChildren();
@@ -594,6 +594,7 @@ $('#mpCode').addEventListener('input', () => {
     input.value = input.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6);
     $('#mpJoin').disabled = input.value.length !== 6;
 });
+$('#mpJoin').disabled = $('#mpCode').value.length !== 6;
 $('#mpCode').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && $('#mpCode').value.length === 6) mpJoin();
 });
