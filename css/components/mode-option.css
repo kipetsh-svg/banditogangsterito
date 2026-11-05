@@ -86,3 +86,14 @@
         opacity: 1;
     }
 }
+
+/* These tiles launch immediately; they are actions, not selected tabs. */
+@layer components {
+    .mode-option {
+        cursor: pointer;
+    }
+
+    .mode-option__check {
+        display: none;
+    }
+}
