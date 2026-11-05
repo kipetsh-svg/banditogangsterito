@@ -553,7 +553,8 @@ async function mpExchange() {
 async function leaveMultiplayer(showMenu = true) {
     const ref = mpRoomRef,
         uid = mpUid,
-        listener = mpRoomListener;
+        listener = mpRoomListener,
+        oldCode = mpRoomCode;
     await mpClearPresence(mpRoomCode, uid);
     $('#mpTimer').classList.add('hidden');
     if (mpTimerInterval) {
@@ -615,6 +616,9 @@ async function leaveMultiplayer(showMenu = true) {
     mpSetSoloAvailability(false);
     mpRoomCode = null;
     mpRoomData = null;
+    if (oldCode && location.hash.slice(1).toUpperCase() === oldCode) {
+        history.replaceState(null, '', location.pathname + location.search);
+    }
     mpCelebrated = false;
     hand = [];
     placed = [];
