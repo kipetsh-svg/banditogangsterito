@@ -104,3 +104,17 @@
         }
     }
 }
+
+/* UX polish: keep helper action visible without competing with play choices. */
+@layer blocks {
+    .menu__howto {
+        display: flex;
+        margin: 0 auto var(--space-3);
+    }
+
+    .coop__name-field {
+        display: grid;
+        gap: var(--space-2);
+        margin-bottom: var(--space-4);
+    }
+}
