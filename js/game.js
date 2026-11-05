@@ -551,7 +551,7 @@ $('#exchange').onclick = () => {
     }
     if (finished || !hand.length) return;
     if (canPlayAny()) {
-        status('Сброс карт возможен только если нет доступных ходов.');
+        snackbar('Сброс карт возможен только если нет доступных ходов', 'error');
         return;
     }
     const count = hand.length;
@@ -561,7 +561,8 @@ $('#exchange').onclick = () => {
     selected = -1;
     rotation = 0;
     hoverSpot = null;
-    status('Сброс карт: ' + count + ' карт возвращены под низ колоды, взяты новые.');
+    snackbar('Сброс карт: ' + count + ' карт возвращены под низ колоды, взяты новые');
+    status('Выбери карту в руке.');
     render();
 };
 $('#newgame').onclick = () => {

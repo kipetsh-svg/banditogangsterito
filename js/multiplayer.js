@@ -21,6 +21,7 @@ let mpAuth = null,
     mpTimerInterval = null,
     mpPresenceRef = null,
     mpPresenceHandler = null;
+const mpReadyMessage = 'Кооператив готов. Создай комнату или введи код.';
 function mpMessage(t) {
     const e = $('#mpMessage');
     if (e) e.textContent = t;
@@ -42,7 +43,7 @@ if (lobbyNameInput) {
             try {
                 await mpRoomRef.child('players/' + mpUid + '/name').set(value);
             } catch (e) {
-                $('#mpLobbyMessage').textContent = 'Не удалось обновить имя: ' + e.message;
+                snackbar('Не удалось обновить имя: ' + e.message, 'error');
             }
         }
     });
@@ -132,7 +133,7 @@ function mpAttach(code) {
     mpRoomListener = (s) => {
         const room = s.val();
         if (!room) {
-            mpMessage('Комната больше не существует.');
+            snackbar('Комната больше не существует', 'error');
             leaveMultiplayer(false);
             return;
         }
@@ -196,7 +197,7 @@ function mpAttach(code) {
         }
         $('#exchange').disabled = finished || g.turnUid !== mpUid || !hand.length || canPlayAny();
     };
-    mpRoomRef.on('value', mpRoomListener, (e) => mpMessage('Ошибка Firebase: ' + e.message));
+    mpRoomRef.on('value', mpRoomListener, (e) => snackbar('Ошибка Firebase: ' + e.message, 'error'));
     mpWatchPresence(code);
 }
 function mpWatchPresence(code) {
@@ -209,7 +210,7 @@ function mpWatchPresence(code) {
             await playerRef.onDisconnect().update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP });
             await playerRef.update({ online: true, lastSeen: firebase.database.ServerValue.TIMESTAMP });
         } catch (e) {
-            mpMessage('Не удалось обновить статус подключения: ' + e.message);
+            snackbar('Не удалось обновить статус подключения: ' + e.message, 'error');
         }
     };
     mpPresenceRef.on('value', mpPresenceHandler);
@@ -238,7 +239,7 @@ async function mpStartTimer(startedAt) {
         if (left === 0 && !finished && !mpBusy) {
             const currentUid = mpRoomData?.game?.turnUid;
             if (currentUid === mpUid) {
-                status('Время на ход истекло — ход переходит к следующему игроку.');
+                snackbar('Время на ход истекло — ход переходит к следующему игроку');
                 mpPassTurn();
             } else if (mpRoomData?.owner === mpUid && currentUid) {
                 const player = mpRoomData?.players?.[currentUid];
@@ -269,7 +270,7 @@ async function mpPassTurn(forUid = null) {
             return g;
         });
     } catch (e) {
-        status('Ошибка пропуска хода: ' + e.message);
+        snackbar('Ошибка пропуска хода: ' + e.message, 'error');
     } finally {
         mpBusy = false;
     }
@@ -304,7 +305,8 @@ async function mpCreate() {
         mpAttach(code);
         mpMessage('Комната создана. Отправь друзьям код: ' + code);
     } catch (e) {
-        mpMessage('Не получилось создать комнату: ' + e.message);
+        mpMessage(mpReadyMessage);
+        snackbar('Не получилось создать комнату: ' + e.message, 'error');
     } finally {
         mpBusy = false;
     }
@@ -313,7 +315,7 @@ async function mpJoin() {
     if (mpBusy) return;
     const code = $('#mpCode').value.trim().toUpperCase();
     if (!/^[A-Z0-9]{6}$/.test(code)) {
-        mpMessage('Введи шестизначный код комнаты, например 779742.');
+        snackbar('Введи шестизначный код комнаты, например 779742', 'error');
         return;
     }
     mpBusy = true;
@@ -330,20 +332,26 @@ async function mpJoin() {
         if (!room || !room.owner || !room.players || !room.players[mpUid]) {
             await roomRef.child('players/' + mpUid).remove();
             added = false;
-            mpMessage('Комната ' + code + ' не найдена. Проверь код или попроси создателя прислать его ещё раз.');
+            mpMessage(mpReadyMessage);
+            snackbar(
+                'Комната ' + code + ' не найдена. Проверь код или попроси создателя прислать его ещё раз',
+                'error'
+            );
             return;
         }
         const count = Object.keys(room.players).length;
         if (count > 4) {
             await roomRef.child('players/' + mpUid).remove();
             added = false;
-            mpMessage('В комнате уже максимальное количество игроков.');
+            mpMessage(mpReadyMessage);
+            snackbar('В комнате уже максимальное количество игроков', 'error');
             return;
         }
         if (room.game?.started && !room.game.finished) {
             await roomRef.child('players/' + mpUid).remove();
             added = false;
-            mpMessage('В этой комнате уже идёт партия. Подключиться можно после её завершения.');
+            mpMessage(mpReadyMessage);
+            snackbar('В этой комнате уже идёт партия. Подключиться можно после её завершения', 'error');
             return;
         }
         mpAttach(code);
@@ -354,7 +362,8 @@ async function mpJoin() {
                 await roomRef.child('players/' + mpUid).remove();
             } catch {}
         }
-        mpMessage('Не удалось войти. ' + e.message);
+        mpMessage(mpReadyMessage);
+        snackbar('Не удалось войти: ' + e.message, 'error');
     } finally {
         mpBusy = false;
     }
@@ -368,7 +377,7 @@ async function mpStart() {
     const startId = { 2: 75, 5: 72, 6: 71 }[n];
     const s = all.find((c) => c.id === startId);
     if (!s) {
-        $('#mpLobbyMessage').textContent = 'Стартовая карта не найдена в колоде.';
+        snackbar('Стартовая карта не найдена в колоде', 'error');
         return;
     }
     const players = Object.keys(mpRoomData.players || {});
@@ -393,13 +402,13 @@ async function mpStart() {
     try {
         await mpRoomRef.child('game').set(game);
     } catch (e) {
-        $('#mpLobbyMessage').textContent = 'Не удалось начать: ' + e.message;
+        snackbar('Не удалось начать: ' + e.message, 'error');
     }
 }
 async function mpPlay(x, y, m) {
     if (!mpRoomCode || finished || selected < 0 || mpBusy) return;
     if (mpRoomData?.game?.turnUid !== mpUid) {
-        status('Сейчас ход другого игрока.');
+        snackbar('Сейчас ход другого игрока', 'error');
         return;
     }
     mpBusy = true;
@@ -439,9 +448,9 @@ async function mpPlay(x, y, m) {
             }
             return g;
         });
-        if (!result.committed) status('Ход не принят: возможно, очередь уже перешла другому игроку.');
+        if (!result.committed) snackbar('Ход не принят: возможно, очередь уже перешла другому игроку', 'error');
     } catch (e) {
-        status('Ошибка хода: ' + e.message);
+        snackbar('Ошибка хода: ' + e.message, 'error');
     } finally {
         mpBusy = false;
     }
@@ -449,7 +458,7 @@ async function mpPlay(x, y, m) {
 async function mpExchange() {
     if (!mpRoomCode || finished || mpBusy || mpRoomData?.game?.turnUid !== mpUid) return;
     if (canPlayAny()) {
-        status('Сброс карт возможен только если нет доступных ходов.');
+        snackbar('Сброс карт возможен только если нет доступных ходов', 'error');
         return;
     }
     mpBusy = true;
@@ -472,7 +481,7 @@ async function mpExchange() {
             return g;
         });
     } catch (e) {
-        status('Ошибка сброса: ' + e.message);
+        snackbar('Ошибка сброса: ' + e.message, 'error');
     } finally {
         mpBusy = false;
     }
@@ -534,7 +543,7 @@ async function leaveMultiplayer(showMenu = true) {
                 return room;
             });
         } catch (e) {
-            mpMessage('Не удалось обновить комнату при выходе: ' + e.message);
+            snackbar('Не удалось обновить комнату при выходе: ' + e.message, 'error');
         }
     }
     mpRoomRef = null;
@@ -549,7 +558,8 @@ async function leaveMultiplayer(showMenu = true) {
     $('#play').classList.add('hidden');
     mpSwapPanel(false);
     if (showMenu) $('#menu').classList.remove('hidden');
-    mpMessage('Ты вышел из комнаты.');
+    mpMessage(mpReadyMessage);
+    if (showMenu) snackbar('Ты вышел из комнаты');
 }
 $('#mpCreate').onclick = mpCreate;
 $('#mpJoin').onclick = mpJoin;
@@ -559,7 +569,7 @@ $('#mpCopyCode').onclick = async () => {
     if (!mpRoomCode) return;
     try {
         await navigator.clipboard.writeText(mpRoomCode);
-        $('#mpLobbyMessage').textContent = 'Код комнаты скопирован.';
+        snackbar('Код комнаты скопирован');
     } catch {
         const field = document.createElement('textarea');
         field.value = mpRoomCode;
@@ -569,9 +579,9 @@ $('#mpCopyCode').onclick = async () => {
         field.select();
         try {
             document.execCommand('copy');
-            $('#mpLobbyMessage').textContent = 'Код комнаты скопирован.';
+            snackbar('Код комнаты скопирован');
         } catch {
-            $('#mpLobbyMessage').textContent = 'Не удалось скопировать код. Выдели его вручную.';
+            snackbar('Не удалось скопировать код. Выдели его вручную', 'error');
         }
         field.remove();
     }
@@ -583,7 +593,7 @@ try {
     mpAuth.onAuthStateChanged((u) => {
         if (u) {
             mpUid = u.uid;
-            mpMessage('Кооператив готов. Создай комнату или введи код.');
+            mpMessage(mpReadyMessage);
         } else mpMessage('Войди анонимно, чтобы играть онлайн.');
     });
 } catch (e) {

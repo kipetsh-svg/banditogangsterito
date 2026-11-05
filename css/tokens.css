@@ -65,6 +65,7 @@
         --z-confetti: 1000;
         --z-end-screen: 1200;
         --z-modal: 3000;
+        --z-snackbar: 3500;
         --z-launcher: 4000;
         --z-theme-shade: 4998;
         --z-celestial: 5000;
@@ -131,6 +132,10 @@
         --color-scrim: #f6efe4f2;
         --color-scrim-danger: #f2e9e6f2;
         --color-theme-shade: #101711;
+        --color-snackbar: #39291f;
+        --color-on-snackbar: #fffaf1;
+        --color-snackbar-error: #5c2b22;
+        --color-snackbar-error-icon: #f2a08f;
 
         /* Shadows */
         --shadow-card: 0 14px 36px #57351f30, inset 0 1px #fff9;
@@ -222,6 +227,10 @@
         --color-overlay: #080a08b8;
         --color-scrim: #17191cf2;
         --color-scrim-danger: #1d1819f2;
+        --color-snackbar: #eceef0;
+        --color-on-snackbar: #17191c;
+        --color-snackbar-error: #f4dcd6;
+        --color-snackbar-error-icon: #b5523f;
 
         --shadow-card: 0 12px 34px #0005;
         --shadow-float: 0 8px 22px #0005;
