@@ -140,6 +140,10 @@ function opens() {
     return n;
 }
 function begin(n) {
+    if (mpRoomCode) {
+        snackbar('Сначала выйди из комнаты, чтобы начать одиночную партию', 'error');
+        return;
+    }
     if (!all.length) return;
     if (mpTimerInterval) {
         clearInterval(mpTimerInterval);
@@ -271,7 +275,8 @@ function render() {
         btn.append(mini);
         const label = document.createElement('small');
         label.className = 'hand-card__label';
-        label.textContent = 'Карта ' + card.id;
+        label.textContent = String(i + 1);
+        btn.title = 'Выбрать карту ' + (i + 1);
         btn.append(label);
         btn.setAttribute('aria-pressed', String(i === selected));
         btn.onclick = () => {
@@ -446,6 +451,7 @@ function showEndScreen(won) {
         '</h2><p class="end-screen__subtitle">' +
         (won ? 'Все туннели закрыты. Бандито пойман!' : 'Карты закончились, но выходы ещё остались.') +
         '</p>' +
+        (!multi ? '<p class="end-screen__results">Ходов: ' + turnCount + ' · Открытых выходов: ' + opens() + '</p>' : '') +
         (multi
             ? host
                 ? '<label class="end-screen__rematch">Сложность реванша <select class="select" data-end="difficulty"><option value="2">2 выхода</option><option value="5">5 выходов</option><option value="6">6 выходов</option></select></label>'
@@ -456,7 +462,8 @@ function showEndScreen(won) {
             ? host
                 ? '<button class="btn btn--lg btn--primary end-screen__action" data-end="rematch">Реванш</button>'
                 : '<button class="btn btn--lg btn--primary end-screen__action" disabled>Ждём реванша…</button>'
-            : '<button class="btn btn--lg btn--primary end-screen__action" data-end="menu">В меню</button>' +
+            : '<button class="btn btn--lg btn--primary end-screen__action" data-end="replay">Сыграть ещё</button>' +
+              '<button class="btn btn--lg end-screen__action" data-end="menu">В меню</button>' +
               '<button class="btn btn--lg end-screen__action" data-end="close">Посмотреть поле</button>') +
         (multi ? '<button class="btn btn--lg end-screen__action" data-end="leave">Выйти из комнаты</button>' : '') +
         '</div></div>';
@@ -470,6 +477,12 @@ function showEndScreen(won) {
             $('#mpExits').value = choice;
             layer.remove();
             mpStart();
+        };
+    const replay = layer.querySelector('[data-end="replay"]');
+    if (replay)
+        replay.onclick = () => {
+            layer.remove();
+            begin(exits);
         };
     const menu = layer.querySelector('[data-end="menu"]');
     if (menu)
@@ -567,9 +580,11 @@ $('#exchange').onclick = () => {
 };
 $('#newgame').onclick = () => {
     if (mpRoomCode) {
+        if (!confirm('Выйти из комнаты? Текущая совместная партия продолжится без тебя.')) return;
         leaveMultiplayer();
         return;
     }
+    if (!finished && !confirm('Выйти в меню? Текущая партия не сохранится.')) return;
     $('#play').classList.add('hidden');
     $('#menu').classList.remove('hidden');
 };
@@ -583,17 +598,59 @@ fetch('./resources/bandido-matrices/cards.json')
     .then((d) => {
         all = d.cards.filter((c) => c.matrix);
         document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = false));
-        $('#loadstate').textContent = 'Колода загружена. Можно начинать.';
+        $('#loadstate').textContent = '';
+        $('#loadstate').classList.add('hidden');
     })
     .catch((e) => {
         $('#loadstate').textContent = 'Не удалось загрузить колоду: ' + e.message + '. Обнови страницу.';
         document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = true));
     });
 
-$('#openSettings').onclick = () => $('#settingsModal').classList.remove('hidden');
-$('#closeSettings').onclick = () => $('#settingsModal').classList.add('hidden');
-$('#settingsModal').addEventListener('click', (e) => {
-    if (e.target.id === 'settingsModal') $('#settingsModal').classList.add('hidden');
+const settingsModal = $('#settingsModal');
+const settingsTrigger = $('#openSettings');
+function closeSettings() {
+    settingsModal.classList.add('hidden');
+    settingsTrigger.focus();
+}
+settingsTrigger.onclick = () => {
+    settingsModal.classList.remove('hidden');
+    settingsModal.querySelector('input,button')?.focus();
+};
+$('#closeSettings').onclick = closeSettings;
+settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettings();
+});
+const howToPlayModal = $('#howToPlayModal');
+function closeHowToPlay() {
+    howToPlayModal.classList.add('hidden');
+    $('#openHowToPlay').focus();
+}
+$('#openHowToPlay').onclick = () => {
+    howToPlayModal.classList.remove('hidden');
+    $('#closeHowToPlay').focus();
+};
+$('#closeHowToPlay').onclick = closeHowToPlay;
+$('#closeHowToPlayAction').onclick = closeHowToPlay;
+howToPlayModal.addEventListener('click', (e) => {
+    if (e.target === howToPlayModal) closeHowToPlay();
+});
+function trapModalFocus(modal, e) {
+    if (e.key !== 'Tab') return;
+    const focusable = [...modal.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),[href],[tabindex]:not([tabindex="-1"])')]
+        .filter((el) => !el.closest('.hidden'));
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+    }
+}
+document.addEventListener('keydown', (e) => {
+    if (!settingsModal.classList.contains('hidden')) trapModalFocus(settingsModal, e);
+    if (!howToPlayModal.classList.contains('hidden')) trapModalFocus(howToPlayModal, e);
 });
 $('#reduceMotion').addEventListener('change', saveSettings);
 $('#darkTheme').addEventListener('change', saveSettings);
@@ -602,5 +659,8 @@ $('#resetSettings').onclick = () => {
     applySettings();
 };
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') $('#settingsModal').classList.add('hidden');
+    if (e.key === 'Escape') {
+        if (!howToPlayModal.classList.contains('hidden')) closeHowToPlay();
+        else if (!settingsModal.classList.contains('hidden')) closeSettings();
+    }
 });
