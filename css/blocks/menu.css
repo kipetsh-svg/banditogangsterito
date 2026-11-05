@@ -1,0 +1,106 @@
+/* Start screen: two cards side by side. */
+@layer blocks {
+    .menu {
+        padding: var(--space-2) 0 var(--space-8);
+    }
+
+    .menu__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        gap: var(--space-6);
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .menu__card {
+        --card-padding: var(--space-6);
+        --card-radius: var(--radius-xl);
+
+        position: relative;
+    }
+
+    .menu__card-head {
+        margin-bottom: var(--space-6);
+    }
+
+    .menu__card--solo::before {
+        content: '';
+        position: absolute;
+        top: -22px;
+        left: 29px;
+        width: 55px;
+        height: 42px;
+        border: 5px solid var(--color-rope);
+        border-bottom: 0;
+        border-radius: 55px 55px 0 0;
+        filter: drop-shadow(0 2px 1px var(--color-rope-glow));
+        pointer-events: none;
+    }
+
+    .menu__status {
+        min-height: 20px;
+        margin-top: var(--space-3);
+    }
+
+    @media (max-width: 1050px) and (min-width: 761px) {
+        .menu__grid {
+            --heading-title-size: var(--text-xl);
+            --heading-gap: var(--space-3);
+            --mode-list-gap: var(--space-2);
+            --mode-option-height: 64px;
+            --mode-option-title-size: var(--text-sm);
+            --mode-option-hint-size: var(--text-xs);
+
+            gap: var(--space-4);
+            max-width: 940px;
+        }
+
+        .menu__card {
+            --card-padding: var(--space-5);
+        }
+    }
+
+    @media (max-width: 760px) {
+        .menu__grid {
+            --mode-list-gap: var(--space-2);
+            --mode-option-height: 64px;
+
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--space-4);
+            max-width: 650px;
+        }
+
+        .menu__card {
+            --card-padding: var(--space-5);
+        }
+    }
+
+    @media (max-width: 560px) {
+        .menu__grid {
+            gap: var(--space-3);
+        }
+
+        .menu__card {
+            --card-padding: var(--space-4);
+            --card-radius: var(--radius-lg);
+        }
+
+        .menu__card-head {
+            margin-bottom: var(--space-4);
+        }
+    }
+
+    @media (max-width: 360px) {
+        .menu__grid {
+            --heading-title-size: var(--text-xl);
+            --heading-gap: var(--space-2);
+            --mode-option-title-size: var(--text-sm);
+            --mode-option-hint-size: var(--text-xs);
+        }
+
+        .menu__card {
+            --card-padding: var(--space-4) var(--space-3);
+        }
+    }
+}

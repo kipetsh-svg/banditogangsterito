@@ -1,0 +1,71 @@
+/* Card in the player's hand with a miniature of its tunnels. */
+@layer blocks {
+    .hand-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+        min-height: 88px;
+        padding: var(--space-2);
+        border: 1px solid var(--color-control-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface-raised);
+        color: var(--color-text);
+        transition:
+            transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+            border-color var(--duration-fast);
+    }
+
+    .hand-card:hover:not(:disabled) {
+        border-color: var(--color-control-border-hover);
+    }
+
+    .hand-card:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .hand-card--selected {
+        outline: 2px solid var(--color-selection);
+        outline-offset: 1px;
+        transform: translateY(-1px);
+    }
+
+    .hand-card__mini {
+        display: grid;
+        gap: 1px;
+        margin-bottom: var(--space-1);
+        padding: 2px;
+        background: var(--color-tile-outline);
+    }
+
+    .hand-card__cell {
+        display: block;
+        background: var(--color-tile-cell);
+    }
+
+    .hand-card__cell--wall {
+        background: var(--color-tile-wall);
+    }
+
+    .hand-card__label {
+        color: var(--color-text-muted);
+        font-size: var(--text-xs);
+        line-height: var(--leading-tight);
+    }
+
+    @media (max-width: 760px) {
+        .hand-card {
+            flex: 0 0 92px;
+            min-height: 80px;
+            scroll-snap-align: start;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .hand-card {
+            flex-basis: 84px;
+        }
+    }
+}

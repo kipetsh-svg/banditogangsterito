@@ -1,0 +1,16 @@
+/* Dim layer shown while the day/night switch animates. */
+@layer blocks {
+    .theme-shade {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-theme-shade);
+        background: var(--color-theme-shade);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1.05s ease;
+    }
+
+    .theme-shade--visible {
+        opacity: 0.78;
+    }
+}

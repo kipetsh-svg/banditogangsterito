@@ -1,0 +1,76 @@
+/* Sun and moon swap animation for the theme switch. */
+@layer blocks {
+    .celestial {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-celestial);
+        display: none;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .celestial--active {
+        display: block;
+    }
+
+    .celestial__sun,
+    .celestial__moon {
+        position: absolute;
+        top: 9%;
+        left: 50%;
+        font: normal clamp(58px, 9vw, 104px) / 1 var(--font-sans);
+        transform: translateX(-50%);
+        will-change: transform, opacity;
+    }
+
+    .celestial__sun {
+        color: var(--color-sun);
+        filter: drop-shadow(0 0 22px var(--color-sun-glow));
+    }
+
+    .celestial__moon {
+        color: var(--color-moon);
+        filter: drop-shadow(0 0 22px var(--color-moon-glow));
+        opacity: 0;
+    }
+
+    .celestial--to-night .celestial__sun,
+    .celestial--to-day .celestial__moon {
+        animation: celestial-fall 1.2s cubic-bezier(0.55, 0.05, 0.8, 0.45) forwards;
+    }
+
+    .celestial--to-night .celestial__moon,
+    .celestial--to-day .celestial__sun {
+        animation: celestial-rise 1.2s ease forwards;
+    }
+
+    @keyframes celestial-fall {
+        0% {
+            opacity: 1;
+            transform: translate(-50%, 0) rotate(0);
+        }
+
+        45% {
+            opacity: 1;
+            transform: translate(calc(-50% + 18vw), 42vh) rotate(180deg);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translate(calc(-50% + 35vw), 105vh) rotate(360deg);
+        }
+    }
+
+    @keyframes celestial-rise {
+        0%,
+        42% {
+            opacity: 0;
+            transform: translate(calc(-50% - 35vw), 105vh) rotate(0);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translate(-50%, 0) rotate(360deg);
+        }
+    }
+}

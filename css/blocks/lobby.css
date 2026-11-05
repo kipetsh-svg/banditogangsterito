@@ -1,0 +1,161 @@
+/* Waiting room shown inside the multiplayer card. */
+@layer blocks {
+    .lobby {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        min-width: 0;
+    }
+
+    .lobby__head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-bottom: var(--space-2);
+    }
+
+    .lobby__presence {
+        flex: none;
+        padding: var(--space-1) var(--space-3);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-full);
+        background: var(--color-surface-raised);
+    }
+
+    .lobby__panel {
+        --card-padding: var(--space-4);
+        --card-radius: var(--radius-md);
+    }
+
+    .lobby__code {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--space-1) var(--space-3);
+    }
+
+    .lobby__code-caption {
+        grid-column: 1 / -1;
+    }
+
+    .lobby__code-value {
+        overflow: hidden;
+        color: var(--color-text-strong);
+        font-family: var(--font-mono);
+        font-size: var(--text-2xl);
+        font-weight: var(--weight-bold);
+        line-height: var(--leading-tight);
+        text-overflow: ellipsis;
+    }
+
+    .lobby__players {
+        display: grid;
+        gap: var(--space-3);
+        margin-top: var(--space-2);
+    }
+
+    .lobby__players-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-3);
+    }
+
+    .lobby__player-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-2);
+    }
+
+    .lobby__player {
+        --card-padding: var(--space-2) var(--space-3);
+        --card-radius: var(--radius-md);
+        --item-title-size: var(--text-sm);
+
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .lobby__player--offline {
+        opacity: 0.72;
+    }
+
+    .lobby__player-info {
+        flex: 1;
+    }
+
+    .lobby__player-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2);
+        min-width: 0;
+    }
+
+    .lobby__badges:empty {
+        display: none;
+    }
+
+    .lobby__player-presence {
+        flex: none;
+    }
+
+    .lobby__badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-1);
+    }
+
+    .lobby__settings {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-top: var(--space-2);
+    }
+
+    .lobby__select {
+        flex: none;
+    }
+
+    .lobby__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-top: var(--space-2);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--color-border);
+    }
+
+    .lobby__actions {
+        display: flex;
+        flex: none;
+        gap: var(--space-2);
+    }
+
+    @media (max-width: 560px) {
+        .lobby__footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .lobby__actions > * {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .lobby__player-list {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .lobby__settings {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+}

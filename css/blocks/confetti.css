@@ -1,0 +1,97 @@
+/* Victory confetti. Bit colors and trajectories come from JS custom properties. */
+@layer blocks {
+    .confetti {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-confetti);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .confetti__ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        border: 5px solid var(--color-confetti-gold);
+        border-radius: 50%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.2);
+        animation: confetti-ring-pop 0.8s ease-out forwards;
+    }
+
+    .confetti__ring--second {
+        border-color: var(--color-confetti-rose);
+        animation-delay: 0.22s;
+    }
+
+    .confetti__burst {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+    }
+
+    .confetti__bit {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 17px;
+        height: 24px;
+        border-radius: 3px;
+        opacity: 0;
+        transform: translate(-50%, -50%);
+        animation: confetti-explode var(--duration) cubic-bezier(0.12, 0.62, 0.22, 1) var(--delay) forwards;
+    }
+
+    .confetti__bit--circle {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+    }
+
+    .confetti__bit--ribbon {
+        width: 9px;
+        height: 34px;
+        border-radius: 5px;
+    }
+
+    @keyframes confetti-explode {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.2) rotate(0);
+        }
+
+        8%,
+        62% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--turn)) scale(0.8);
+        }
+    }
+
+    @keyframes confetti-ring-pop {
+        0% {
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(0.2);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(15);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .confetti {
+            display: none;
+        }
+    }
+}

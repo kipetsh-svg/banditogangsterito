@@ -1,0 +1,150 @@
+/* Game screen: header, board frame and side panel. */
+@layer blocks {
+    .game__head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+
+    .game__layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: var(--space-4);
+    }
+
+    .game__boardbox {
+        --card-padding: var(--space-3);
+        --card-radius: var(--radius-lg);
+
+        height: clamp(430px, calc(100svh - 190px), 860px);
+        min-height: 430px;
+        overflow: hidden;
+    }
+
+    .game__camera {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-border) transparent;
+        border-radius: var(--radius-sm);
+        cursor: grab;
+        touch-action: pan-x pan-y;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .game__camera--dragging {
+        cursor: grabbing;
+    }
+
+    .game__side {
+        --card-padding: var(--space-4);
+
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .game__metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-2) var(--space-4);
+    }
+
+    .game__hand-section {
+        display: grid;
+        gap: var(--space-2);
+    }
+
+    .game__hand {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .game__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .game__exchange {
+        flex: 1;
+    }
+
+    .game__zoom {
+        --btn-icon-size: var(--control-sm);
+
+        display: flex;
+        flex: none;
+        gap: var(--space-1);
+    }
+
+    .game__zoom-reset {
+        min-width: 56px;
+    }
+
+    @media (max-height: 650px) and (min-width: 761px) {
+        .game__boardbox {
+            height: calc(100svh - 155px);
+            min-height: 360px;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .game__head {
+            --heading-title-size: var(--text-xl);
+
+            margin-bottom: var(--space-2);
+        }
+
+        .game__subtitle {
+            display: none;
+        }
+
+        .game__layout {
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--space-3);
+        }
+
+        .game__boardbox {
+            --card-padding: var(--space-2);
+            --card-radius: var(--radius-md);
+
+            height: clamp(300px, 52svh, 560px);
+            min-height: 300px;
+        }
+
+        .game__side {
+            --card-padding: var(--space-3);
+
+            gap: var(--space-3);
+        }
+
+        .game__metrics {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: var(--space-2);
+        }
+
+        .game__hand {
+            flex-wrap: nowrap;
+            margin: 0 calc(-1 * var(--space-1));
+            padding: var(--space-1) var(--space-1) var(--space-2);
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .game__boardbox {
+            height: 48svh;
+            min-height: 280px;
+        }
+    }
+}

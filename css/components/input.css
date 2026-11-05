@@ -1,0 +1,55 @@
+/* Text inputs and selects. */
+@layer components {
+    .input,
+    .select {
+        min-width: 0;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-field);
+        color: var(--color-text);
+    }
+
+    .input {
+        width: 100%;
+        min-height: var(--control-md);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        font-size: var(--text-md);
+    }
+
+    .input::placeholder {
+        color: var(--color-text-muted);
+        opacity: 1;
+    }
+
+    .input--lg {
+        min-height: var(--control-lg);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-lg);
+    }
+
+    .input--code {
+        text-transform: uppercase;
+    }
+
+    .input--code::placeholder {
+        text-transform: none;
+    }
+
+    /* Native arrow sits flush with the edge, so the chevron is drawn in CSS with the text color. */
+    .select {
+        min-height: var(--control-sm);
+        padding: var(--space-1) var(--space-8) var(--space-1) var(--space-3);
+        border-radius: var(--radius-sm);
+        background-image:
+            linear-gradient(45deg, transparent 50%, currentColor 50%),
+            linear-gradient(135deg, currentColor 50%, transparent 50%);
+        background-position:
+            right 17px center,
+            right 12px center;
+        background-size: 5px 5px;
+        background-repeat: no-repeat;
+        font-size: var(--text-sm);
+        cursor: pointer;
+        appearance: none;
+    }
+}

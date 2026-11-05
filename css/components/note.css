@@ -1,0 +1,11 @@
+/* Muted helper text. */
+@layer components {
+    .note {
+        color: var(--color-text-muted);
+        font-size: var(--text-sm);
+    }
+
+    .note--sm {
+        font-size: var(--text-xs);
+    }
+}

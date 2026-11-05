@@ -1,0 +1,114 @@
+/* Placed tiles, placement pins and the hover preview. Positions come from JS. */
+@layer blocks {
+    .board {
+        position: relative;
+        margin: auto;
+    }
+
+    .board__piece {
+        position: absolute;
+        display: grid;
+        background: var(--color-tile-cell);
+        outline: 1px solid var(--color-tile-outline);
+    }
+
+    .board__piece--fresh {
+        animation: board-tile-drop 0.32s cubic-bezier(0.18, 0.8, 0.25, 1.25) both;
+    }
+
+    .board__piece--latest {
+        z-index: 2;
+        border-radius: 2px;
+        outline-color: var(--color-tile-latest);
+        outline-offset: 1px;
+    }
+
+    .board__piece--ghost {
+        z-index: 5;
+        top: 0;
+        left: 0;
+        border: 1px dashed var(--color-success);
+        opacity: 0.62;
+        pointer-events: none;
+    }
+
+    .board__cell {
+        border: 0.5px solid var(--color-tile-line);
+        background: var(--color-tile-cell);
+        transition: background var(--duration-fast);
+    }
+
+    .board__cell--wall {
+        border-color: var(--color-tile-wall);
+        background: var(--color-tile-wall);
+    }
+
+    .board__pin {
+        position: absolute;
+        z-index: 7;
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        touch-action: manipulation;
+        transition: background var(--duration-fast);
+    }
+
+    .board__pin::before {
+        content: '';
+        display: block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--color-pin-ring);
+        border-radius: 50%;
+        background: var(--pin-color, var(--color-pin-0));
+        box-shadow: var(--shadow-pin);
+        transition: transform 0.12s;
+    }
+
+    .board__pin--0 {
+        --pin-color: var(--color-pin-0);
+    }
+
+    .board__pin--1 {
+        --pin-color: var(--color-pin-1);
+    }
+
+    .board__pin--2 {
+        --pin-color: var(--color-pin-2);
+    }
+
+    .board__pin--3 {
+        --pin-color: var(--color-pin-3);
+    }
+
+    .board__pin:hover {
+        background: var(--color-pin-hover);
+    }
+
+    .board__pin:hover::before,
+    .board__pin:focus-visible::before {
+        transform: scale(1.2);
+    }
+
+    @keyframes board-tile-drop {
+        from {
+            opacity: 0;
+            transform: translateY(-9px) scale(0.88);
+        }
+
+        65% {
+            opacity: 1;
+            transform: translateY(2px) scale(1.025);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}

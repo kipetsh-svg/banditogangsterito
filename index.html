@@ -1,89 +1,409 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bandito — карточная игра</title>
-
-
-
-
-
-
-
-
-
-
-  <link rel="stylesheet" href="css/01-base.css">
-  <link rel="stylesheet" href="css/02-menu.css">
-  <link rel="stylesheet" href="css/03-components.css">
-  <link rel="stylesheet" href="css/04-themes.css">
-  <link rel="stylesheet" href="css/05-lobby.css">
-  <link rel="stylesheet" href="css/06-theme-overrides.css">
-  <link rel="stylesheet" href="css/07-responsive.css">
-  <link rel="stylesheet" href="css/08-lobby-overrides.css">
-  <link rel="stylesheet" href="css/09-controls.css">
-  <link rel="stylesheet" href="css/10-typography.css">
-</head><body><div id="themeShade" class="theme-shade" aria-hidden="true"></div><div id="celestialScene" class="celestial-scene" aria-hidden="true"><span class="celestial-sun">☀</span><span class="celestial-moon">☾</span></div><img class="bandito-corner-art bandito-corner-left" src="assets/images/bandito-corner-left.png" alt="" aria-hidden="true"><img class="bandito-corner-art bandito-corner-right" src="assets/images/bandito-corner-right.png" alt="" aria-hidden="true"><main><section id="menu" class="menu-screen">
-<header class="brand-header">
-  <img class="brand-logo" src="assets/images/bandito-logo.png" alt="BANDITO">
-  <div class="brand-title-wrap"><div class="brand-kicker">КАРТОЧНАЯ ИГРА · 1–4 ИГРОКА</div><p>Прокладывай тоннели. Закрой все выходы.</p></div>
-  <button id="openSettings" class="settings-open" type="button" aria-label="Настройки" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.1.9-1.4 2.4-1.4-.5a7.9 7.9 0 0 1-1.5.9l-.2 1.5h-2.8l-.3-1.5a7.9 7.9 0 0 1-1.6-.9l-1.4.5-1.4-2.4 1.1-.9a7.2 7.2 0 0 1 0-1.8l-1.1-.9 1.4-2.4 1.4.5a7.9 7.9 0 0 1 1.6-.9l.3-1.5h2.8l.2 1.5a7.9 7.9 0 0 1 1.5.9l1.4-.5 1.4 2.4-1.1.9a7.2 7.2 0 0 1 0 1.8Z" transform="translate(-1 -1)"/></svg></button>
-</header>
-<div class="menu-grid">
-<section class="menu-card solo-card">
-  <div class="menu-card-heading"><span class="menu-icon solo-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4 30 9 38 9 39 17 44 24 39 31 38 39 30 39 24 44 18 39 10 39 9 31 4 24 9 17 10 9 18 9Z" fill="currentColor"/><path d="m24 13 3.4 7 7.6 1.1-5.5 5.4 1.3 7.6-6.8-3.6-6.8 3.6 1.3-7.6-5.5-5.4 7.6-1.1Z" fill="#f5dfc5"/></svg></span><div><h2>Одиночная игра</h2><p>Выбери количество выходов</p></div></div>
-  <div class="mode-list">
-    <button class="mode-option" data-start="2" disabled type="button"><span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M7 16H25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="16" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="25" cy="16" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="16" r="2" fill="currentColor"/></svg></span><span class="mode-info"><strong>2 выхода</strong><small>Лёгкая партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
-    <button class="mode-option" data-start="5" disabled type="button"><span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M16 15.5 16 5.5M16 15.5 25.5 12.4M16 15.5 21.9 25M16 15.5 6.1 21.4M16 15.5 6.5 9.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="16" cy="5.5" r="2.3" fill="currentColor"/><circle cx="25.5" cy="12.4" r="2.3" fill="currentColor"/><circle cx="21.9" cy="25" r="2.3" fill="currentColor"/><circle cx="6.1" cy="21.4" r="2.3" fill="currentColor"/><circle cx="6.5" cy="9.3" r="2.3" fill="currentColor"/><circle cx="16" cy="15.5" r="2.2" fill="currentColor"/></svg></span><span class="mode-info"><strong>5 выходов</strong><small>Стандартная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
-    <button class="mode-option" data-start="6" disabled type="button"><span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M16 15.5V5.2M16 15.5 24.9 10.4M16 15.5 24.9 20.6M16 15.5V25.8M16 15.5 7.1 20.6M16 15.5 7.1 10.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="16" cy="5.2" r="2.2" fill="currentColor"/><circle cx="24.9" cy="10.4" r="2.2" fill="currentColor"/><circle cx="24.9" cy="20.6" r="2.2" fill="currentColor"/><circle cx="16" cy="25.8" r="2.2" fill="currentColor"/><circle cx="7.1" cy="20.6" r="2.2" fill="currentColor"/><circle cx="7.1" cy="10.4" r="2.2" fill="currentColor"/><circle cx="16" cy="15.5" r="2" fill="currentColor"/></svg></span><span class="mode-info"><strong>6 выходов</strong><small>Сложная партия</small></span><span class="mode-check" aria-hidden="true">✓</span></button>
-  </div>
-  <p id="loadstate" class="menu-loadstate">Загружаю колоду…</p>
-</section>
-<section class="menu-card coop-card">
-  <div class="menu-card-heading"><span class="menu-icon coop-icon" aria-hidden="true"><svg viewBox="0 0 52 48"><circle cx="26" cy="12" r="8" fill="currentColor"/><circle cx="10" cy="17" r="6" fill="currentColor"/><circle cx="42" cy="17" r="6" fill="currentColor"/><path d="M11 40v-6c0-8 6-13 15-13s15 5 15 13v6Z" fill="currentColor"/><path d="M1 39v-5c0-6 4-10 10-10 3 0 5 1 7 3-3 3-4 7-4 13Zm50 0v-5c0-6-4-10-10-10-3 0-5 1-7 3 3 3 4 7 4 13Z" fill="currentColor"/></svg></span><div><h2>Мультиплеер</h2><p>Играй вместе с друзьями</p></div></div>
-
-  <button id="mpCreate" class="primary menu-create" type="button"><span class="plus" aria-hidden="true">＋</span>Создать комнату <span class="button-arrow" aria-hidden="true">↗</span></button>
-  <div class="menu-divider"><span>ИЛИ ПОДКЛЮЧИСЬ ПО КОДУ</span></div>
-  <div class="menu-join-row"><input id="mpCode" maxlength="6" placeholder="Код комнаты" aria-label="Код комнаты"><button id="mpJoin" type="button">Войти</button></div>
-  <p class="menu-coop-note">До 4 игроков · одно общее поле</p>
-  <p id="mpMessage" class="menu-connection" aria-live="polite">Подключение к кооперативу…</p>
-</section>
-</div>
-</section>
-<section id="mpLobby" class="panel lobby-shell hidden" aria-label="Лобби кооперативной игры">
-<header class="lobby-head">
-<div class="lobby-heading">
-<div class="lobby-eyebrow">ОНЛАЙН · КООПЕРАТИВ</div>
-<h2>Комната ожидания</h2>
-<p>Пригласи друзей по коду и соберитесь за одним игровым полем.</p>
-</div>
-<div class="lobby-presence"><span class="lobby-presence-dot"></span><span id="mpLobbyMeta">Подключаем игроков…</span></div>
-</header>
-<div class="player-name-card lobby-name-card"><label for="mpName">ТВОЁ ИМЯ В КОМНАТЕ</label><div class="player-name-control"><input id="mpName" maxlength="18" placeholder="Как тебя называть?" aria-label="Твоё имя"></div></div>
-<div class="lobby-code-card">
-<div class="lobby-code-caption">КОД ПРИГЛАШЕНИЯ</div>
-<div class="lobby-code-content"><strong id="mpRoomCode"></strong><button id="mpCopyCode" type="button">Копировать код</button></div>
-<div class="lobby-code-hint">Отправь этот код друзьям, чтобы они вошли в комнату.</div>
-</div>
-<div class="lobby-section-head"><h3>Игроки</h3><span>До 4 участников · свободно <span id="mpFreeSlots">3</span></span></div>
-<div id="mpPlayers" class="lobby-players" aria-live="polite"></div>
-<div class="lobby-settings">
-<div class="lobby-settings-copy"><strong>Сложность партии</strong><span>Количество выходов, которые нужно закрыть</span></div>
-<select id="mpExits" aria-label="Сложность партии"><option value="2">2 выхода · легко</option><option value="5">5 выходов · нормально</option><option value="6" selected>6 выходов · сложно</option></select>
-</div>
-<footer class="lobby-footer">
-<p id="mpLobbyMessage" aria-live="polite">Ждём подключения игроков.</p>
-<div class="lobby-actions"><button id="mpLeave" type="button">Выйти</button><button id="mpStart" class="primary" type="button">Начать партию</button></div>
-</footer>
-
-</section><div id="settingsModal" class="settings-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-  <section class="settings-dialog">
-    <header class="settings-head"><div><div class="settings-kicker">BANDITO · ПЕРСОНАЛИЗАЦИЯ</div><h2 id="settingsTitle">Настройки</h2></div><button id="closeSettings" class="settings-close" type="button" aria-label="Закрыть">×</button></header>
-    <label class="settings-toggle"><span><strong>Ночная тема</strong><small>Ночной фон и оформление Bandito</small></span><input id="darkTheme" type="checkbox"></label>
-    <label class="settings-toggle"><span><strong>Уменьшить анимации</strong><small>Отключает лишние движения интерфейса</small></span><input id="reduceMotion" type="checkbox"></label>
-    <footer class="settings-footer"><span>Настройки сохраняются автоматически</span><button id="resetSettings" type="button">Сбросить</button></footer>
-  </section>
-</div></section><section id="play" class="hidden"><div class="game-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="game-intro"><h2 id="heading"></h2><div class="muted">Выбери карту и нажми на точку нужного поворота.</div></div><button id="newgame">Новая партия</button></div><div class="layout"><div class="boardbox"><div id="camera" class="camera" aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."><div id="board" class="board"></div></div></div><aside class="side"><div class="side-metrics"><div class="stats"><span>В колоде</span><b id="deckcount">0</b></div><div class="stats"><span>Выходы</span><b id="openCount">0</b></div><div class="stats"><span>Ход</span><b id="turnCount">0</b></div><div class="stats"><span>Победы</span><b id="gameWins">0</b></div></div><div class="hand-section"><div class="side-label">Карты в руке</div><div class="hand" id="hand" aria-label="Карты в руке"></div></div><div class="side-actions"><div class="controls"><button id="exchange" type="button">Сбросить карты</button></div><div class="camera-tools"><button id="zoomOut" type="button" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button><button id="zoomReset" type="button" title="Сбросить масштаб">100%</button><button id="zoomIn" type="button" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button></div></div><div id="mpTimer" class="status" style="font-weight:700;display:none">⏱ До конца хода: 60 сек.</div><div id="status" class="status">Загрузка карт…</div><div class="hint">Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью или пальцем.</div></aside></div></section></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script src="js/settings.js"></script>
-<script src="js/game.js"></script>
-<script src="js/multiplayer.js"></script>
-
-
-</body></html>
-
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Bandito — карточная игра</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" />
+        <link rel="stylesheet" href="css/tokens.css" />
+        <link rel="stylesheet" href="css/base.css" />
+        <link rel="stylesheet" href="css/components/card.css" />
+        <link rel="stylesheet" href="css/components/heading.css" />
+        <link rel="stylesheet" href="css/components/button.css" />
+        <link rel="stylesheet" href="css/components/input.css" />
+        <link rel="stylesheet" href="css/components/field.css" />
+        <link rel="stylesheet" href="css/components/caption.css" />
+        <link rel="stylesheet" href="css/components/badge.css" />
+        <link rel="stylesheet" href="css/components/avatar.css" />
+        <link rel="stylesheet" href="css/components/presence.css" />
+        <link rel="stylesheet" href="css/components/toggle.css" />
+        <link rel="stylesheet" href="css/components/item.css" />
+        <link rel="stylesheet" href="css/components/stat.css" />
+        <link rel="stylesheet" href="css/components/divider.css" />
+        <link rel="stylesheet" href="css/components/notice.css" />
+        <link rel="stylesheet" href="css/components/note.css" />
+        <link rel="stylesheet" href="css/components/mode-list.css" />
+        <link rel="stylesheet" href="css/components/mode-option.css" />
+        <link rel="stylesheet" href="css/blocks/page.css" />
+        <link rel="stylesheet" href="css/blocks/corner-art.css" />
+        <link rel="stylesheet" href="css/blocks/theme-shade.css" />
+        <link rel="stylesheet" href="css/blocks/celestial.css" />
+        <link rel="stylesheet" href="css/blocks/brand.css" />
+        <link rel="stylesheet" href="css/blocks/settings-launcher.css" />
+        <link rel="stylesheet" href="css/blocks/modal.css" />
+        <link rel="stylesheet" href="css/blocks/menu.css" />
+        <link rel="stylesheet" href="css/blocks/coop.css" />
+        <link rel="stylesheet" href="css/blocks/lobby.css" />
+        <link rel="stylesheet" href="css/blocks/game.css" />
+        <link rel="stylesheet" href="css/blocks/board.css" />
+        <link rel="stylesheet" href="css/blocks/hand-card.css" />
+        <link rel="stylesheet" href="css/blocks/end-screen.css" />
+        <link rel="stylesheet" href="css/blocks/confetti.css" />
+        <link rel="stylesheet" href="css/utilities.css" />
+    </head>
+    <body>
+        <div id="themeShade" class="theme-shade" aria-hidden="true"></div>
+        <div id="celestialScene" class="celestial" aria-hidden="true">
+            <span class="celestial__sun">☀</span>
+            <span class="celestial__moon">☾</span>
+        </div>
+        <img
+            id="cornerLeft"
+            class="corner-art corner-art--left"
+            src="assets/images/bandito-corner-left.png"
+            alt=""
+            aria-hidden="true"
+        />
+        <img
+            id="cornerRight"
+            class="corner-art corner-art--right"
+            src="assets/images/bandito-corner-right.png"
+            alt=""
+            aria-hidden="true"
+        />
+        <main class="page">
+            <section id="menu" class="menu">
+                <button
+                    id="openSettings"
+                    class="btn btn--icon btn--glass settings-launcher"
+                    type="button"
+                    aria-label="Настройки"
+                    title="Настройки"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
+                        <path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z" />
+                        <path
+                            d="m19.4 13.5 1.1.9-1.4 2.4-1.4-.5a7.9 7.9 0 0 1-1.5.9l-.2 1.5h-2.8l-.3-1.5a7.9 7.9 0 0 1-1.6-.9l-1.4.5-1.4-2.4 1.1-.9a7.2 7.2 0 0 1 0-1.8l-1.1-.9 1.4-2.4 1.4.5a7.9 7.9 0 0 1 1.6-.9l.3-1.5h2.8l.2 1.5a7.9 7.9 0 0 1 1.5.9l1.4-.5 1.4 2.4-1.1.9a7.2 7.2 0 0 1 0 1.8Z"
+                            transform="translate(-1 -1)"
+                        />
+                    </svg>
+                </button>
+                <header class="brand">
+                    <img id="brandLogo" class="brand__logo" src="assets/images/bandito-logo.png" alt="BANDITO" />
+                    <div>
+                        <p class="brand__kicker">Карточная игра · 1–4 игрока</p>
+                        <p class="brand__tagline">Прокладывай тоннели, закрой все выходы</p>
+                    </div>
+                </header>
+                <div class="menu__grid">
+                    <section class="card card--glass menu__card menu__card--solo">
+                        <div class="heading menu__card-head">
+                            <span class="heading__icon" aria-hidden="true"
+                                ><svg viewBox="0 0 48 48">
+                                    <path
+                                        d="M24 4 30 9 38 9 39 17 44 24 39 31 38 39 30 39 24 44 18 39 10 39 9 31 4 24 9 17 10 9 18 9Z"
+                                        fill="currentColor"
+                                    />
+                                    <path
+                                        d="m24 13 3.4 7 7.6 1.1-5.5 5.4 1.3 7.6-6.8-3.6-6.8 3.6 1.3-7.6-5.5-5.4 7.6-1.1Z"
+                                        class="heading__icon-detail"
+                                    /></svg
+                            ></span>
+                            <div class="heading__text">
+                                <h2 class="heading__title">Одиночная игра</h2>
+                                <p class="heading__subtitle">Выбери количество выходов</p>
+                            </div>
+                        </div>
+                        <div class="mode-list">
+                            <button class="mode-option" data-start="2" type="button" disabled>
+                                <span class="mode-option__symbol" aria-hidden="true"
+                                    ><svg
+                                        viewBox="0 0 32 32"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        focusable="false"
+                                    >
+                                        <path
+                                            d="M7 16H25"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                        />
+                                        <circle cx="7" cy="16" r="3" stroke="currentColor" stroke-width="1.8" />
+                                        <circle cx="25" cy="16" r="3" stroke="currentColor" stroke-width="1.8" />
+                                        <circle cx="16" cy="16" r="2" fill="currentColor" /></svg
+                                ></span>
+                                <span class="mode-option__info">
+                                    <strong class="mode-option__title">2 выхода</strong>
+                                    <small class="mode-option__hint">Лёгкая партия</small>
+                                </span>
+                                <span class="mode-option__check" aria-hidden="true">✓</span>
+                            </button>
+                            <button class="mode-option" data-start="5" type="button" disabled>
+                                <span class="mode-option__symbol" aria-hidden="true"
+                                    ><svg
+                                        viewBox="0 0 32 32"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        focusable="false"
+                                    >
+                                        <path
+                                            d="M16 15.5 16 5.5M16 15.5 25.5 12.4M16 15.5 21.9 25M16 15.5 6.1 21.4M16 15.5 6.5 9.3"
+                                            stroke="currentColor"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                        />
+                                        <circle cx="16" cy="5.5" r="2.3" fill="currentColor" />
+                                        <circle cx="25.5" cy="12.4" r="2.3" fill="currentColor" />
+                                        <circle cx="21.9" cy="25" r="2.3" fill="currentColor" />
+                                        <circle cx="6.1" cy="21.4" r="2.3" fill="currentColor" />
+                                        <circle cx="6.5" cy="9.3" r="2.3" fill="currentColor" />
+                                        <circle cx="16" cy="15.5" r="2.2" fill="currentColor" /></svg
+                                ></span>
+                                <span class="mode-option__info">
+                                    <strong class="mode-option__title">5 выходов</strong>
+                                    <small class="mode-option__hint">Стандартная партия</small>
+                                </span>
+                                <span class="mode-option__check" aria-hidden="true">✓</span>
+                            </button>
+                            <button class="mode-option" data-start="6" type="button" disabled>
+                                <span class="mode-option__symbol" aria-hidden="true"
+                                    ><svg
+                                        viewBox="0 0 32 32"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        focusable="false"
+                                    >
+                                        <path
+                                            d="M16 15.5V5.2M16 15.5 24.9 10.4M16 15.5 24.9 20.6M16 15.5V25.8M16 15.5 7.1 20.6M16 15.5 7.1 10.4"
+                                            stroke="currentColor"
+                                            stroke-width="1.7"
+                                            stroke-linecap="round"
+                                        />
+                                        <circle cx="16" cy="5.2" r="2.2" fill="currentColor" />
+                                        <circle cx="24.9" cy="10.4" r="2.2" fill="currentColor" />
+                                        <circle cx="24.9" cy="20.6" r="2.2" fill="currentColor" />
+                                        <circle cx="16" cy="25.8" r="2.2" fill="currentColor" />
+                                        <circle cx="7.1" cy="20.6" r="2.2" fill="currentColor" />
+                                        <circle cx="7.1" cy="10.4" r="2.2" fill="currentColor" />
+                                        <circle cx="16" cy="15.5" r="2" fill="currentColor" /></svg
+                                ></span>
+                                <span class="mode-option__info">
+                                    <strong class="mode-option__title">6 выходов</strong>
+                                    <small class="mode-option__hint">Сложная партия</small>
+                                </span>
+                                <span class="mode-option__check" aria-hidden="true">✓</span>
+                            </button>
+                        </div>
+                        <p id="loadstate" class="note menu__status">Загружаю колоду…</p>
+                    </section>
+                    <section id="coopCard" class="card card--glass menu__card">
+                        <div class="heading menu__card-head">
+                            <span class="heading__icon" aria-hidden="true"
+                                ><svg viewBox="0 0 52 48">
+                                    <circle cx="26" cy="12" r="8" fill="currentColor" />
+                                    <circle cx="10" cy="17" r="6" fill="currentColor" />
+                                    <circle cx="42" cy="17" r="6" fill="currentColor" />
+                                    <path d="M11 40v-6c0-8 6-13 15-13s15 5 15 13v6Z" fill="currentColor" />
+                                    <path
+                                        d="M1 39v-5c0-6 4-10 10-10 3 0 5 1 7 3-3 3-4 7-4 13Zm50 0v-5c0-6-4-10-10-10-3 0-5 1-7 3 3 3 4 7 4 13Z"
+                                        fill="currentColor"
+                                    /></svg
+                            ></span>
+                            <div class="heading__text">
+                                <h2 class="heading__title">Мультиплеер</h2>
+                                <p class="heading__subtitle">Играй вместе с друзьями</p>
+                            </div>
+                        </div>
+                        <button id="mpCreate" class="btn btn--lg btn--accent btn--block coop__create" type="button">
+                            <span class="coop__plus" aria-hidden="true">＋</span>
+                            Создать комнату
+                            <span class="coop__arrow" aria-hidden="true">↗</span>
+                        </button>
+                        <div class="divider coop__divider">Или подключись по коду</div>
+                        <div class="coop__join">
+                            <input
+                                id="mpCode"
+                                class="input input--lg input--code"
+                                maxlength="6"
+                                placeholder="Код комнаты"
+                                aria-label="Код комнаты"
+                            />
+                            <button id="mpJoin" class="btn btn--lg btn--soft coop__join-button" type="button">
+                                Войти
+                            </button>
+                        </div>
+                        <p class="note coop__note">До 4 игроков · одно общее поле</p>
+                        <p id="mpMessage" class="note coop__connection" aria-live="polite">
+                            Подключение к кооперативу…
+                        </p>
+                    </section>
+                </div>
+            </section>
+            <section id="mpLobby" class="lobby coop__lobby hidden" aria-label="Лобби кооперативной игры">
+                <header class="lobby__head">
+                    <div class="heading">
+                        <div class="heading__text">
+                            <h2 class="heading__title">Комната ожидания</h2>
+                            <p class="heading__subtitle">Онлайн · кооператив</p>
+                        </div>
+                    </div>
+                    <div class="presence lobby__presence">
+                        <span class="presence__dot"></span>
+                        <span id="mpLobbyMeta">Подключаем игроков…</span>
+                    </div>
+                </header>
+                <div class="card card--raised field lobby__panel">
+                    <label class="caption" for="mpName">Твоё имя в комнате</label>
+                    <input id="mpName" class="input" maxlength="18" placeholder="Как тебя называть?" />
+                </div>
+                <div class="card card--sunken lobby__panel lobby__code">
+                    <div class="caption lobby__code-caption">Код приглашения</div>
+                    <strong id="mpRoomCode" class="lobby__code-value"></strong>
+                    <button id="mpCopyCode" class="btn btn--sm" type="button">Копировать код</button>
+                </div>
+                <div class="lobby__players">
+                    <div class="lobby__players-head">
+                        <div class="heading heading--section">
+                            <div class="heading__text">
+                                <h3 class="heading__title">Игроки</h3>
+                            </div>
+                        </div>
+                        <span class="note note--sm">До 4 участников · свободно <span id="mpFreeSlots">3</span></span>
+                    </div>
+                    <div id="mpPlayers" class="lobby__player-list" aria-live="polite"></div>
+                </div>
+                <div class="card card--raised lobby__panel lobby__settings">
+                    <span class="item">
+                        <strong class="item__title">Сложность партии</strong>
+                        <span class="item__hint">Количество выходов, которые нужно закрыть</span>
+                    </span>
+                    <select id="mpExits" class="select lobby__select" aria-label="Сложность партии">
+                        <option value="2">2 выхода · легко</option>
+                        <option value="5">5 выходов · нормально</option>
+                        <option value="6" selected>6 выходов · сложно</option>
+                    </select>
+                </div>
+                <footer class="lobby__footer">
+                    <p id="mpLobbyMessage" class="note" aria-live="polite">Ждём подключения игроков.</p>
+                    <div class="lobby__actions">
+                        <button id="mpLeave" class="btn btn--sm" type="button">Выйти</button>
+                        <button id="mpStart" class="btn btn--sm btn--primary" type="button">Начать партию</button>
+                    </div>
+                </footer>
+            </section>
+            <section id="play" class="game hidden">
+                <header class="game__head">
+                    <div class="heading">
+                        <div class="heading__text">
+                            <h2 id="heading" class="heading__title"></h2>
+                            <p class="heading__subtitle game__subtitle">
+                                Выбери карту и нажми на точку нужного поворота.
+                            </p>
+                        </div>
+                    </div>
+                    <button id="newgame" class="btn" type="button">Новая партия</button>
+                </header>
+                <div class="game__layout">
+                    <div class="card game__boardbox">
+                        <div
+                            id="camera"
+                            class="game__camera"
+                            aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."
+                        >
+                            <div id="board" class="board"></div>
+                        </div>
+                    </div>
+                    <aside class="card game__side">
+                        <div class="game__metrics">
+                            <div class="stat"><span>В колоде</span><b id="deckcount" class="stat__value">0</b></div>
+                            <div class="stat"><span>Выходы</span><b id="openCount" class="stat__value">0</b></div>
+                            <div class="stat"><span>Ход</span><b id="turnCount" class="stat__value">0</b></div>
+                            <div class="stat"><span>Победы</span><b id="gameWins" class="stat__value">0</b></div>
+                        </div>
+                        <div class="game__hand-section">
+                            <div class="caption">Карты в руке</div>
+                            <div id="hand" class="game__hand" aria-label="Карты в руке"></div>
+                        </div>
+                        <div class="game__actions">
+                            <button id="exchange" class="btn btn--sm game__exchange" type="button">
+                                Сбросить карты
+                            </button>
+                            <div class="game__zoom">
+                                <button
+                                    id="zoomOut"
+                                    class="btn btn--sm btn--icon"
+                                    type="button"
+                                    aria-label="Уменьшить масштаб"
+                                    title="Уменьшить масштаб"
+                                >
+                                    −
+                                </button>
+                                <button
+                                    id="zoomReset"
+                                    class="btn btn--sm game__zoom-reset"
+                                    type="button"
+                                    title="Сбросить масштаб"
+                                >
+                                    100%
+                                </button>
+                                <button
+                                    id="zoomIn"
+                                    class="btn btn--sm btn--icon"
+                                    type="button"
+                                    aria-label="Увеличить масштаб"
+                                    title="Увеличить масштаб"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <div id="mpTimer" class="notice notice--strong hidden">⏱ До конца хода: 60 сек.</div>
+                        <div id="status" class="notice">Загрузка карт…</div>
+                        <p class="note note--sm">
+                            Точки показывают повороты 0°, 90°, 180° и 270°. Нажми на нужную. Поле можно перемещать мышью
+                            или пальцем.
+                        </p>
+                    </aside>
+                </div>
+            </section>
+        </main>
+        <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+            <section class="card card--dialog modal__dialog">
+                <header class="modal__head">
+                    <div class="heading">
+                        <div class="heading__text">
+                            <h2 id="settingsTitle" class="heading__title">Настройки</h2>
+                            <p class="heading__subtitle">Bandito · персонализация</p>
+                        </div>
+                    </div>
+                    <button id="closeSettings" class="btn btn--icon" type="button" aria-label="Закрыть">×</button>
+                </header>
+                <label class="toggle">
+                    <span class="item">
+                        <strong class="item__title">Ночная тема</strong>
+                        <small class="item__hint">Ночной фон и оформление Bandito</small>
+                    </span>
+                    <input id="darkTheme" class="toggle__input" type="checkbox" />
+                </label>
+                <label class="toggle">
+                    <span class="item">
+                        <strong class="item__title">Уменьшить анимации</strong>
+                        <small class="item__hint">Отключает лишние движения интерфейса</small>
+                    </span>
+                    <input id="reduceMotion" class="toggle__input" type="checkbox" />
+                </label>
+                <footer class="modal__footer">
+                    <span class="note note--sm">Настройки сохраняются автоматически</span>
+                    <button id="resetSettings" class="btn btn--sm" type="button">Сбросить</button>
+                </footer>
+            </section>
+        </div>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+        <script src="js/settings.js"></script>
+        <script src="js/game.js"></script>
+        <script src="js/multiplayer.js"></script>
+    </body>
+</html>

@@ -1,0 +1,19 @@
+/* Status message on a sunken background. */
+@layer components {
+    .notice {
+        padding: var(--space-3);
+        border-radius: var(--radius-md);
+        background: var(--color-surface-sunken);
+        color: var(--color-text);
+        font-size: var(--text-sm);
+    }
+
+    .notice--strong {
+        font-weight: var(--weight-bold);
+    }
+
+    .notice--urgent {
+        background: var(--color-danger-surface);
+        color: var(--color-danger);
+    }
+}

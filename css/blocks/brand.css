@@ -1,0 +1,88 @@
+/* Logo, kicker and tagline above the menu. */
+@layer blocks {
+    .brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-3);
+        min-height: 204px;
+        margin-bottom: var(--space-6);
+        text-align: center;
+    }
+
+    .brand__logo {
+        width: clamp(220px, 32vw, 410px);
+        height: auto;
+        max-height: 150px;
+        object-fit: contain;
+        filter: var(--logo-filter);
+    }
+
+    .brand__kicker {
+        color: var(--color-text-secondary);
+        font-size: var(--text-xl);
+        font-weight: var(--weight-heavy);
+        line-height: var(--leading-tight);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .brand__tagline {
+        margin-top: var(--space-2);
+        color: var(--color-text);
+        font-size: var(--text-sm);
+    }
+
+    @media (max-height: 620px) and (min-width: 761px) {
+        .brand {
+            min-height: 152px;
+        }
+    }
+
+    @media (max-width: 1050px) {
+        .brand {
+            gap: var(--space-2);
+            min-height: 176px;
+            margin-bottom: var(--space-5);
+        }
+
+        .brand__logo {
+            width: clamp(230px, 34vw, 340px);
+            max-height: 128px;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .brand {
+            min-height: 168px;
+            margin-bottom: var(--space-4);
+        }
+
+        .brand__logo {
+            width: clamp(210px, 42vw, 300px);
+            max-height: 112px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .brand {
+            min-height: 160px;
+        }
+
+        .brand__logo {
+            width: clamp(190px, 58vw, 300px);
+            max-height: 104px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .brand {
+            min-height: 144px;
+        }
+
+        .brand__logo {
+            width: min(82vw, 230px);
+        }
+    }
+}

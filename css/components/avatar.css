@@ -1,0 +1,15 @@
+/* Initial in a rounded square. Context may set --avatar-size. */
+@layer components {
+    .avatar {
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: var(--avatar-size, 36px);
+        height: var(--avatar-size, 36px);
+        border-radius: var(--radius-sm);
+        background: var(--color-surface-tint);
+        color: var(--color-icon);
+        font-size: var(--text-md);
+        font-weight: var(--weight-bold);
+    }
+}
