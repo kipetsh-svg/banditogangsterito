@@ -70,6 +70,13 @@ if (coopPanel && lobbyPanel) {
     while (coopPanel.firstChild) coopContent.append(coopPanel.firstChild);
     coopPanel.append(coopContent, lobbyPanel);
 }
+function mpSetSoloAvailability(locked) {
+    document.querySelectorAll('[data-start]').forEach((button) => {
+        button.disabled = locked || !all.length;
+        button.title = locked ? 'Сначала выйди из комнаты' : '';
+        button.setAttribute('aria-disabled', String(locked || !all.length));
+    });
+}
 function mpSwapPanel(showLobby) {
     const lobby = $('#mpLobby');
     if (!coopContent || !lobby) return;
@@ -81,6 +88,7 @@ function mpSwapPanel(showLobby) {
     else apply();
 }
 function mpShowLobby(room) {
+    mpSetSoloAvailability(true);
     $('#menu').classList.remove('hidden');
     $('#play').classList.add('hidden');
     if ($('#mpLobby').classList.contains('hidden')) mpSwapPanel(true);
@@ -144,6 +152,7 @@ function mpShowLobby(room) {
     startButton.disabled = room.owner !== mpUid;
     startButton.textContent = players.length < 2 ? 'Начать одному' : 'Начать партию (' + players.length + ' игрока)';
     startButton.classList.toggle('btn--primary', players.length >= 2);
+    $('#mpExits').disabled = room.owner !== mpUid;
     $('#mpLobbyMessage').textContent =
         room.owner === mpUid
             ? players.length < 2
@@ -574,6 +583,7 @@ async function leaveMultiplayer(showMenu = true) {
     }
     mpRoomRef = null;
     mpRoomListener = null;
+    mpSetSoloAvailability(false);
     mpRoomCode = null;
     mpRoomData = null;
     mpCelebrated = false;
@@ -600,7 +610,7 @@ $('#mpCode').addEventListener('keydown', (e) => {
 });
 $('#mpStart').onclick = mpStart;
 $('#mpLeave').onclick = () => {
-    if (confirm('Выйти из комнаты? Если ты создатель, права перейдут другому игроку.')) leaveMultiplayer();
+    if (confirm('Выйти из комнаты? Если ты создатель, права перейдут следующему игроку в списке.')) leaveMultiplayer();
 };
 async function mpInvite() {
     if (!mpRoomCode) return;
