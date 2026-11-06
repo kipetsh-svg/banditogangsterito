@@ -125,6 +125,12 @@ export default [
         },
     },
     {
+        files: ['js/settings.js'],
+        languageOptions: {
+            sourceType: 'module',
+        },
+    },
+    {
         files: ['vite.config.js', 'eslint.config.mjs', '.lintstagedrc.mjs', 'tests/**/*.mjs', 'tools/**/*.mjs'],
         languageOptions: {
             ecmaVersion: 'latest',
