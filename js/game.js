@@ -215,21 +215,14 @@ export function render() {
         minY = Math.min(...state.placed.map((p) => p.y)),
         maxX = Math.max(...state.placed.map((p) => p.x + dims(p.m)[0])),
         maxY = Math.max(...state.placed.map((p) => p.y + dims(p.m)[1]));
-    const legalByRotation = [];
-    if (state.selected >= 0 && state.hand[state.selected]) {
-        for (let r = 0; r < 4; r++) {
-            const m = rotated(state.hand[state.selected].m, r),
-                [w, h] = dims(m),
-                spots = legalSpots(m);
-            legalByRotation.push({ m, w, h, spots });
-            for (const [x, y] of spots) {
-                minX = Math.min(minX, x);
-                minY = Math.min(minY, y);
-                maxX = Math.max(maxX, x + w);
-                maxY = Math.max(maxY, y + h);
-            }
+    const legalByRotation = placementOptions();
+    for (const { w, h, spots } of legalByRotation)
+        for (const [x, y] of spots) {
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x + w);
+            maxY = Math.max(maxY, y + h);
         }
-    }
     const c = cellSize,
         pad = 36,
         b = $('#board');
@@ -282,13 +275,17 @@ export function render() {
         label.textContent = 'Карта ' + card.id;
         btn.append(label);
         btn.setAttribute('aria-pressed', String(i === state.selected));
-        btn.onclick = () => {
+        btn.onclick = (e) => {
             if (btn.disabled) return;
-            state.selected = i;
-            state.rotation = 0;
-            state.placementPreview = null;
-            status('Выбери точку нужного цвета на поле для размещения карты.');
-            render();
+            // A click with detail 0 comes from Enter or Space: keyboard selection opens the preview at once.
+            selectCard(i, e.detail === 0);
+        };
+        btn.onfocus = () => {
+            // Tabbing onto a card selects it and previews its first spot. Focus stays on the card,
+            // so the next Tab reaches the next card; arrows or Enter move focus to «Поставить».
+            if (focusingCard || btn.disabled || !btn.matches(':focus-visible')) return;
+            if (state.selected === i && state.placementPreview) return;
+            selectCard(i, true, false);
         };
         $('#hand').append(btn);
     });
@@ -312,6 +309,8 @@ export function render() {
     if (state.selected >= 0 && state.hand[state.selected] && !state.finished && canAct) {
         const ghost = document.createElement('div');
         ghost.className = 'board__piece board__piece--ghost hidden';
+        ghost.dataset.ghost = '';
+        let previewPin = null;
         b.append(ghost);
         const offsets = [
             [-17, -17],
@@ -325,6 +324,8 @@ export function render() {
                 const pin = document.createElement('button');
                 pin.className = 'board__pin board__pin--' + r;
                 pin.type = 'button';
+                // Spots are not tab stops: the keyboard moves between them with the arrow keys.
+                pin.tabIndex = -1;
                 pin.title = 'Поставить карту · ' + r * 90 + '°';
                 pin.setAttribute(
                     'aria-label',
@@ -351,10 +352,22 @@ export function render() {
                     ghost.style.left = pad + (sx - minX) * c + 'px';
                     ghost.style.top = pad + (sy - minY) * c + 'px';
                 };
-                pin.onmouseenter = () => {
-                    if (!state.placementPreview) showGhost();
+                pin.onpointerenter = (e) => {
+                    if (state.placementPreview) {
+                        // Touch keeps its preview until the tap; the click handler moves it.
+                        if (e.pointerType !== 'mouse') return;
+                        // A mouse hover leaves keyboard mode: hide the buttons, return focus to the selected card.
+                        state.placementPreview = null;
+                        previewPanel.classList.add('hidden');
+                        previewPin?.classList.remove('board__pin--preview');
+                        status('Выбери точку нужного цвета на поле для размещения карты.');
+                        focusCard(state.selected);
+                    }
+                    showGhost();
                 };
-                pin.onmouseleave = () => {
+                // Pointer events, like pointerenter: all pointer events fire before the mouse ones,
+                // so a mouseleave of the previous pin would hide the ghost the next pin has just shown.
+                pin.onpointerleave = () => {
                     if (!state.placementPreview) ghost.classList.add('hidden');
                 };
                 if (
@@ -365,13 +378,25 @@ export function render() {
                 ) {
                     showGhost();
                     pin.classList.add('board__pin--preview');
+                    previewPin = pin;
                 }
+                let pointerType = '';
+                pin.onpointerdown = (e) => {
+                    pointerType = e.pointerType;
+                };
+                // A pressed spot must not take focus: the keyboard works through «Поставить» only.
+                pin.onmousedown = (e) => e.preventDefault();
                 pin.onclick = (e) => {
                     e.stopPropagation();
                     state.rotation = r;
-                    state.placementPreview = { x: sx, y: sy, r };
-                    status('Проверь расположение карты. Нажми «Поставить» или «Отмена».');
-                    render();
+                    // A mouse already previewed the card on hover, so it places at once.
+                    // Touch and pen have no hover: the first tap shows the preview to confirm.
+                    if (pointerType === 'mouse') {
+                        state.placementPreview = null;
+                        play(sx, sy, m);
+                        return;
+                    }
+                    previewAt(sx, sy, r);
                 };
                 b.append(pin);
             }
@@ -385,18 +410,129 @@ export function render() {
     });
 }
 
-$('#placementConfirm').onclick = () => {
+// Legal spots of the selected card for every rotation, in reading order: top to bottom, left to right.
+// A symmetric card looks the same in several rotations (a straight line at 0° and 180°):
+// such a repeated rotation gets no spots, so each distinct placement has a single pin.
+function placementOptions() {
+    if (state.selected < 0 || !state.hand[state.selected]) return [];
+    const options = [],
+        seen = new Set();
+    for (let r = 0; r < 4; r++) {
+        const m = rotated(state.hand[state.selected].m, r),
+            [w, h] = dims(m),
+            key = JSON.stringify(m),
+            spots = seen.has(key) ? [] : legalSpots(m).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+        seen.add(key);
+        options.push({ m, w, h, spots });
+    }
+    return options;
+}
+
+function previewAt(x, y, r) {
+    const current = state.placementPreview;
+    if (current && current.x === x && current.y === y && current.r === r) return;
+    const spots = placementOptions()[r].spots,
+        index = spots.findIndex(([sx, sy]) => sx === x && sy === y);
+    state.rotation = r;
+    state.placementPreview = { x, y, r };
+    status(
+        'Поворот ' + r * 90 + '°, место ' + (index + 1) + ' из ' + spots.length + '. Нажми «Поставить» или «Отмена».'
+    );
+    render();
+}
+
+// Scrolls the camera so the previewed card is fully visible. Runs after render() restores the scroll.
+function revealPreview() {
+    requestAnimationFrame(() => {
+        const camera = $('#camera'),
+            ghost = $('#board [data-ghost]');
+        if (!camera || !ghost) return;
+        const view = camera.getBoundingClientRect(),
+            box = ghost.getBoundingClientRect(),
+            margin = 24;
+        if (box.left < view.left + margin) camera.scrollLeft -= view.left + margin - box.left;
+        else if (box.right > view.right - margin)
+            camera.scrollLeft += Math.min(box.right - view.right + margin, box.left - view.left - margin);
+        if (box.top < view.top + margin) camera.scrollTop -= view.top + margin - box.top;
+        else if (box.bottom > view.bottom - margin)
+            camera.scrollTop += Math.min(box.bottom - view.bottom + margin, box.top - view.top - margin);
+    });
+}
+
+function selectCard(i, keyboard, focusConfirm = true) {
+    state.selected = i;
+    state.rotation = 0;
+    state.placementPreview = null;
+    status('Выбери точку нужного цвета на поле для размещения карты.');
+    if (!keyboard) {
+        render();
+        return;
+    }
+    // Keyboard mode: show the preview at the first available spot right away.
+    moveKeyboardPreview();
+    if (!state.placementPreview) render();
+    else if (!focusConfirm) focusCard(i);
+}
+
+// Moves focus to a hand card without the focus handler selecting it again.
+let focusingCard = false;
+function focusCard(i) {
+    focusingCard = true;
+    $('#hand').children[i]?.focus();
+    focusingCard = false;
+}
+
+// Keyboard placement: ↑/↓ rotate the card, ←/→ cycle the spots of the current rotation.
+// Every spot is reachable: the rotation is picked with ↑/↓, the spot within it with ←/→.
+function moveKeyboardPreview(key) {
+    const options = placementOptions(),
+        current = state.placementPreview;
+    if (!options.some(({ spots }) => spots.length)) return;
+    if (!current) {
+        const r = options.findIndex(({ spots }) => spots.length);
+        previewAt(...options[r].spots[0], r);
+    } else if (key === 'ArrowLeft' || key === 'ArrowRight') {
+        const spots = options[current.r].spots,
+            index = spots.findIndex(([x, y]) => x === current.x && y === current.y),
+            next = spots[(index + (key === 'ArrowRight' ? 1 : -1) + spots.length) % spots.length];
+        previewAt(...next, current.r);
+    } else {
+        // Keep the card roughly in place: pick the spot of the next rotation closest to the current one.
+        const step = key === 'ArrowUp' ? 1 : 3,
+            cx = current.x + options[current.r].w / 2,
+            cy = current.y + options[current.r].h / 2;
+        for (let k = 1; k < 4; k++) {
+            const r = (current.r + step * k) % 4,
+                { w, h, spots } = options[r];
+            if (!spots.length) continue;
+            const distance = ([x, y]) => (x + w / 2 - cx) ** 2 + (y + h / 2 - cy) ** 2;
+            const nearest = spots.reduce((best, spot) => (distance(spot) < distance(best) ? spot : best));
+            previewAt(...nearest, r);
+            break;
+        }
+    }
+    revealPreview();
+    $('#placementConfirm').focus();
+}
+
+$('#placementConfirm').onclick = (e) => {
     if (!state.placementPreview || state.selected < 0 || !state.hand[state.selected]) return;
     const { x, y, r } = state.placementPreview;
     const m = rotated(state.hand[state.selected].m, r);
     state.rotation = r;
     state.placementPreview = null;
     play(x, y, m);
+    // Placed from the keyboard: stay in keyboard mode with the first card previewed.
+    const first = $('#hand').children[0];
+    if (e.detail === 0 && first && !first.disabled) {
+        selectCard(0, true, false);
+    }
 };
 $('#placementCancel').onclick = () => {
     state.placementPreview = null;
     status('Выбери точку на поле.');
     render();
+    focusCard(state.selected);
 };
 $('#gameMenuToggle').onclick = () => {
     const menu = $('#gameMenu');
@@ -472,16 +608,33 @@ cameraEl.addEventListener(
     },
     { passive: false }
 );
+// Physical keys, so the layout does not matter. As in Tetris, X rotates clockwise like ↑ and Z counterclockwise like ↓.
+const placementKeys = {
+    ArrowLeft: 'ArrowLeft',
+    ArrowRight: 'ArrowRight',
+    ArrowUp: 'ArrowUp',
+    ArrowDown: 'ArrowDown',
+    KeyX: 'ArrowUp',
+    KeyZ: 'ArrowDown',
+};
 document.addEventListener('keydown', (e) => {
     if ($('#play').classList.contains('hidden') || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (!$('#settingsModal').classList.contains('hidden')) return;
     if (e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
+    const selectedCard = $('#hand').children[state.selected];
     if (['1', '2', '3'].includes(e.key)) {
         const index = Number(e.key) - 1;
-        if (state.hand[index] && !state.finished && !$('#hand').children[index].disabled)
-            $('#hand').children[index].click();
+        if (state.hand[index] && !state.finished && !$('#hand').children[index].disabled) {
+            selectCard(index, true);
+        }
+    } else if (placementKeys[e.code] && selectedCard && !selectedCard.disabled) {
+        e.preventDefault();
+        moveKeyboardPreview(placementKeys[e.code]);
     } else if (e.key === 'Escape' && state.placementPreview) {
         state.placementPreview = null;
+        status('Выбери точку на поле.');
         render();
+        focusCard(state.selected);
     } else if (e.key === 'Escape' && state.selected >= 0) {
         state.selected = -1;
         render();
