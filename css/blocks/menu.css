@@ -21,6 +21,16 @@
         min-height: 390px;
     }
 
+    .menu__card--solo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .menu__card--solo .mode-list {
+        flex: 1;
+        align-items: stretch;
+    }
+
     .menu__card-head {
         margin-bottom: var(--space-6);
     }
