@@ -30,9 +30,6 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Print formatted build test for diagnostics
-        run: npx prettier tests/build.test.mjs
-
       - name: Lint, test and build
         run: npm run check
 
