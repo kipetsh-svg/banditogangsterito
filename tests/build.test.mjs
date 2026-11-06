@@ -60,49 +60,49 @@ test('critical backgrounds and logos are preloaded', () => {
     assert.match(html, /id="brandLogo"[^>]+fetchpriority="high"/);
 });
 
-test('build optimizes raster assets to smaller WebP files when possible', () => {
-    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) => /\.(?:png|jpe?g)$/i.test(name));
+test('all source images are emitted once as optimized, hashed WebP assets', () => {
+    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) => /\\.(?:png|jpe?g)$/i.test(name));
+    const outputFiles = readdirSync(buildImagesDirectory);
     assert.ok(sourceFiles.length > 0, 'No source raster images found');
 
     let originalBytes = 0;
     let outputBytes = 0;
-    let convertedCount = 0;
 
     for (const sourceName of sourceFiles) {
         const sourcePath = join(sourceImagesDirectory, sourceName);
         const sourceSize = statSync(sourcePath).size;
-        const webpName = sourceName.replace(/\.(?:png|jpe?g)$/i, '.webp');
-        const webpPath = join(buildImagesDirectory, webpName);
-        const originalBuildPath = join(buildImagesDirectory, sourceName);
+        const stem = sourceName.replace(/\\.(?:png|jpe?g)$/i, '');
+        const matches = outputFiles.filter((name) => name.startsWith(stem + '-') && /\\.webp$/i.test(name));
+        const rawDuplicates = outputFiles.filter((name) => name === sourceName);
 
         originalBytes += sourceSize;
-        assert.ok(
-            existsSync(webpPath) || existsSync(originalBuildPath),
-            `Neither optimized nor original image was emitted for ${sourceName}`
-        );
+        assert.equal(matches.length, 1, `Expected exactly one hashed WebP for ${sourceName}, got ${matches.length}`);
+        assert.equal(rawDuplicates.length, 0, `Unhashed duplicate remains in build: ${sourceName}`);
 
-        if (existsSync(webpPath)) {
-            const webpSize = statSync(webpPath).size;
-            assert.ok(webpSize < sourceSize, `WebP output is not smaller for ${sourceName}`);
-            outputBytes += webpSize;
-            convertedCount += 1;
-        } else {
-            outputBytes += statSync(originalBuildPath).size;
-        }
+        const optimizedSize = statSync(join(buildImagesDirectory, matches[0])).size;
+        assert.ok(optimizedSize < sourceSize, `Optimized image is not smaller: ${sourceName}`);
+        outputBytes += optimizedSize;
     }
 
-    assert.ok(convertedCount > 0, 'No images were converted to WebP');
     assert.ok(outputBytes < originalBytes, 'Image optimization did not reduce total image size');
 
-    const tokensCss = readFileSync(resolve(buildDirectory, 'css/tokens.css'), 'utf8');
-    for (const baseName of ['bandito-background-clean', 'bandito-background-clean-night']) {
-        const extension = existsSync(join(buildImagesDirectory, `${baseName}.webp`)) ? 'webp' : 'jpg';
-        assert.ok(tokensCss.includes(`${baseName}.${extension}`), `Missing CSS background reference for ${baseName}`);
+    const builtFiles = walkFiles(buildDirectory);
+    const references = builtFiles
+        .filter((file) => /\\.(?:html|css|js)$/i.test(file))
+        .map((file) => readFileSync(file, 'utf8'))
+        .join('\\n');
+
+    for (const sourceName of sourceFiles) {
+        const stem = sourceName.replace(/\\.(?:png|jpe?g)$/i, '');
+        assert.match(references, new RegExp(stem + '-[a-zA-Z0-9_-]+\\.webp'), `No built reference found for ${sourceName}`);
     }
 
-    const settingsJs = readFileSync(resolve(buildDirectory, 'js/settings.js'), 'utf8');
-    for (const baseName of ['bandito-logo', 'bandito-logo-night-512']) {
-        const extension = existsSync(join(buildImagesDirectory, `${baseName}.webp`)) ? 'webp' : 'png';
-        assert.ok(settingsJs.includes(`${baseName}.${extension}`), `Missing theme logo reference for ${baseName}`);
-    }
+    assert.doesNotMatch(references, /assets\\/images\\/bandito-(?:logo|corner|background)[^"' )]*\\.(?:png|jpe?g)/);
 });
+
+function walkFiles(directory) {
+    return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+        const path = join(directory, entry.name);
+        return entry.isDirectory() ? walkFiles(path) : [path];
+    });
+}
