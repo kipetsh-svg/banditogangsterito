@@ -53,7 +53,7 @@ test('critical backgrounds and logos are preloaded', () => {
         assert.match(
             html,
             new RegExp(
-                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}(?:-[^./"]+)?\\.(?:webp|png|jpe?g)"`
+                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}(?:-[^./"]+)?\.(?:webp|png|jpe?g)"`
             )
         );
     }
@@ -61,7 +61,7 @@ test('critical backgrounds and logos are preloaded', () => {
 });
 
 test('all source images are emitted once as optimized, hashed WebP assets', () => {
-    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) => /\\.(?:png|jpe?g)$/i.test(name));
+    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) => /\.(?:png|jpe?g)$/i.test(name));
     const outputFiles = readdirSync(buildImagesDirectory);
     assert.ok(sourceFiles.length > 0, 'No source raster images found');
 
@@ -71,7 +71,7 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
     for (const sourceName of sourceFiles) {
         const sourcePath = join(sourceImagesDirectory, sourceName);
         const sourceSize = statSync(sourcePath).size;
-        const stem = sourceName.replace(/\\.(?:png|jpe?g)$/i, '');
+        const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
         const matches = outputFiles.filter(
             (name) => name.startsWith(stem + '-') && /\.webp$/i.test(name)
         );
@@ -97,15 +97,15 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
 
     const builtFiles = walkFiles(buildDirectory);
     const references = builtFiles
-        .filter((file) => /\\.(?:html|css|js)$/i.test(file))
+        .filter((file) => /\.(?:html|css|js)$/i.test(file))
         .map((file) => readFileSync(file, 'utf8'))
-        .join('\\n');
+        .join('\n');
 
     for (const sourceName of sourceFiles) {
-        const stem = sourceName.replace(/\\.(?:png|jpe?g)$/i, '');
+        const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
         assert.match(
             references,
-            new RegExp(stem + '-[a-zA-Z0-9_-]+\\.webp'),
+            new RegExp(stem + '-[a-zA-Z0-9_-]+\.webp'),
             `No built reference found for ${sourceName}`
         );
     }
