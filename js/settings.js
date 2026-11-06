@@ -24,7 +24,7 @@ function setNightTheme(enabled, animate = true) {
             right.src = enabled
                 ? cornerRightNight
                 : cornerRightDay;
-        if (logo) logo.src = enabled ? 'assets/images/bandito-logo-night-512.png' : 'assets/images/bandito-logo.png';
+        if (logo) logo.src = enabled ? logoNight : logoDay;
         if (shade) shade.classList.remove('theme-shade--visible');
         if (scene) {
             scene.className = 'celestial';
