@@ -81,4 +81,48 @@
             animation: none;
         }
     }
+    @media (max-width: 560px) {
+        #coopCard {
+            --card-padding: var(--space-4);
+        }
+
+        #coopCard .menu__card-head {
+            margin-bottom: var(--space-3);
+        }
+
+        #coopCard .heading__icon {
+            width: 44px;
+            height: 44px;
+        }
+
+        #coopCard .heading__icon svg {
+            width: 42px;
+            height: 40px;
+        }
+
+        #coopCard .heading__title {
+            font-size: var(--text-xl);
+        }
+
+        #coopCard .heading__subtitle {
+            font-size: var(--text-sm);
+        }
+
+        .coop__create,
+        .coop__join .btn,
+        .coop__join .input {
+            min-height: 42px;
+        }
+
+        .coop__divider {
+            padding-top: var(--space-3);
+            margin-bottom: var(--space-2);
+        }
+
+        .coop__note,
+        .coop__connection:not(.hidden) {
+            margin-top: var(--space-2);
+        }
+    }
+
 }
