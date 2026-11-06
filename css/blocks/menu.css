@@ -20,6 +20,10 @@
         position: relative;
     }
 
+    .menu__card--solo .mode-option {
+        height: var(--mode-option-height, 128px);
+    }
+
     .menu__card-head {
         margin-bottom: var(--space-6);
     }
