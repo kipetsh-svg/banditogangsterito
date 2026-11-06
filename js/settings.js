@@ -18,8 +18,8 @@ function setNightTheme(enabled, animate = true) {
         document.body.classList.toggle('dark-theme', !!enabled);
         if (left)
             left.src = enabled
-                ? 'assets/images/bandito-corner-left-night.png'
-                : 'assets/images/bandito-corner-left.png';
+                ? cornerLeftNight
+                : cornerLeftDay;
         if (right)
             right.src = enabled
                 ? 'assets/images/bandito-corner-right-night.png'
