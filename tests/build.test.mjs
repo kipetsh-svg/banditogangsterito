@@ -29,13 +29,15 @@ test('production build contains index.html and every referenced local asset', ()
 });
 
 test('runtime scripts and dynamically loaded card data are present in the build', () => {
-    for (const file of [
+    const requiredFiles = [
         'js/settings.js',
         'js/snackbar.js',
         'js/game.js',
         'js/multiplayer.js',
         'resources/bandido-matrices/cards.json',
-    ]) {
+    ];
+
+    for (const file of requiredFiles) {
         assert.ok(existsSync(resolve(buildDirectory, file)), `Missing runtime file in build: ${file}`);
     }
 });
@@ -50,13 +52,12 @@ test('critical backgrounds and logos are preloaded', () => {
     ];
 
     for (const name of criticalAssets) {
-        assert.match(
-            html,
-            new RegExp(
-                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}(?:-[^./"]+)?\\.(?:webp|png|jpe?g)"`
-            )
+        const preloadPattern = new RegExp(
+            `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}(?:-[^./"]+)?\\.(?:webp|png|jpe?g)"`
         );
+        assert.match(html, preloadPattern);
     }
+
     assert.match(html, /id="brandLogo"[^>]+fetchpriority="high"/);
 });
 
@@ -73,23 +74,23 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         const sourceSize = statSync(sourcePath).size;
         const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
         const matches = outputFiles.filter(
-            (name) => name.startsWith(stem + '-') && /\.(?:webp|png|jpe?g)$/i.test(name)
+            (name) => name.startsWith(`${stem}-`) && /\.(?:webp|png|jpe?g)$/i.test(name)
         );
 
         originalBytes += sourceSize;
-        assert.equal(matches.length, 1, `Expected exactly one hashed image for ${sourceName}, got ${matches.length}`);
+        assert.equal(matches.length, 1, `Expected one hashed image for ${sourceName}; found ${matches.length}`);
 
         const outputName = matches[0];
         const outputSize = statSync(join(buildImagesDirectory, outputName)).size;
+
         if (/\.webp$/i.test(outputName)) {
             assert.ok(outputSize < sourceSize, `Optimized image is not smaller: ${sourceName}`);
         } else {
-            assert.equal(
-                outputName.slice(outputName.lastIndexOf('.')),
-                sourceName.slice(sourceName.lastIndexOf('.')),
-                `Unexpected retained image format for ${sourceName}`
-            );
+            const outputExtension = outputName.slice(outputName.lastIndexOf('.'));
+            const sourceExtension = sourceName.slice(sourceName.lastIndexOf('.'));
+            assert.equal(outputExtension, sourceExtension, `Unexpected retained image format for ${sourceName}`);
         }
+
         outputBytes += outputSize;
     }
 
@@ -103,18 +104,11 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
 
     for (const sourceName of sourceFiles) {
         const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
-        assert.match(
-            references,
-            new RegExp(stem + '-[a-zA-Z0-9_-]+\\.(?:webp|png|jpe?g)'),
-            `No built reference found for ${sourceName}`
-        );
+        const hashedAssetPattern = new RegExp(`${stem}-[a-zA-Z0-9_-]+\\.(?:webp|png|jpe?g)`);
+        assert.match(references, hashedAssetPattern, `No built reference found for ${sourceName}`);
     }
 
-    assert.equal(
-        references.includes('assets/images/bandito-'),
-        false,
-        'Unhashed theme image references remain in built files'
-    );
+    assert.ok(!references.includes('assets/images/bandito-'), 'Unhashed theme image references remain in built files');
 });
 
 function walkFiles(directory) {
@@ -123,4 +117,3 @@ function walkFiles(directory) {
         return entry.isDirectory() ? walkFiles(path) : [path];
     });
 }
-
