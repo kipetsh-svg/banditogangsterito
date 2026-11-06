@@ -1,4 +1,7 @@
-# banditogangsterito
+# Bandito
+
+**Сайт:** https://kipetsh.github.io/bandito/  
+**Репозиторий:** https://github.com/kipetsh/bandito
 
 Bandito game project
 
