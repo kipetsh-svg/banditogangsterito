@@ -21,7 +21,8 @@
     }
 
     .coop__divider {
-        margin: var(--space-6) 0 var(--space-3);
+        margin: auto 0 var(--space-3);
+        padding-top: var(--space-5);
     }
 
     .coop__join {
