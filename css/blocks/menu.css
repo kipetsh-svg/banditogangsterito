@@ -20,6 +20,16 @@
         position: relative;
     }
 
+    .menu__card--solo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .menu__card--solo .mode-list {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
     .menu__card--solo .mode-option {
         height: var(--mode-option-height, 128px);
     }
