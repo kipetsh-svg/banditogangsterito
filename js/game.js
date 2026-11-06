@@ -325,9 +325,9 @@ function render() {
                 );
                 pin.style.cssText =
                     'left:' +
-                    (pad + (sx - minX) * c + (mw * c) / 2 - 16 + offsets[r][0]) +
+                    (pad + (sx - minX) * c + (mw * c) / 2 - 20 + offsets[r][0]) +
                     'px;top:' +
-                    (pad + (sy - minY) * c + (mh * c) / 2 - 16 + offsets[r][1]) +
+                    (pad + (sy - minY) * c + (mh * c) / 2 - 20 + offsets[r][1]) +
                     'px';
                 const showGhost = () => {
                     ghost.innerHTML = '';
@@ -420,7 +420,7 @@ $('#zoomReset').onclick = () => setZoom(defaultCellSize());
 const cameraEl = $('#camera');
 let panState = null;
 cameraEl.addEventListener('pointerdown', (e) => {
-    if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('button')) return;
+    if ((e.pointerType === 'mouse' && e.button !== 0) || e.target.closest('button')) return;
     panState = {
         id: e.pointerId,
         x: e.clientX,
