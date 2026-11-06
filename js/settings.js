@@ -1,4 +1,11 @@
 /* Settings, theme switching, and saved preferences. */
+import cornerLeftDay from '../assets/images/bandito-corner-left.png';
+import cornerLeftNight from '../assets/images/bandito-corner-left-night.png';
+import cornerRightDay from '../assets/images/bandito-corner-right.png';
+import cornerRightNight from '../assets/images/bandito-corner-right-night.png';
+import logoDay from '../assets/images/bandito-logo.png';
+import logoNight from '../assets/images/bandito-logo-night-512.png';
+
 const $ = (s) => document.querySelector(s);
 const settingsDefaults = { reduceMotion: false, darkTheme: false };
 function setNightTheme(enabled, animate = true) {
