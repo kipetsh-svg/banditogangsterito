@@ -65,7 +65,8 @@
 
     .lobby__players-head .heading__title,
     .lobby__settings > .heading .heading__title {
-        font-size: calc(var(--text-2xl) + 2px);
+        font-size: var(--text-lg);
+        text-shadow: none;
     }
 
     .lobby__player-list {
