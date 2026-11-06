@@ -26,7 +26,7 @@ function mpMessage(t) {
     const e = $('#mpMessage');
     if (e) {
         e.textContent = t;
-        e.classList.toggle('hidden', !t);
+
     }
 }
 function mpName() {
@@ -632,7 +632,7 @@ try {
         if (u) {
             mpUid = u.uid;
             mpMessage(mpReadyMessage);
-        } else mpMessage('');
+        } else mpMessage('Войди анонимно, чтобы играть онлайн.');
     });
 } catch (e) {
     mpMessage('Firebase не загрузился: ' + e.message);
