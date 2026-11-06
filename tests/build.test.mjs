@@ -24,7 +24,10 @@ test('production build contains index.html and every referenced local asset', ()
     assert.match(html, /<title>Bandito — карточная игра<\/title>/);
 
     for (const reference of localReferences(html)) {
-        assert.ok(existsSync(resolve(buildDirectory, reference)), `Build output is missing: ${reference}`);
+        assert.ok(
+            existsSync(resolve(buildDirectory, reference)),
+            `Build output is missing: ${reference}`
+        );
     }
 });
 
@@ -36,7 +39,10 @@ test('runtime scripts and dynamically loaded card data are present in the build'
         'js/multiplayer.js',
         'resources/bandido-matrices/cards.json',
     ]) {
-        assert.ok(existsSync(resolve(buildDirectory, file)), `Missing runtime file in build: ${file}`);
+        assert.ok(
+            existsSync(resolve(buildDirectory, file)),
+            `Missing runtime file in build: ${file}`
+        );
     }
 });
 
