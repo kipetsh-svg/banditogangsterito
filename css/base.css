@@ -22,6 +22,14 @@
         line-height: var(--leading-normal);
     }
 
+
+    @media (max-width: 760px) {
+        body {
+            background-attachment: scroll;
+            background-position: center top;
+        }
+    }
+
     h1,
     h2,
     h3,
