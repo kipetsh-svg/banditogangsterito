@@ -41,9 +41,13 @@ for (const inputPath of sourceImages) {
         withoutEnlargement: true,
     });
 
+    const isMainLogo = baseName === 'bandito-logo.png';
+
     pipeline = isJpeg
         ? pipeline.webp({ quality: 85, effort: 6, smartSubsample: true })
-        : pipeline.webp({ lossless: true, effort: 6 });
+        : isMainLogo
+          ? pipeline.webp({ quality: 88, alphaQuality: 100, effort: 6, smartSubsample: false })
+          : pipeline.webp({ lossless: true, effort: 6 });
 
     const result = await pipeline.toFile(outputPath);
     const original = await stat(inputPath);
