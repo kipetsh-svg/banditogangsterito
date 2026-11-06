@@ -97,7 +97,7 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         assert.match(references, new RegExp(stem + '-[a-zA-Z0-9_-]+\\.webp'), `No built reference found for ${sourceName}`);
     }
 
-    assert.doesNotMatch(references, /assets\\/images\\/bandito-(?:logo|corner|background)[^"' )]*\\.(?:png|jpe?g)/);
+    assert.equal(references.includes('assets/images/bandito-'), false, 'Unhashed theme image references remain in built files');
 });
 
 function walkFiles(directory) {
