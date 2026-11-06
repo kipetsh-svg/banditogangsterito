@@ -12,7 +12,7 @@ async function walk(directory) {
         entries.map((entry) => {
             const path = join(directory, entry.name);
             return entry.isDirectory() ? walk(path) : [path];
-        }),
+        })
     );
     return nested.flat();
 }
@@ -34,14 +34,12 @@ for (const inputPath of sourceImages) {
     const isJpeg = extension.toLowerCase() === '.jpg' || extension.toLowerCase() === '.jpeg';
     const maxDimension = baseName.includes('background') ? 2560 : 1600;
 
-    let pipeline = sharp(inputPath, { failOn: 'error' })
-        .rotate()
-        .resize({
-            width: maxDimension,
-            height: maxDimension,
-            fit: 'inside',
-            withoutEnlargement: true,
-        });
+    let pipeline = sharp(inputPath, { failOn: 'error' }).rotate().resize({
+        width: maxDimension,
+        height: maxDimension,
+        fit: 'inside',
+        withoutEnlargement: true,
+    });
 
     pipeline = isJpeg
         ? pipeline.webp({ quality: 85, effort: 6, smartSubsample: true })
@@ -65,10 +63,7 @@ for (const inputPath of sourceImages) {
 }
 
 const replacements = new Map(
-    optimized.map(({ inputPath, outputPath }) => [
-        inputPath.split(/[\\/]/).at(-1),
-        outputPath.split(/[\\/]/).at(-1),
-    ]),
+    optimized.map(({ inputPath, outputPath }) => [inputPath.split(/[\\/]/).at(-1), outputPath.split(/[\\/]/).at(-1)])
 );
 
 if (replacements.size > 0) {
@@ -100,5 +95,7 @@ console.log(
         `${(originalBytes / 1024).toFixed(1)} KB → ${(optimizedBytes / 1024).toFixed(1)} KB`,
         `${reduction}% smaller.`,
         skipped.length ? `${skipped.length} image(s) kept in original format because WebP was not smaller.` : '',
-    ].filter(Boolean).join(' '),
+    ]
+        .filter(Boolean)
+        .join(' ')
 );

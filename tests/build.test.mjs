@@ -53,8 +53,8 @@ test('critical backgrounds and logos are preloaded', () => {
         assert.match(
             html,
             new RegExp(
-                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}\\.(?:webp|png|jpe?g)"`,
-            ),
+                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}(?:-[^./"]+)?\\.(?:webp|png|jpe?g)"`,
+            )
         );
     }
     assert.match(html, /id="brandLogo"[^>]+fetchpriority="high"/);
@@ -78,7 +78,7 @@ test('build optimizes raster assets to smaller WebP files when possible', () => 
         originalBytes += sourceSize;
         assert.ok(
             existsSync(webpPath) || existsSync(originalBuildPath),
-            `Neither optimized nor original image was emitted for ${sourceName}`,
+            `Neither optimized nor original image was emitted for ${sourceName}`
         );
 
         if (existsSync(webpPath)) {
