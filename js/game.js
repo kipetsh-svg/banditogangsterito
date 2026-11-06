@@ -645,11 +645,11 @@ $('#closeSettings').onclick = () => $('#settingsModal').classList.add('hidden');
 $('#settingsModal').addEventListener('click', (e) => {
     if (e.target.id === 'settingsModal') $('#settingsModal').classList.add('hidden');
 });
-$('#reduceMotion').addEventListener('change', saveSettings);
-$('#darkTheme').addEventListener('change', saveSettings);
+$('#reduceMotion').addEventListener('change', () => window.saveSettings());
+$('#darkTheme').addEventListener('change', () => window.saveSettings());
 $('#resetSettings').onclick = () => {
     localStorage.removeItem('banditoSettings');
-    applySettings();
+    window.applySettings();
 };
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') $('#settingsModal').classList.add('hidden');
