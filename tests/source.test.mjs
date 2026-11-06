@@ -21,6 +21,16 @@ test('all local resources referenced by index.html exist', () => {
     }
 });
 
+test('settings module exposes callbacks used by the classic game script', () => {
+    const settings = readFileSync(resolve(projectRoot, 'js/settings.js'), 'utf8');
+    const game = readFileSync(resolve(projectRoot, 'js/game.js'), 'utf8');
+
+    assert.match(settings, /window\.applySettings = applySettings/);
+    assert.match(settings, /window\.saveSettings = saveSettings/);
+    assert.match(game, /window\.saveSettings\(\)/);
+    assert.match(game, /window\.applySettings\(\)/);
+});
+
 test('all game scripts pass the JavaScript parser', () => {
     const scriptsDirectory = resolve(projectRoot, 'js');
     const scripts = readdirSync(scriptsDirectory).filter((name) => name.endsWith('.js'));
