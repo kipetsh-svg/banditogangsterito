@@ -47,6 +47,19 @@
 
     button {
         cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        tap-highlight-color: transparent;
+    }
+
+    a,
+    input,
+    select,
+    textarea {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus:not(:focus-visible) {
+        outline: none;
     }
 
     img {
