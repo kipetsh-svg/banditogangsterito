@@ -67,7 +67,7 @@ test('critical backgrounds and logos are preloaded', () => {
 });
 
 test('all source images are emitted once as optimized, hashed WebP assets', () => {
-    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) =>
+        /\.(?:png|jpe?g)$/i.test(name)
         /\\.(?:png|jpe?g)$/i.test(name)
     );
     const outputFiles = readdirSync(buildImagesDirectory);
