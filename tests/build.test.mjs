@@ -123,3 +123,4 @@ function walkFiles(directory) {
         return entry.isDirectory() ? walkFiles(path) : [path];
     });
 }
+
