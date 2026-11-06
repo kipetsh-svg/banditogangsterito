@@ -30,3 +30,4 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+# Manual redeploy trigger: keep this workflow pushable without changing the site.
