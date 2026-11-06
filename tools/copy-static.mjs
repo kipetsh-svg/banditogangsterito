@@ -2,14 +2,14 @@ import { cp, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const outputDirectory = resolve('build');
-const bundledSettingsModule = resolve('js/settings.js');
-
 await mkdir(outputDirectory, { recursive: true });
 
-for (const directory of ['css', 'js', 'resources']) {
-    await cp(resolve(directory), resolve(outputDirectory, directory), {
+// Vite bundles css/ and the js/settings.js module; only classic scripts and fetched data are copied as-is.
+const runtimeFiles = ['js/snackbar.js', 'js/game.js', 'js/multiplayer.js', 'resources'];
+
+for (const file of runtimeFiles) {
+    await cp(resolve(file), resolve(outputDirectory, file), {
         recursive: true,
         force: true,
-        filter: (source) => resolve(source) !== bundledSettingsModule,
     });
 }

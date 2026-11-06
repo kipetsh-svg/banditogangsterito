@@ -30,8 +30,14 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Lint, test and build
+      - name: Lint and test sources
         run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Test production build
+        run: npm run test:build
 
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'

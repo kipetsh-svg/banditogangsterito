@@ -30,7 +30,6 @@ test('production build contains index.html and every referenced local asset', ()
 
 test('runtime scripts and dynamically loaded card data are present in the build', () => {
     const requiredFiles = [
-        'js/settings.js',
         'js/snackbar.js',
         'js/game.js',
         'js/multiplayer.js',
@@ -73,8 +72,9 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         const sourcePath = join(sourceImagesDirectory, sourceName);
         const sourceSize = statSync(sourcePath).size;
         const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
-        const hashedAssetPattern = new RegExp(`^${stem}-[a-zA-Z0-9_-]{8}\\.(?:webp|png|jpe?g)$`);
-        const matches = outputFiles.filter((name) => hashedAssetPattern.test(name));
+        // Vite appends an 8-character hash; an exact pattern keeps "clean" from matching "clean-night".
+        const hashedNamePattern = new RegExp(`^${stem}-[\\w-]{8}\\.(?:webp|png|jpe?g)$`, 'i');
+        const matches = outputFiles.filter((name) => hashedNamePattern.test(name));
 
         originalBytes += sourceSize;
         assert.equal(matches.length, 1, `Expected one hashed image for ${sourceName}; found ${matches.length}`);

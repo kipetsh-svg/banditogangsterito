@@ -98,12 +98,12 @@ const sharedClassicScriptGlobals = Object.fromEntries(
         'turnCount',
         'updateStats',
         'valid',
-    ].map((name) => [name, 'writable']),
+    ].map((name) => [name, 'writable'])
 );
 
 export default [
     {
-        ignores: ['build/**', 'node_modules/**'],
+        ignores: ['build/**', 'node_modules/**', '.tmp/**'],
     },
     js.configs.recommended,
     {
