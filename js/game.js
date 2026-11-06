@@ -631,7 +631,8 @@ fetch('./resources/bandido-matrices/cards.json')
     .then((d) => {
         all = d.cards.filter((c) => c.matrix);
         document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = false));
-        $('#loadstate').classList.add('hidden');
+        $('#loadstate').classList.remove('hidden');
+        $('#loadstate').textContent = 'Колода загружена. Можно начинать.';
     })
     .catch((e) => {
         $('#loadstate').classList.remove('hidden');
