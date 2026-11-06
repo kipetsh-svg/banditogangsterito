@@ -310,7 +310,13 @@
                             </p>
                         </div>
                     </div>
-                    <button id="newgame" class="btn" type="button">Новая партия</button>
+                    <div class="game__menu">
+                        <button id="gameMenuToggle" class="btn btn--icon game__menu-toggle" type="button"
+                            aria-label="Действия игры" aria-expanded="false" aria-controls="gameMenu">⋯</button>
+                        <div id="gameMenu" class="game__menu-popover hidden">
+                            <button id="newgame" class="game__menu-item" type="button">Новая партия</button>
+                        </div>
+                    </div>
                 </header>
                 <div class="game__layout">
                     <div class="card game__boardbox">
@@ -320,6 +326,13 @@
                             aria-label="Игровое поле. На компьютере перетаскивай поле мышью, на телефоне прокручивай его пальцем."
                         >
                             <div id="board" class="board"></div>
+                        </div>
+                        <div id="placementPreview" class="game__placement-preview hidden" role="group" aria-label="Подтверждение размещения">
+                            <span class="game__placement-label">Так будет выглядеть карта</span>
+                            <div class="game__placement-actions">
+                                <button id="placementCancel" class="btn btn--sm" type="button">Отмена</button>
+                                <button id="placementConfirm" class="btn btn--sm btn--primary" type="button">Поставить</button>
+                            </div>
                         </div>
                     </div>
                     <aside class="card game__side">
