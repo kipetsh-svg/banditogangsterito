@@ -53,7 +53,7 @@ test('critical backgrounds and logos are preloaded', () => {
         assert.match(
             html,
             new RegExp(
-                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}(?:-[^./"]+)?\\.(?:webp|png|jpe?g)"`,
+                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}(?:-[^./"]+)?\\.(?:webp|png|jpe?g)"`
             )
         );
     }
