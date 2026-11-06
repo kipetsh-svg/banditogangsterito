@@ -358,6 +358,7 @@ function render() {
                     e.stopPropagation();
                     rotation = r;
                     placementPreview = { x: sx, y: sy, r };
+                    status('Проверь расположение карты. Нажми «Поставить» или «Отмена».');
                     render();
                 };
                 b.append(pin);
@@ -382,6 +383,7 @@ $('#placementConfirm').onclick = () => {
 };
 $('#placementCancel').onclick = () => {
     placementPreview = null;
+    status('Выбери точку на поле.');
     render();
 };
 $('#gameMenuToggle').onclick = () => {
