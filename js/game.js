@@ -298,8 +298,10 @@ function render() {
             showEndScreen(false);
         } else status('Нет доступных ходов. Нажми «Сбросить карты», чтобы получить новые.');
     }
+    const showPlacementPreview = !!placementPreview && selected >= 0 && !!hand[selected] && !finished && canAct;
+    if (!showPlacementPreview) placementPreview = null;
     const previewPanel = $('#placementPreview');
-    previewPanel.classList.toggle('hidden', !placementPreview);
+    previewPanel.classList.toggle('hidden', !showPlacementPreview);
     if (selected >= 0 && hand[selected] && !finished && canAct) {
         const ghost = document.createElement('div');
         ghost.className = 'board__piece board__piece--ghost hidden';
