@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
 import test from 'node:test';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -29,6 +30,61 @@ test('settings module exposes callbacks used by the classic game script', () => 
     assert.match(settings, /window\.saveSettings = saveSettings/);
     assert.match(game, /window\.saveSettings\(\)/);
     assert.match(game, /window\.applySettings\(\)/);
+});
+
+// Any DOM lookup returns a stub that absorbs property access, calls and assignments.
+// Tree traversal yields null so the stub behaves like an empty element in loops.
+const emptyTreeProperties = new Set(['firstChild', 'lastChild', 'nextSibling', 'previousSibling', 'parentNode']);
+
+function createStub() {
+    const stub = new Proxy(function () {}, {
+        get: (_target, property) => {
+            if (property === Symbol.toPrimitive) return () => '';
+            if (property === Symbol.iterator) return function* () {};
+            if (property === 'then' || emptyTreeProperties.has(property)) return undefined;
+            return stub;
+        },
+        set: () => true,
+        apply: () => stub,
+        construct: () => stub,
+    });
+    return stub;
+}
+
+test('classic scripts load in index.html order without runtime errors', () => {
+    const html = readFileSync(resolve(projectRoot, 'index.html'), 'utf8');
+    // Module scripts are deferred and run after classic scripts, so they cannot provide globals at load time.
+    const classicScripts = [...html.matchAll(/<script(?![^>]*type="module")[^>]*src="(js\/[^"]+)"/g)].map(
+        (match) => match[1]
+    );
+    assert.ok(classicScripts.length > 0, 'No classic scripts found in index.html');
+
+    const storage = new Map();
+    const context = vm.createContext({
+        console,
+        document: createStub(),
+        navigator: createStub(),
+        firebase: createStub(),
+        localStorage: {
+            getItem: (key) => storage.get(key) ?? null,
+            setItem: (key, value) => storage.set(key, String(value)),
+            removeItem: (key) => storage.delete(key),
+        },
+        matchMedia: () => ({ matches: false }),
+        fetch: () => new Promise(() => {}),
+        requestAnimationFrame: () => 0,
+        setTimeout: () => 0,
+        clearTimeout: () => {},
+        setInterval: () => 0,
+        clearInterval: () => {},
+        addEventListener: () => {},
+    });
+    context.window = context;
+
+    for (const script of classicScripts) {
+        const source = readFileSync(resolve(projectRoot, script), 'utf8');
+        assert.doesNotThrow(() => vm.runInContext(source, context, { filename: script }), `${script} failed to load`);
+    }
 });
 
 test('all game scripts pass the JavaScript parser', () => {
@@ -63,7 +119,10 @@ test('the card data is structurally valid and contains all supported starting ca
         assert.ok(width > 0, `Card ${card.id} has an empty row`);
         for (const row of card.matrix) {
             assert.equal(row.length, width, `Card ${card.id} has a non-rectangular matrix`);
-            assert.ok(row.every((cell) => cell === 0 || cell === 1), `Card ${card.id} contains an invalid cell`);
+            assert.ok(
+                row.every((cell) => cell === 0 || cell === 1),
+                `Card ${card.id} contains an invalid cell`
+            );
         }
     }
 

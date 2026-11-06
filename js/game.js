@@ -1,4 +1,6 @@
 /* Single-player rules, board rendering, controls, and end screens. */
+// Shared DOM helper for the classic scripts; js/settings.js is a module and keeps its own copy.
+const $ = (s) => document.querySelector(s);
 let all = [],
     deck = [],
     hand = [],
@@ -350,7 +352,12 @@ function render() {
                 pin.onmouseleave = () => {
                     if (!placementPreview) ghost.classList.add('hidden');
                 };
-                if (placementPreview && placementPreview.x === sx && placementPreview.y === sy && placementPreview.r === r) {
+                if (
+                    placementPreview &&
+                    placementPreview.x === sx &&
+                    placementPreview.y === sy &&
+                    placementPreview.r === r
+                ) {
                     showGhost();
                     pin.classList.add('board__pin--preview');
                 }
