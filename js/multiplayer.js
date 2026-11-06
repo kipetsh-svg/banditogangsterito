@@ -32,6 +32,38 @@ function mpName() {
 function mpCode() {
     return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
+function mpSyncDifficulty(value, disabled = false) {
+    const selected = ['2', '5', '6'].includes(String(value)) ? String(value) : '5';
+    const index = { '2': 0, '5': 1, '6': 2 }[selected];
+    const group = document.querySelector('.lobby__difficulty');
+    const select = $('#mpExits');
+    if (select) select.value = selected;
+    if (group) group.style.setProperty('--difficulty-index', index);
+    document.querySelectorAll('[data-difficulty]').forEach((button) => {
+        const active = button.dataset.difficulty === selected;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+        button.disabled = disabled;
+    });
+}
+async function mpSetDifficulty(value) {
+    const selected = String(value);
+    if (!['2', '5', '6'].includes(selected)) return;
+    mpSyncDifficulty(selected, !!mpRoomCode && mpRoomData?.owner !== mpUid);
+    if (mpRoomRef && mpRoomData?.owner === mpUid) {
+        try {
+            await mpRoomRef.child('settings/exits').set(Number(selected));
+        } catch (e) {
+            snackbar('Не удалось сохранить сложность: ' + e.message, 'error');
+        }
+    }
+}
+document.querySelectorAll('[data-difficulty]').forEach((button) => {
+    button.addEventListener('click', () => {
+        if (!button.disabled) mpSetDifficulty(button.dataset.difficulty);
+    });
+});
+mpSyncDifficulty(5);
 const lobbyNameInput = $('#mpName');
 if (lobbyNameInput) {
     lobbyNameInput.value = mpName() === 'Игрок' ? '' : mpName();
@@ -69,6 +101,8 @@ function mpSwapPanel(showLobby) {
     else apply();
 }
 function mpShowLobby(room) {
+    const chosenDifficulty = room.settings?.exits || $('#mpExits').value || 5;
+    mpSyncDifficulty(chosenDifficulty, room.owner !== mpUid);
     $('#menu').classList.remove('hidden');
     $('#play').classList.add('hidden');
     if ($('#mpLobby').classList.contains('hidden')) mpSwapPanel(true);
@@ -299,6 +333,7 @@ async function mpCreate() {
         await mpDb.ref('rooms/' + code).set({
             owner: mpUid,
             players: { [mpUid]: { name: mpName(), online: true, joinedAt: Date.now() } },
+            settings: { exits: 5 },
             createdAt: Date.now(),
             game: null,
         });
