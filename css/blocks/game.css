@@ -9,13 +9,70 @@
         margin-bottom: var(--space-4);
     }
 
-    .game__menu {\n        position: relative;\n        flex: none;\n    }\n\n    .game__menu-toggle {\n        min-width: 42px;\n        font-size: 25px;\n        line-height: 1;\n    }\n\n    .game__menu-popover {\n        position: absolute;\n        z-index: 20;\n        top: calc(100% + 8px);\n        right: 0;\n        min-width: 168px;\n        padding: 6px;\n        border: 1px solid var(--color-border);\n        border-radius: var(--radius-md);\n        background: var(--color-surface-raised);\n        box-shadow: var(--shadow-float);\n    }\n\n    .game__menu-item {\n        width: 100%;\n        padding: 10px 12px;\n        border: 0;\n        border-radius: var(--radius-sm);\n        background: transparent;\n        color: var(--color-text);\n        text-align: left;\n        font: inherit;\n        cursor: pointer;\n    }\n\n    .game__menu-item:hover { background: var(--color-surface-sunken); }\n\n    .game__placement-preview {\n        position: absolute;\n        z-index: 12;\n        right: 14px;\n        bottom: 14px;\n        display: flex;\n        align-items: center;\n        gap: var(--space-3);\n        padding: 9px 10px 9px 14px;\n        border: 1px solid var(--color-border);\n        border-radius: var(--radius-lg);\n        background: var(--color-surface-raised);\n        box-shadow: var(--shadow-float);\n    }\n\n    .game__placement-label { color: var(--color-text-secondary); font-size: var(--text-xs); }\n    .game__placement-actions { display: flex; gap: var(--space-2); }\n\n    .game__layout {
+    .game__menu {
+        position: relative;
+        flex: none;
+    }
+
+    .game__menu-toggle {
+        min-width: 42px;
+        font-size: 25px;
+        line-height: 1;
+    }
+
+    .game__menu-popover {
+        position: absolute;
+        z-index: 20;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 168px;
+        padding: 6px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface-raised);
+        box-shadow: var(--shadow-float);
+    }
+
+    .game__menu-item {
+        width: 100%;
+        padding: 10px 12px;
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--color-text);
+        text-align: left;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .game__menu-item:hover { background: var(--color-surface-sunken); }
+
+    .game__placement-preview {
+        position: absolute;
+        z-index: 12;
+        right: 14px;
+        bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: 9px 10px 9px 14px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-surface-raised);
+        box-shadow: var(--shadow-float);
+    }
+
+    .game__placement-label { color: var(--color-text-secondary); font-size: var(--text-xs); }
+    .game__placement-actions { display: flex; gap: var(--space-2); }
+
+    .game__layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 280px;
         gap: var(--space-4);
     }
 
     .game__boardbox {
+        position: relative;
         --card-padding: var(--space-3);
         --card-radius: var(--radius-lg);
 
@@ -113,12 +170,16 @@
             gap: var(--space-3);
         }
 
+        .game {
+            padding-bottom: calc(112px + env(safe-area-inset-bottom));
+        }
+
         .game__boardbox {
             --card-padding: var(--space-2);
             --card-radius: var(--radius-md);
 
-            height: clamp(300px, 52svh, 560px);
-            min-height: 300px;
+            height: clamp(250px, calc(100svh - 310px), 460px);
+            min-height: 250px;
         }
 
         .game__side {
@@ -132,13 +193,45 @@
             gap: var(--space-2);
         }
 
+        .game__hand-section {
+            position: fixed;
+            z-index: 30;
+            left: max(10px, env(safe-area-inset-left));
+            right: max(10px, env(safe-area-inset-right));
+            bottom: max(8px, env(safe-area-inset-bottom));
+            display: grid;
+            gap: 6px;
+            padding: 10px 10px 7px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            background: var(--color-surface-raised);
+            box-shadow: var(--shadow-float);
+        }
+
+        .game__hand-section > .caption {
+            font-size: var(--text-xs);
+        }
+
         .game__hand {
             flex-wrap: nowrap;
             margin: 0 calc(-1 * var(--space-1));
             padding: var(--space-1) var(--space-1) var(--space-2);
             overflow-x: auto;
             scroll-snap-type: x mandatory;
+            scrollbar-width: none;
         }
+
+        .game__hand::-webkit-scrollbar { display: none; }
+
+        .game__placement-preview {
+            right: 8px;
+            bottom: 8px;
+            left: 8px;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .game__placement-label { max-width: 112px; }
     }
 
     @media (max-width: 380px) {
