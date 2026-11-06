@@ -38,9 +38,8 @@
         margin-top: var(--space-3);
     }
 
-    .coop__connection {
-        min-height: 20px;
-        margin-top: var(--space-1);
+    .coop__connection:not(.hidden) {
+        margin-top: var(--space-2);
     }
 
     ::view-transition-old(bandito-multiplayer-panel) {
