@@ -24,7 +24,10 @@ let mpAuth = null,
 const mpReadyMessage = 'Кооператив готов. Создай комнату или введи код.';
 function mpMessage(t) {
     const e = $('#mpMessage');
-    if (e) e.textContent = t;
+    if (e) {
+        e.textContent = t;
+        e.classList.toggle('hidden', !t);
+    }
 }
 function mpName() {
     return (localStorage.getItem('banditoPlayerName') || 'Игрок').trim().slice(0, 18) || 'Игрок';
