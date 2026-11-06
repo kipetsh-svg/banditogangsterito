@@ -634,6 +634,7 @@ fetch('./resources/bandido-matrices/cards.json')
         $('#loadstate').textContent = 'Колода загружена. Можно начинать.';
     })
     .catch((e) => {
+        $('#loadstate').classList.remove('hidden');
         $('#loadstate').textContent = 'Не удалось загрузить колоду: ' + e.message + '. Обнови страницу.';
         document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = true));
     });
