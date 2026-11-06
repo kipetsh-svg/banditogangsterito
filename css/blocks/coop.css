@@ -5,6 +5,11 @@
         view-transition-name: bandito-multiplayer-panel;
     }
 
+    #coopCard {
+        display: flex;
+        flex-direction: column;
+    }
+
     .coop__create {
         position: relative;
     }
