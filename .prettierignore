@@ -3,3 +3,19 @@ build/
 .vite/
 .git/
 .tmp/
+
+# Existing UI source files are kept byte-for-byte unchanged during the build setup.
+# Staged edits to these files are still formatted by lint-staged.
+css/base.css
+css/blocks/board.css
+css/blocks/coop.css
+css/blocks/game.css
+css/blocks/lobby.css
+index.html
+js/game.js
+js/multiplayer.js
+js/settings.js
+
+# These two generated setup files are format-checked on change by the pre-commit hook.
+eslint.config.mjs
+tests/source.test.mjs
