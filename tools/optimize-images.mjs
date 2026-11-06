@@ -100,7 +100,5 @@ console.log(
         `${(originalBytes / 1024).toFixed(1)} KB → ${(optimizedBytes / 1024).toFixed(1)} KB`,
         `${reduction}% smaller.`,
         skipped.length ? `${skipped.length} image(s) kept in original format because WebP was not smaller.` : '',
-    ]
-        .filter(Boolean)
-        .join(' '),
+    ].filter(Boolean).join(' '),
 );

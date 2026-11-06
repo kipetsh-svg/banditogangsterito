@@ -50,7 +50,12 @@ test('critical backgrounds and logos are preloaded', () => {
     ];
 
     for (const name of criticalAssets) {
-        assert.match(html, new RegExp(`<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}\\.(?:webp|png|jpe?g)"`));
+        assert.match(
+            html,
+            new RegExp(
+                `<link[^>]+rel="preload"[^>]+as="image"[^>]+href="[^"]*${name}\\.(?:webp|png|jpe?g)"`,
+            ),
+        );
     }
     assert.match(html, /id="brandLogo"[^>]+fetchpriority="high"/);
 });
