@@ -72,15 +72,24 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         const sourcePath = join(sourceImagesDirectory, sourceName);
         const sourceSize = statSync(sourcePath).size;
         const stem = sourceName.replace(/\\.(?:png|jpe?g)$/i, '');
-        const matches = outputFiles.filter((name) => name.startsWith(stem + '-') && /\\.webp$/i.test(name));
+        const matches = outputFiles.filter(
+            (name) => name.startsWith(stem + '-') && /\.webp$/i.test(name)
+        );
         const rawDuplicates = outputFiles.filter((name) => name === sourceName);
 
         originalBytes += sourceSize;
-        assert.equal(matches.length, 1, `Expected exactly one hashed WebP for ${sourceName}, got ${matches.length}`);
+        assert.equal(
+            matches.length,
+            1,
+            `Expected exactly one hashed WebP for ${sourceName}, got ${matches.length}`
+        );
         assert.equal(rawDuplicates.length, 0, `Unhashed duplicate remains in build: ${sourceName}`);
 
         const optimizedSize = statSync(join(buildImagesDirectory, matches[0])).size;
-        assert.ok(optimizedSize < sourceSize, `Optimized image is not smaller: ${sourceName}`);
+        assert.ok(
+            optimizedSize < sourceSize,
+            `Optimized image is not smaller: ${sourceName}`
+        );
         outputBytes += optimizedSize;
     }
 
@@ -94,10 +103,18 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
 
     for (const sourceName of sourceFiles) {
         const stem = sourceName.replace(/\\.(?:png|jpe?g)$/i, '');
-        assert.match(references, new RegExp(stem + '-[a-zA-Z0-9_-]+\\.webp'), `No built reference found for ${sourceName}`);
+        assert.match(
+            references,
+            new RegExp(stem + '-[a-zA-Z0-9_-]+\\.webp'),
+            `No built reference found for ${sourceName}`
+        );
     }
 
-    assert.equal(references.includes('assets/images/bandito-'), false, 'Unhashed theme image references remain in built files');
+    assert.equal(
+        references.includes('assets/images/bandito-'),
+        false,
+        'Unhashed theme image references remain in built files'
+    );
 });
 
 function walkFiles(directory) {
