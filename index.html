@@ -279,10 +279,16 @@
                         <strong class="item__title">Сложность партии</strong>
                         <span class="item__hint">Количество выходов, которые нужно закрыть</span>
                     </span>
-                    <select id="mpExits" class="select lobby__select" aria-label="Сложность партии">
-                        <option value="2">2 выхода · легко</option>
-                        <option value="5">5 выходов · нормально</option>
-                        <option value="6" selected>6 выходов · сложно</option>
+                    <div class="lobby__difficulty" role="group" aria-label="Сложность партии">
+                        <span class="lobby__difficulty-bubble" aria-hidden="true"></span>
+                        <button class="lobby__difficulty-option" type="button" data-difficulty="2" aria-pressed="false">Лёгкая</button>
+                        <button class="lobby__difficulty-option is-active" type="button" data-difficulty="5" aria-pressed="true">Стандартная</button>
+                        <button class="lobby__difficulty-option" type="button" data-difficulty="6" aria-pressed="false">Сложная</button>
+                    </div>
+                    <select id="mpExits" class="select lobby__select" aria-label="Сложность партии" hidden>
+                        <option value="2">2 выхода · лёгкая партия</option>
+                        <option value="5" selected>5 выходов · стандартная партия</option>
+                        <option value="6">6 выходов · сложная партия</option>
                     </select>
                 </div>
                 <footer class="lobby__footer">
