@@ -79,6 +79,8 @@
         .menu__grid {
             --mode-list-gap: var(--space-2);
             --mode-option-height: 64px;
+            --mode-option-title-size: clamp(10px, 3.1vw, 13px);
+            --mode-option-hint-size: clamp(9px, 2.7vw, 11px);
 
             grid-template-columns: minmax(0, 1fr);
             gap: var(--space-4);
