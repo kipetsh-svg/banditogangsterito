@@ -3,7 +3,7 @@
     .page {
         position: relative;
         z-index: var(--z-content);
-        max-width: 1240px;
+        max-width: 1720px;
         min-height: 100svh;
         margin: 0 auto;
         padding: var(--space-8) clamp(32px, 3vw, 48px) var(--space-14);
