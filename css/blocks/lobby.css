@@ -121,6 +121,68 @@
         flex: none;
     }
 
+    .lobby__difficulty {
+        --difficulty-index: 1;
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: center;
+        gap: 2px;
+        min-width: min(100%, 310px);
+        padding: 4px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-full);
+        background: var(--color-surface-sunken);
+        isolation: isolate;
+    }
+
+    .lobby__difficulty-bubble {
+        position: absolute;
+        z-index: -1;
+        top: 4px;
+        bottom: 4px;
+        left: 4px;
+        width: calc((100% - 8px) / 3);
+        border: 1px solid var(--color-border-strong);
+        border-radius: var(--radius-full);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-float);
+        transform: translateX(calc(var(--difficulty-index) * 100%));
+        transition: transform 420ms cubic-bezier(.2, .8, .2, 1);
+        pointer-events: none;
+    }
+
+    .lobby__difficulty-option {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+        min-height: 42px;
+        padding: var(--space-2) var(--space-3);
+        border: 0;
+        border-radius: var(--radius-full);
+        background: transparent;
+        color: var(--color-text-secondary);
+        font: inherit;
+        font-size: var(--text-sm);
+        font-weight: var(--weight-semibold);
+        white-space: nowrap;
+        cursor: pointer;
+        transition: color var(--duration-fast), opacity var(--duration-fast);
+    }
+
+    .lobby__difficulty-option:hover:not(:disabled) {
+        color: var(--color-text-strong);
+    }
+
+    .lobby__difficulty-option.is-active {
+        color: var(--color-text-strong);
+    }
+
+    .lobby__difficulty-option:disabled {
+        opacity: 0.68;
+        cursor: default;
+    }
+
     .lobby__footer {
         display: flex;
         align-items: center;
@@ -156,6 +218,16 @@
         .lobby__settings {
             flex-direction: column;
             align-items: stretch;
+        }
+
+        .lobby__difficulty {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .lobby__difficulty-option {
+            padding-inline: var(--space-1);
+            font-size: var(--text-xs);
         }
     }
 }
