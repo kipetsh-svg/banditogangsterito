@@ -41,7 +41,7 @@ for (const inputPath of sourceImages) {
         withoutEnlargement: true,
     });
 
-    const isMainLogo = baseName === 'bandito-logo.png';
+    const isMainLogo = baseName.startsWith('bandito-logo');
 
     pipeline = isJpeg
         ? pipeline.webp({ quality: 85, effort: 6, smartSubsample: true })
