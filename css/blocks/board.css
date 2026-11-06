@@ -86,7 +86,7 @@
         --pin-color: var(--color-pin-3);
     }
 
-    .board__pin:hover {
+    .board__pin--preview::before {\n        transform: scale(1.35);\n        box-shadow: 0 0 0 5px var(--color-pin-hover), var(--shadow-pin);\n    }\n\n    .board__pin:hover {
         background: var(--color-pin-hover);
     }
 
