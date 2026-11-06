@@ -22,8 +22,8 @@ function setNightTheme(enabled, animate = true) {
                 : cornerLeftDay;
         if (right)
             right.src = enabled
-                ? 'assets/images/bandito-corner-right-night.png'
-                : 'assets/images/bandito-corner-right.png';
+                ? cornerRightNight
+                : cornerRightDay;
         if (logo) logo.src = enabled ? 'assets/images/bandito-logo-night-512.png' : 'assets/images/bandito-logo.png';
         if (shade) shade.classList.remove('theme-shade--visible');
         if (scene) {
