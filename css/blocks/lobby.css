@@ -178,10 +178,14 @@
         font-weight: var(--weight-semibold);
         white-space: nowrap;
         cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
         transition: color var(--duration-fast), opacity var(--duration-fast);
     }
 
-    .lobby__difficulty-option:focus:not(:focus-visible) { outline: none; }\n\n    .lobby__difficulty-option:hover:not(:disabled) {
+    .lobby__difficulty-option:focus:not(:focus-visible) { outline: none; }
+
+    .lobby__difficulty-option:hover:not(:disabled) {
         color: var(--color-text-strong);
     }
 
