@@ -73,9 +73,7 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         const sourcePath = join(sourceImagesDirectory, sourceName);
         const sourceSize = statSync(sourcePath).size;
         const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
-        const hashedAssetPattern = new RegExp(
-            `^${stem}-[a-zA-Z0-9_-]{8}\\.(?:webp|png|jpe?g)$`
-        );
+        const hashedAssetPattern = new RegExp(`^${stem}-[a-zA-Z0-9_-]{8}\\.(?:webp|png|jpe?g)$`);
         const matches = outputFiles.filter((name) => hashedAssetPattern.test(name));
 
         originalBytes += sourceSize;
