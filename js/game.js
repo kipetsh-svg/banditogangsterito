@@ -9,6 +9,7 @@ let all = [],
     exits = 6,
     turnCount = 0,
     hoverSpot = null,
+    placementPreview = null,
     lastPlaced = null,
     animateLastPlacement = false;
 const defaultStats = { games: 0, wins: 0, losses: 0, best: null };
@@ -158,6 +159,7 @@ function begin(n) {
     finished = false;
     turnCount = 0;
     hoverSpot = null;
+    placementPreview = null;
     draw();
     $('#menu').classList.add('hidden');
     $('#play').classList.remove('hidden');
@@ -278,6 +280,7 @@ function render() {
             if (btn.disabled) return;
             selected = i;
             rotation = 0;
+            placementPreview = null;
             status('Выбери точку нужного цвета на поле для размещения карты.');
             render();
         };
@@ -295,6 +298,8 @@ function render() {
             showEndScreen(false);
         } else status('Нет доступных ходов. Нажми «Сбросить карты», чтобы получить новые.');
     }
+    const previewPanel = $('#placementPreview');
+    previewPanel.classList.toggle('hidden', !placementPreview);
     if (selected >= 0 && hand[selected] && !finished && canAct) {
         const ghost = document.createElement('div');
         ghost.className = 'board__piece board__piece--ghost hidden';
@@ -322,7 +327,7 @@ function render() {
                     'px;top:' +
                     (pad + (sy - minY) * c + (mh * c) / 2 - 16 + offsets[r][1]) +
                     'px';
-                pin.onmouseenter = () => {
+                const showGhost = () => {
                     ghost.innerHTML = '';
                     ghost.style.width = mw * c + 'px';
                     ghost.style.height = mh * c + 'px';
@@ -337,13 +342,21 @@ function render() {
                     ghost.style.left = pad + (sx - minX) * c + 'px';
                     ghost.style.top = pad + (sy - minY) * c + 'px';
                 };
-                pin.onmouseleave = () => {
-                    ghost.classList.add('hidden');
+                pin.onmouseenter = () => {
+                    if (!placementPreview) showGhost();
                 };
+                pin.onmouseleave = () => {
+                    if (!placementPreview) ghost.classList.add('hidden');
+                };
+                if (placementPreview && placementPreview.x === sx && placementPreview.y === sy && placementPreview.r === r) {
+                    showGhost();
+                    pin.classList.add('board__pin--preview');
+                }
                 pin.onclick = (e) => {
                     e.stopPropagation();
                     rotation = r;
-                    play(sx, sy, m);
+                    placementPreview = { x: sx, y: sy, r };
+                    render();
                 };
                 b.append(pin);
             }
@@ -357,6 +370,30 @@ function render() {
     });
 }
 
+$('#placementConfirm').onclick = () => {
+    if (!placementPreview || selected < 0 || !hand[selected]) return;
+    const { x, y, r } = placementPreview;
+    const m = rotated(hand[selected].m, r);
+    rotation = r;
+    placementPreview = null;
+    play(x, y, m);
+};
+$('#placementCancel').onclick = () => {
+    placementPreview = null;
+    render();
+};
+$('#gameMenuToggle').onclick = () => {
+    const menu = $('#gameMenu');
+    const opening = menu.classList.contains('hidden');
+    menu.classList.toggle('hidden', !opening);
+    $('#gameMenuToggle').setAttribute('aria-expanded', String(opening));
+};
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.game__menu')) {
+        $('#gameMenu').classList.add('hidden');
+        $('#gameMenuToggle').setAttribute('aria-expanded', 'false');
+    }
+});
 const defaultCellSize = () => (window.matchMedia('(max-width:760px)').matches ? 16 : 18);
 let cellSize = defaultCellSize();
 function setZoom(next) {
@@ -425,6 +462,9 @@ document.addEventListener('keydown', (e) => {
     if (['1', '2', '3'].includes(e.key)) {
         const index = Number(e.key) - 1;
         if (hand[index] && !finished && !$('#hand').children[index].disabled) $('#hand').children[index].click();
+    } else if (e.key === 'Escape' && placementPreview) {
+        placementPreview = null;
+        render();
     } else if (e.key === 'Escape' && selected >= 0) {
         selected = -1;
         render();
@@ -561,11 +601,15 @@ $('#exchange').onclick = () => {
     selected = -1;
     rotation = 0;
     hoverSpot = null;
+    placementPreview = null;
     snackbar('Сброс карт: ' + count + ' карт возвращены под низ колоды, взяты новые');
     status('Выбери карту в руке.');
     render();
 };
 $('#newgame').onclick = () => {
+    $('#gameMenu').classList.add('hidden');
+    $('#gameMenuToggle').setAttribute('aria-expanded', 'false');
+    placementPreview = null;
     if (mpRoomCode) {
         leaveMultiplayer();
         return;
