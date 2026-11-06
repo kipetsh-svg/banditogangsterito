@@ -67,9 +67,7 @@ test('critical backgrounds and logos are preloaded', () => {
 });
 
 test('all source images are emitted once as optimized, hashed WebP assets', () => {
-        /\.(?:png|jpe?g)$/i.test(name)
-        /\\.(?:png|jpe?g)$/i.test(name)
-    );
+    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) => /\.(?:png|jpe?g)$/i.test(name));
     const outputFiles = readdirSync(buildImagesDirectory);
     assert.ok(sourceFiles.length > 0, 'No source raster images found');
 
