@@ -1,1 +1,5 @@
+node_modules/
+build/
+.vite/
 .tmp/
+.DS_Store

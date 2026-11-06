@@ -1,0 +1,35 @@
+{
+  "name": "bandito",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Bandito — browser card game",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build && node tools/copy-static.mjs",
+    "preview": "vite preview --host 0.0.0.0",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write --ignore-unknown .",
+    "format:check": "prettier --check --ignore-unknown .",
+    "lint-staged": "lint-staged",
+    "test:source": "node --test tests/source.test.mjs",
+    "test:build": "node --test tests/build.test.mjs",
+    "test": "npm run test:source && npm run test:build",
+    "check": "npm run format:check && npm run lint && npm run test:source && npm run build && npm run test:build",
+    "check:fix": "npm run lint:fix && npm run format",
+    "postinstall": "node tools/install-hooks.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.4",
+    "eslint": "9.39.4",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.4.0",
+    "lint-staged": "16.4.0",
+    "prettier": "3.8.1",
+    "vite": "8.0.3"
+  }
+}
