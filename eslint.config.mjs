@@ -120,6 +120,8 @@ export default [
         rules: {
             // The game scripts deliberately share a classic-script global scope.
             'no-unused-vars': 'off',
+            'no-redeclare': 'off',
+            'no-empty': ['error', { allowEmptyCatch: true }],
         },
     },
     {

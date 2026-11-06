@@ -16,6 +16,6 @@ js/game.js
 js/multiplayer.js
 js/settings.js
 
-# These two generated setup files are format-checked on change by the pre-commit hook.
+# Their staged edits are formatted by lint-staged with ignore rules disabled.
 eslint.config.mjs
 tests/source.test.mjs
