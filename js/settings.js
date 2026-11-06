@@ -56,3 +56,23 @@ function saveSettings() {
     applySettings(true);
 }
 applySettings();
+
+
+/* Keep settings dialog controls available even if later game code fails. */
+const settingsDialog = $('#settingsModal');
+const openSettingsButton = $('#openSettings');
+const closeSettingsButton = $('#closeSettings');
+if (openSettingsButton && settingsDialog) {
+    openSettingsButton.addEventListener('click', () => settingsDialog.classList.remove('hidden'));
+}
+if (closeSettingsButton && settingsDialog) {
+    closeSettingsButton.addEventListener('click', () => settingsDialog.classList.add('hidden'));
+}
+if (settingsDialog) {
+    settingsDialog.addEventListener('click', (event) => {
+        if (event.target === settingsDialog) settingsDialog.classList.add('hidden');
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') settingsDialog.classList.add('hidden');
+    });
+}
