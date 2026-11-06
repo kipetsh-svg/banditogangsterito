@@ -97,6 +97,18 @@ function mpSwapPanel(showLobby) {
     const lobby = $('#mpLobby');
     if (!coopContent || !lobby) return;
     const apply = () => {
+        const menu = $('#menu');
+        const soloCard = $('.menu__card--solo');
+        if (showLobby && menu && soloCard && window.matchMedia('(min-width: 761px)').matches) {
+            // Freeze the solo card at its equal-menu height before the lobby grows.
+            soloCard.style.height = menu.classList.contains('menu--lobby-open')
+                ? soloCard.style.height
+                : soloCard.getBoundingClientRect().height + 'px';
+            menu.classList.add('menu--lobby-open');
+        } else if (!showLobby && menu && soloCard) {
+            menu.classList.remove('menu--lobby-open');
+            soloCard.style.removeProperty('height');
+        }
         coopContent.classList.toggle('hidden', showLobby);
         lobby.classList.toggle('hidden', !showLobby);
     };
