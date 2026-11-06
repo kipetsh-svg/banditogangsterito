@@ -629,7 +629,7 @@ try {
         if (u) {
             mpUid = u.uid;
             mpMessage(mpReadyMessage);
-        } else mpMessage('Войди анонимно, чтобы играть онлайн.');
+        } else mpMessage('');
     });
 } catch (e) {
     mpMessage('Firebase не загрузился: ' + e.message);
