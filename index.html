@@ -100,7 +100,15 @@
                     </svg>
                 </button>
                 <header class="brand">
-                    <img id="brandLogo" class="brand__logo" src="assets/images/bandito-logo.png" alt="BANDITO" loading="eager" decoding="async" fetchpriority="high" />
+                    <img
+                        id="brandLogo"
+                        class="brand__logo"
+                        src="assets/images/bandito-logo.png"
+                        alt="BANDITO"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
+                    />
                     <div>
                         <p class="brand__kicker">Карточная игра · 1–4 игрока</p>
                         <p class="brand__tagline">Прокладывай тоннели, закрой все выходы</p>
@@ -187,7 +195,9 @@
                             </button>
                         </div>
                         <p class="note coop__note">До 4 игроков · одно общее поле</p>
-                        <p id="mpMessage" class="note coop__connection" aria-live="polite">Подключение к кооперативу…</p>
+                        <p id="mpMessage" class="note coop__connection" aria-live="polite">
+                            Подключение к кооперативу…
+                        </p>
                     </section>
                 </div>
             </section>
@@ -232,9 +242,20 @@
                     </div>
                     <div class="lobby__difficulty" role="group" aria-label="Сложность партии">
                         <span class="lobby__difficulty-bubble" aria-hidden="true"></span>
-                        <button class="lobby__difficulty-option" type="button" data-difficulty="2" aria-pressed="false">Лёгкая</button>
-                        <button class="lobby__difficulty-option is-active" type="button" data-difficulty="5" aria-pressed="true">Стандартная</button>
-                        <button class="lobby__difficulty-option" type="button" data-difficulty="6" aria-pressed="false">Сложная</button>
+                        <button class="lobby__difficulty-option" type="button" data-difficulty="2" aria-pressed="false">
+                            Лёгкая
+                        </button>
+                        <button
+                            class="lobby__difficulty-option is-active"
+                            type="button"
+                            data-difficulty="5"
+                            aria-pressed="true"
+                        >
+                            Стандартная
+                        </button>
+                        <button class="lobby__difficulty-option" type="button" data-difficulty="6" aria-pressed="false">
+                            Сложная
+                        </button>
                     </div>
                     <select id="mpExits" class="select lobby__select" aria-label="Сложность партии" hidden>
                         <option value="2">2 выхода · лёгкая партия</option>
@@ -261,8 +282,16 @@
                         </div>
                     </div>
                     <div class="game__menu">
-                        <button id="gameMenuToggle" class="btn btn--icon game__menu-toggle" type="button"
-                            aria-label="Действия игры" aria-expanded="false" aria-controls="gameMenu">⋯</button>
+                        <button
+                            id="gameMenuToggle"
+                            class="btn btn--icon game__menu-toggle"
+                            type="button"
+                            aria-label="Действия игры"
+                            aria-expanded="false"
+                            aria-controls="gameMenu"
+                        >
+                            ⋯
+                        </button>
                         <div id="gameMenu" class="game__menu-popover hidden">
                             <button id="newgame" class="game__menu-item" type="button">Новая партия</button>
                         </div>
@@ -277,11 +306,18 @@
                         >
                             <div id="board" class="board"></div>
                         </div>
-                        <div id="placementPreview" class="game__placement-preview hidden" role="group" aria-label="Подтверждение размещения">
+                        <div
+                            id="placementPreview"
+                            class="game__placement-preview hidden"
+                            role="group"
+                            aria-label="Подтверждение размещения"
+                        >
                             <span class="game__placement-label">Так будет выглядеть карта</span>
                             <div class="game__placement-actions">
                                 <button id="placementCancel" class="btn btn--sm" type="button">Отмена</button>
-                                <button id="placementConfirm" class="btn btn--sm btn--primary" type="button">Поставить</button>
+                                <button id="placementConfirm" class="btn btn--sm btn--primary" type="button">
+                                    Поставить
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -374,9 +410,6 @@
         <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
         <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
         <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
-        <script type="module" src="js/settings.js"></script>
-        <script src="js/snackbar.js"></script>
-        <script src="js/game.js"></script>
-        <script src="js/multiplayer.js"></script>
+        <script type="module" src="js/main.js"></script>
     </body>
 </html>

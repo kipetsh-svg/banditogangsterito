@@ -1,12 +1,12 @@
 /* Settings, theme switching, and saved preferences. */
-import cornerLeftDay from '../assets/images/bandito-corner-left.png';
-import cornerLeftNight from '../assets/images/bandito-corner-left-night.png';
-import cornerRightDay from '../assets/images/bandito-corner-right.png';
-import cornerRightNight from '../assets/images/bandito-corner-right-night.png';
-import logoDay from '../assets/images/bandito-logo.png';
-import logoNight from '../assets/images/bandito-logo-night-512.png';
+import cornerLeftDay from '#assets/images/bandito-corner-left.png';
+import cornerLeftNight from '#assets/images/bandito-corner-left-night.png';
+import cornerRightDay from '#assets/images/bandito-corner-right.png';
+import cornerRightNight from '#assets/images/bandito-corner-right-night.png';
+import logoDay from '#assets/images/bandito-logo.png';
+import logoNight from '#assets/images/bandito-logo-night-512.png';
+import { $ } from '#js/dom.js';
 
-const $ = (s) => document.querySelector(s);
 const settingsDefaults = { reduceMotion: false, darkTheme: false };
 function setNightTheme(enabled, animate = true) {
     const left = $('#cornerLeft'),
@@ -16,14 +16,8 @@ function setNightTheme(enabled, animate = true) {
         shade = $('#themeShade');
     const finish = () => {
         document.body.classList.toggle('dark-theme', !!enabled);
-        if (left)
-            left.src = enabled
-                ? cornerLeftNight
-                : cornerLeftDay;
-        if (right)
-            right.src = enabled
-                ? cornerRightNight
-                : cornerRightDay;
+        if (left) left.src = enabled ? cornerLeftNight : cornerLeftDay;
+        if (right) right.src = enabled ? cornerRightNight : cornerRightDay;
         if (logo) logo.src = enabled ? logoNight : logoDay;
         if (shade) shade.classList.remove('theme-shade--visible');
         if (scene) {
@@ -43,7 +37,7 @@ function setNightTheme(enabled, animate = true) {
     shade.classList.add('theme-shade--visible');
     window.setTimeout(finish, 1200);
 }
-function applySettings(animateTheme = false) {
+export function applySettings(animateTheme = false) {
     let saved = {};
     try {
         saved = JSON.parse(localStorage.getItem('banditoSettings') || '{}') || {};
@@ -57,11 +51,9 @@ function applySettings(animateTheme = false) {
     if (dark) dark.checked = !!cfg.darkTheme;
     setNightTheme(!!cfg.darkTheme, animateTheme);
 }
-function saveSettings() {
+export function saveSettings() {
     const cfg = { reduceMotion: $('#reduceMotion').checked, darkTheme: $('#darkTheme').checked };
     localStorage.setItem('banditoSettings', JSON.stringify(cfg));
     applySettings(true);
 }
-window.applySettings = applySettings;
-window.saveSettings = saveSettings;
 applySettings();

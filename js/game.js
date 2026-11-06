@@ -1,19 +1,34 @@
 /* Single-player rules, board rendering, controls, and end screens. */
-// Shared DOM helper for the classic scripts; js/settings.js is a module and keeps its own copy.
-const $ = (s) => document.querySelector(s);
-let all = [],
-    deck = [],
-    hand = [],
-    placed = [],
-    selected = -1,
-    rotation = 0,
-    finished = false,
-    exits = 6,
-    turnCount = 0,
-    hoverSpot = null,
-    placementPreview = null,
-    lastPlaced = null,
-    animateLastPlacement = false;
+import { $ } from '#js/dom.js';
+import { applySettings, saveSettings } from '#js/settings.js';
+import { snackbar } from '#js/snackbar.js';
+import {
+    leaveMultiplayer,
+    mpExchange,
+    mpPlay,
+    mpRoomCode,
+    mpRoomData,
+    mpStart,
+    mpStopTimer,
+    mpUid,
+} from '#js/multiplayer.js';
+
+// Current game state; multiplayer.js replaces it from the room snapshot.
+export const state = {
+    all: [],
+    deck: [],
+    hand: [],
+    placed: [],
+    selected: -1,
+    rotation: 0,
+    finished: false,
+    exits: 6,
+    turnCount: 0,
+    hoverSpot: null,
+    placementPreview: null,
+    lastPlaced: null,
+    animateLastPlacement: false,
+};
 const defaultStats = { games: 0, wins: 0, losses: 0, best: null };
 let playerStats = {
     ...defaultStats,
@@ -37,19 +52,19 @@ function updateStats() {
         if (el) el.textContent = v;
     };
     set('gameWins', playerStats.wins);
-    set('turnCount', turnCount);
+    set('turnCount', state.turnCount);
 }
 function finishGame(won) {
-    if (finished) return;
-    finished = true;
+    if (state.finished) return;
+    state.finished = true;
     playerStats.games++;
     if (won) {
         playerStats.wins++;
-        if (playerStats.best === null || turnCount < playerStats.best) playerStats.best = turnCount;
+        if (playerStats.best === null || state.turnCount < playerStats.best) playerStats.best = state.turnCount;
     } else playerStats.losses++;
     saveStats();
 }
-const clone = (m) => m.map((r) => r.slice());
+export const clone = (m) => m.map((r) => r.slice());
 function rot(m) {
     let h = m.length,
         w = m[0].length,
@@ -60,36 +75,25 @@ function rot(m) {
 function dims(m) {
     return [m[0].length, m.length];
 }
-function edges(m) {
-    return {
-        top: m[0],
-        bottom: m[m.length - 1],
-        left: m.map((r) => r[0]),
-        right: m.map((r) => r[r.length - 1]),
-    };
-}
-function at(x, y) {
-    return placed.find((p) => p.x === x && p.y === y);
-}
 let boardIndex = null,
     indexedBoard = null,
     indexedBoardLength = -1;
 function ensureBoardIndex() {
-    if (boardIndex && indexedBoard === placed && indexedBoardLength === placed.length) return boardIndex;
+    if (boardIndex && indexedBoard === state.placed && indexedBoardLength === state.placed.length) return boardIndex;
     const index = new Map();
-    for (const p of placed)
+    for (const p of state.placed)
         for (let y = 0; y < p.m.length; y++)
             for (let x = 0; x < p.m[y].length; x++) index.set(p.x + x + ',' + (p.y + y), p.m[y][x]);
     boardIndex = index;
-    indexedBoard = placed;
-    indexedBoardLength = placed.length;
+    indexedBoard = state.placed;
+    indexedBoardLength = state.placed.length;
     return index;
 }
 function cellAt(gx, gy) {
     const value = ensureBoardIndex().get(gx + ',' + gy);
     return value === undefined ? null : value;
 }
-function valid(m, x, y) {
+export function valid(m, x, y) {
     const [w, h] = dims(m),
         index = ensureBoardIndex();
     let connected = false;
@@ -111,7 +115,7 @@ function valid(m, x, y) {
         }
     return connected;
 }
-function shuffle(a) {
+export function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
         [a[i], a[j]] = [a[j], a[i]];
@@ -119,15 +123,15 @@ function shuffle(a) {
     return a;
 }
 function draw() {
-    while (hand.length < 3 && deck.length) hand.push(deck.pop());
+    while (state.hand.length < 3 && state.deck.length) state.hand.push(state.deck.pop());
 }
-function status(t, k = '') {
+export function status(t, k = '') {
     $('#status').textContent = t;
     $('#status').classList.toggle('hidden', k === 'win' || k === 'lose');
 }
-function opens() {
+export function opens() {
     let n = 0;
-    for (const p of placed) {
+    for (const p of state.placed) {
         const [w, h] = dims(p.m);
         for (let yy = 0; yy < h; yy++)
             for (let xx = 0; xx < w; xx++)
@@ -143,25 +147,21 @@ function opens() {
     return n;
 }
 function begin(n) {
-    if (!all.length) return;
-    if (mpTimerInterval) {
-        clearInterval(mpTimerInterval);
-        mpTimerInterval = null;
-    }
-    $('#mpTimer').classList.add('hidden');
-    exits = n;
-    let s = all.find((c) => c.id === (n === 2 ? 75 : n === 6 ? 71 : 72));
-    deck = shuffle(all.filter((c) => c.kind === 'tunnel').map((c) => ({ id: c.id, m: clone(c.matrix) })));
-    hand = [];
-    placed = [{ id: s.id, x: 0, y: 0, m: clone(s.matrix) }];
-    lastPlaced = null;
-    animateLastPlacement = false;
-    selected = -1;
-    rotation = 0;
-    finished = false;
-    turnCount = 0;
-    hoverSpot = null;
-    placementPreview = null;
+    if (!state.all.length) return;
+    mpStopTimer();
+    state.exits = n;
+    let s = state.all.find((c) => c.id === (n === 2 ? 75 : n === 6 ? 71 : 72));
+    state.deck = shuffle(state.all.filter((c) => c.kind === 'tunnel').map((c) => ({ id: c.id, m: clone(c.matrix) })));
+    state.hand = [];
+    state.placed = [{ id: s.id, x: 0, y: 0, m: clone(s.matrix) }];
+    state.lastPlaced = null;
+    state.animateLastPlacement = false;
+    state.selected = -1;
+    state.rotation = 0;
+    state.finished = false;
+    state.turnCount = 0;
+    state.hoverSpot = null;
+    state.placementPreview = null;
     draw();
     $('#menu').classList.add('hidden');
     $('#play').classList.remove('hidden');
@@ -177,7 +177,7 @@ function rotated(m, r) {
 function legalSpots(m) {
     const [w, h] = dims(m),
         candidates = new Set();
-    for (const p of placed)
+    for (const p of state.placed)
         for (let py = 0; py < p.m.length; py++)
             for (let px = 0; px < p.m[py].length; px++) {
                 if (p.m[py][px] !== 1) continue;
@@ -202,23 +202,23 @@ function legalSpots(m) {
     }
     return spots;
 }
-function canPlayAny() {
-    return hand.some((card) => [0, 1, 2, 3].some((r) => legalSpots(rotated(card.m, r)).length > 0));
+export function canPlayAny() {
+    return state.hand.some((card) => [0, 1, 2, 3].some((r) => legalSpots(rotated(card.m, r)).length > 0));
 }
-function render() {
+export function render() {
     const camera = $('#camera'),
         savedLeft = camera?.scrollLeft || 0,
         savedTop = camera?.scrollTop || 0;
-    if (selected >= hand.length) selected = -1;
-    if (finished) selected = -1;
-    let minX = Math.min(...placed.map((p) => p.x)),
-        minY = Math.min(...placed.map((p) => p.y)),
-        maxX = Math.max(...placed.map((p) => p.x + dims(p.m)[0])),
-        maxY = Math.max(...placed.map((p) => p.y + dims(p.m)[1]));
+    if (state.selected >= state.hand.length) state.selected = -1;
+    if (state.finished) state.selected = -1;
+    let minX = Math.min(...state.placed.map((p) => p.x)),
+        minY = Math.min(...state.placed.map((p) => p.y)),
+        maxX = Math.max(...state.placed.map((p) => p.x + dims(p.m)[0])),
+        maxY = Math.max(...state.placed.map((p) => p.y + dims(p.m)[1]));
     const legalByRotation = [];
-    if (selected >= 0 && hand[selected]) {
+    if (state.selected >= 0 && state.hand[state.selected]) {
         for (let r = 0; r < 4; r++) {
-            const m = rotated(hand[selected].m, r),
+            const m = rotated(state.hand[state.selected].m, r),
                 [w, h] = dims(m),
                 spots = legalSpots(m);
             legalByRotation.push({ m, w, h, spots });
@@ -236,17 +236,21 @@ function render() {
     b.innerHTML = '';
     b.style.width = (maxX - minX) * c + pad * 2 + 'px';
     b.style.height = (maxY - minY) * c + pad * 2 + 'px';
-    for (const p of placed) {
+    for (const p of state.placed) {
         const [w, h] = dims(p.m),
             el = document.createElement('div');
-        const isLatest = !!lastPlaced && p.id === lastPlaced.id && p.x === lastPlaced.x && p.y === lastPlaced.y;
+        const isLatest =
+            !!state.lastPlaced &&
+            p.id === state.lastPlaced.id &&
+            p.x === state.lastPlaced.x &&
+            p.y === state.lastPlaced.y;
         const highlightLatest = !!mpRoomCode && isLatest;
-        const animateThis = isLatest && animateLastPlacement;
+        const animateThis = isLatest && state.animateLastPlacement;
         el.className =
             'board__piece' +
             (highlightLatest ? ' board__piece--latest' : '') +
             (animateThis ? ' board__piece--fresh' : '');
-        if (animateThis) animateLastPlacement = false;
+        if (animateThis) state.animateLastPlacement = false;
         el.style.cssText = `left:${pad + (p.x - minX) * c}px;top:${pad + (p.y - minY) * c}px;width:${w * c}px;height:${h * c}px;grid-template-columns:repeat(${w},${c}px);grid-template-rows:repeat(${h},${c}px)`;
         p.m.flat().forEach((v) => {
             const q = document.createElement('i');
@@ -257,13 +261,13 @@ function render() {
     }
     $('#hand').innerHTML = '';
     const canAct = !mpRoomCode || mpRoomData?.game?.turnUid === mpUid;
-    const hasMoves = canAct && !finished && hand.length > 0 && canPlayAny();
-    hand.forEach((card, i) => {
-        const m = rotated(card.m, i === selected ? rotation : 0),
+    const hasMoves = canAct && !state.finished && state.hand.length > 0 && canPlayAny();
+    state.hand.forEach((card, i) => {
+        const m = rotated(card.m, i === state.selected ? state.rotation : 0),
             btn = document.createElement('button');
-        btn.className = 'hand-card' + (i === selected ? ' hand-card--selected' : '');
+        btn.className = 'hand-card' + (i === state.selected ? ' hand-card--selected' : '');
         btn.type = 'button';
-        btn.disabled = finished || !canAct;
+        btn.disabled = state.finished || !canAct;
         const mini = document.createElement('span');
         mini.className = 'hand-card__mini';
         mini.style.cssText = `grid-template-columns:repeat(${m[0].length},7px);grid-template-rows:repeat(${m.length},7px)`;
@@ -277,34 +281,35 @@ function render() {
         label.className = 'hand-card__label';
         label.textContent = 'Карта ' + card.id;
         btn.append(label);
-        btn.setAttribute('aria-pressed', String(i === selected));
+        btn.setAttribute('aria-pressed', String(i === state.selected));
         btn.onclick = () => {
             if (btn.disabled) return;
-            selected = i;
-            rotation = 0;
-            placementPreview = null;
+            state.selected = i;
+            state.rotation = 0;
+            state.placementPreview = null;
             status('Выбери точку нужного цвета на поле для размещения карты.');
             render();
         };
         $('#hand').append(btn);
     });
-    $('#deckcount').textContent = deck.length;
+    $('#deckcount').textContent = state.deck.length;
     $('#openCount').textContent = opens();
-    $('#turnCount').textContent = turnCount;
-    $('#exchange').disabled = finished || !canAct || hand.length === 0 || hasMoves;
+    $('#turnCount').textContent = state.turnCount;
+    $('#exchange').disabled = state.finished || !canAct || state.hand.length === 0 || hasMoves;
     $('#zoomReset').textContent = Math.round((cellSize / 18) * 100) + '%';
-    if (!mpRoomCode && canAct && !finished && hand.length > 0 && !hasMoves) {
-        if (!deck.length) {
+    if (!mpRoomCode && canAct && !state.finished && state.hand.length > 0 && !hasMoves) {
+        if (!state.deck.length) {
             finishGame(false);
             status('Поражение. Нет доступных ходов, а колода пуста.', 'lose');
             showEndScreen(false);
         } else status('Нет доступных ходов. Нажми «Сбросить карты», чтобы получить новые.');
     }
-    const showPlacementPreview = !!placementPreview && selected >= 0 && !!hand[selected] && !finished && canAct;
-    if (!showPlacementPreview) placementPreview = null;
+    const showPlacementPreview =
+        !!state.placementPreview && state.selected >= 0 && !!state.hand[state.selected] && !state.finished && canAct;
+    if (!showPlacementPreview) state.placementPreview = null;
     const previewPanel = $('#placementPreview');
     previewPanel.classList.toggle('hidden', !showPlacementPreview);
-    if (selected >= 0 && hand[selected] && !finished && canAct) {
+    if (state.selected >= 0 && state.hand[state.selected] && !state.finished && canAct) {
         const ghost = document.createElement('div');
         ghost.className = 'board__piece board__piece--ghost hidden';
         b.append(ghost);
@@ -347,24 +352,24 @@ function render() {
                     ghost.style.top = pad + (sy - minY) * c + 'px';
                 };
                 pin.onmouseenter = () => {
-                    if (!placementPreview) showGhost();
+                    if (!state.placementPreview) showGhost();
                 };
                 pin.onmouseleave = () => {
-                    if (!placementPreview) ghost.classList.add('hidden');
+                    if (!state.placementPreview) ghost.classList.add('hidden');
                 };
                 if (
-                    placementPreview &&
-                    placementPreview.x === sx &&
-                    placementPreview.y === sy &&
-                    placementPreview.r === r
+                    state.placementPreview &&
+                    state.placementPreview.x === sx &&
+                    state.placementPreview.y === sy &&
+                    state.placementPreview.r === r
                 ) {
                     showGhost();
                     pin.classList.add('board__pin--preview');
                 }
                 pin.onclick = (e) => {
                     e.stopPropagation();
-                    rotation = r;
-                    placementPreview = { x: sx, y: sy, r };
+                    state.rotation = r;
+                    state.placementPreview = { x: sx, y: sy, r };
                     status('Проверь расположение карты. Нажми «Поставить» или «Отмена».');
                     render();
                 };
@@ -381,15 +386,15 @@ function render() {
 }
 
 $('#placementConfirm').onclick = () => {
-    if (!placementPreview || selected < 0 || !hand[selected]) return;
-    const { x, y, r } = placementPreview;
-    const m = rotated(hand[selected].m, r);
-    rotation = r;
-    placementPreview = null;
+    if (!state.placementPreview || state.selected < 0 || !state.hand[state.selected]) return;
+    const { x, y, r } = state.placementPreview;
+    const m = rotated(state.hand[state.selected].m, r);
+    state.rotation = r;
+    state.placementPreview = null;
     play(x, y, m);
 };
 $('#placementCancel').onclick = () => {
-    placementPreview = null;
+    state.placementPreview = null;
     status('Выбери точку на поле.');
     render();
 };
@@ -472,16 +477,17 @@ document.addEventListener('keydown', (e) => {
     if (e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
     if (['1', '2', '3'].includes(e.key)) {
         const index = Number(e.key) - 1;
-        if (hand[index] && !finished && !$('#hand').children[index].disabled) $('#hand').children[index].click();
-    } else if (e.key === 'Escape' && placementPreview) {
-        placementPreview = null;
+        if (state.hand[index] && !state.finished && !$('#hand').children[index].disabled)
+            $('#hand').children[index].click();
+    } else if (e.key === 'Escape' && state.placementPreview) {
+        state.placementPreview = null;
         render();
-    } else if (e.key === 'Escape' && selected >= 0) {
-        selected = -1;
+    } else if (e.key === 'Escape' && state.selected >= 0) {
+        state.selected = -1;
         render();
     }
 });
-function showEndScreen(won) {
+export function showEndScreen(won) {
     if (document.querySelector('[data-end-screen]')) return;
     const layer = document.createElement('div');
     layer.className = 'end-screen' + (won ? '' : ' end-screen--lose');
@@ -533,7 +539,7 @@ function showEndScreen(won) {
     const leave = layer.querySelector('[data-end="leave"]');
     if (leave) leave.onclick = () => leaveMultiplayer();
 }
-function celebrate() {
+export function celebrate() {
     const layer = document.createElement('div');
     layer.className = 'confetti';
     layer.setAttribute('aria-hidden', 'true');
@@ -572,15 +578,15 @@ function play(x, y, m) {
         mpPlay(x, y, m);
         return;
     }
-    if (finished || selected < 0 || !valid(m, x, y)) return;
-    let card = hand.splice(selected, 1)[0];
+    if (state.finished || state.selected < 0 || !valid(m, x, y)) return;
+    let card = state.hand.splice(state.selected, 1)[0];
     const newPiece = { id: card.id, x, y, m };
-    placed.push(newPiece);
-    lastPlaced = newPiece;
-    animateLastPlacement = true;
-    turnCount++;
-    selected = -1;
-    rotation = 0;
+    state.placed.push(newPiece);
+    state.lastPlaced = newPiece;
+    state.animateLastPlacement = true;
+    state.turnCount++;
+    state.selected = -1;
+    state.rotation = 0;
     draw();
     let n = opens();
     if (n === 0) {
@@ -588,7 +594,7 @@ function play(x, y, m) {
         status('Победа! Все туннели закрыты.', 'win');
         showEndScreen(true);
         celebrate();
-    } else if (!deck.length && !hand.length) {
+    } else if (!state.deck.length && !state.hand.length) {
         finishGame(false);
         status('Поражение. Карты закончились, выходы остались.', 'lose');
         showEndScreen(false);
@@ -600,19 +606,19 @@ $('#exchange').onclick = () => {
         mpExchange();
         return;
     }
-    if (finished || !hand.length) return;
+    if (state.finished || !state.hand.length) return;
     if (canPlayAny()) {
         snackbar('Сброс карт возможен только если нет доступных ходов', 'error');
         return;
     }
-    const count = hand.length;
-    hand.forEach((c) => deck.unshift(c));
-    hand = [];
+    const count = state.hand.length;
+    state.hand.forEach((c) => state.deck.unshift(c));
+    state.hand = [];
     draw();
-    selected = -1;
-    rotation = 0;
-    hoverSpot = null;
-    placementPreview = null;
+    state.selected = -1;
+    state.rotation = 0;
+    state.hoverSpot = null;
+    state.placementPreview = null;
     snackbar('Сброс карт: ' + count + ' карт возвращены под низ колоды, взяты новые');
     status('Выбери карту в руке.');
     render();
@@ -620,7 +626,7 @@ $('#exchange').onclick = () => {
 $('#newgame').onclick = () => {
     $('#gameMenu').classList.add('hidden');
     $('#gameMenuToggle').setAttribute('aria-expanded', 'false');
-    placementPreview = null;
+    state.placementPreview = null;
     if (mpRoomCode) {
         leaveMultiplayer();
         return;
@@ -636,7 +642,7 @@ fetch('./resources/bandido-matrices/cards.json')
         return r.json();
     })
     .then((d) => {
-        all = d.cards.filter((c) => c.matrix);
+        state.all = d.cards.filter((c) => c.matrix);
         document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = false));
         $('#loadstate').classList.remove('hidden');
         $('#loadstate').textContent = 'Колода загружена. Можно начинать.';
@@ -652,11 +658,11 @@ $('#closeSettings').onclick = () => $('#settingsModal').classList.add('hidden');
 $('#settingsModal').addEventListener('click', (e) => {
     if (e.target.id === 'settingsModal') $('#settingsModal').classList.add('hidden');
 });
-$('#reduceMotion').addEventListener('change', () => window.saveSettings());
-$('#darkTheme').addEventListener('change', () => window.saveSettings());
+$('#reduceMotion').addEventListener('change', saveSettings);
+$('#darkTheme').addEventListener('change', saveSettings);
 $('#resetSettings').onclick = () => {
     localStorage.removeItem('banditoSettings');
-    window.applySettings();
+    applySettings();
 };
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') $('#settingsModal').classList.add('hidden');

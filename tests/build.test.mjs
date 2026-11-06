@@ -28,17 +28,14 @@ test('production build contains index.html and every referenced local asset', ()
     }
 });
 
-test('runtime scripts and dynamically loaded card data are present in the build', () => {
-    const requiredFiles = [
-        'js/snackbar.js',
-        'js/game.js',
-        'js/multiplayer.js',
-        'resources/bandido-matrices/cards.json',
-    ];
+test('the application is bundled into one script and card data is copied for runtime fetch', () => {
+    const html = readFileSync(resolve(buildDirectory, 'index.html'), 'utf8');
+    const localScripts = [...html.matchAll(/<script[^>]*src="([^":]+)"/g)].map((match) => match[1]);
+    assert.equal(localScripts.length, 1, `Expected one bundled script, found: ${localScripts.join(', ')}`);
+    assert.match(localScripts[0], /^\.\/assets\/index-[\w-]+\.js$/);
 
-    for (const file of requiredFiles) {
-        assert.ok(existsSync(resolve(buildDirectory, file)), `Missing runtime file in build: ${file}`);
-    }
+    const cardData = 'resources/bandido-matrices/cards.json';
+    assert.ok(existsSync(resolve(buildDirectory, cardData)), `Missing runtime file in build: ${cardData}`);
 });
 
 test('critical backgrounds and logos are preloaded', () => {

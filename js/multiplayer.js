@@ -1,4 +1,8 @@
 /* Firebase, lobby UI, room presence, and cooperative game flow. */
+import { $ } from '#js/dom.js';
+import { snackbar } from '#js/snackbar.js';
+import { canPlayAny, celebrate, clone, opens, render, showEndScreen, shuffle, state, status, valid } from '#js/game.js';
+
 const firebaseConfig = {
     apiKey: 'AIzaSyDCBEArE3TebFxTiaK-6Q7DxWf8GloOuUg',
     authDomain: 'bandito-83823.firebaseapp.com',
@@ -11,22 +15,21 @@ const firebaseConfig = {
 };
 let mpAuth = null,
     mpDb = null,
-    mpUid = null,
-    mpRoomCode = null,
     mpRoomRef = null,
     mpRoomListener = null,
-    mpRoomData = null,
     mpBusy = false,
     mpCelebrated = false,
     mpTimerInterval = null,
     mpPresenceRef = null,
     mpPresenceHandler = null;
+export let mpUid = null,
+    mpRoomCode = null,
+    mpRoomData = null;
 const mpReadyMessage = 'Кооператив готов. Создай комнату или введи код.';
 function mpMessage(t) {
     const e = $('#mpMessage');
     if (e) {
         e.textContent = t;
-
     }
 }
 function mpName() {
@@ -37,7 +40,7 @@ function mpCode() {
 }
 function mpSyncDifficulty(value, disabled = false) {
     const selected = ['2', '5', '6'].includes(String(value)) ? String(value) : '5';
-    const index = { '2': 0, '5': 1, '6': 2 }[selected];
+    const index = { 2: 0, 5: 1, 6: 2 }[selected];
     const group = document.querySelector('.lobby__difficulty');
     const select = $('#mpExits');
     if (select) select.value = selected;
@@ -131,7 +134,7 @@ function mpShowLobby(room) {
     const freeSlots = $('#mpFreeSlots');
     if (freeSlots) freeSlots.textContent = String(Math.max(0, 4 - players.length));
     list.replaceChildren();
-    players.forEach(([id, p], index) => {
+    players.forEach(([id, p]) => {
         const row = document.createElement('div');
         row.className = 'card card--raised lobby__player' + (p.online === false ? ' lobby__player--offline' : '');
         const avatar = document.createElement('span');
@@ -199,35 +202,35 @@ function mpAttach(code) {
         $('#menu').classList.add('hidden');
         $('#play').classList.remove('hidden');
         const g = room.game;
-        const previouslySelected = selected >= 0 && hand[selected] ? hand[selected].id : null;
-        const previousLastKey = lastPlaced ? lastPlaced.id + '@' + lastPlaced.x + ',' + lastPlaced.y : null;
-        placed = g.board || [];
-        lastPlaced = placed.length ? placed[placed.length - 1] : null;
-        const currentLastKey = lastPlaced ? lastPlaced.id + '@' + lastPlaced.x + ',' + lastPlaced.y : null;
-        animateLastPlacement =
+        const previouslySelected =
+            state.selected >= 0 && state.hand[state.selected] ? state.hand[state.selected].id : null;
+        const previousLastKey = state.lastPlaced
+            ? state.lastPlaced.id + '@' + state.lastPlaced.x + ',' + state.lastPlaced.y
+            : null;
+        state.placed = g.board || [];
+        state.lastPlaced = state.placed.length ? state.placed[state.placed.length - 1] : null;
+        const currentLastKey = state.lastPlaced
+            ? state.lastPlaced.id + '@' + state.lastPlaced.x + ',' + state.lastPlaced.y
+            : null;
+        state.animateLastPlacement =
             !!previousLastKey && !!currentLastKey && previousLastKey !== currentLastKey && (g.turnCount || 0) > 0;
-        deck = g.deck || [];
-        hand = (g.hands && g.hands[mpUid]) || [];
-        turnCount = g.turnCount || 0;
-        exits = g.exits || 6;
-        finished = !!g.finished;
-        if (finished) {
-            if (mpTimerInterval) {
-                clearInterval(mpTimerInterval);
-                mpTimerInterval = null;
-            }
-            $('#mpTimer').classList.add('hidden');
-        } else {
+        state.deck = g.deck || [];
+        state.hand = (g.hands && g.hands[mpUid]) || [];
+        state.turnCount = g.turnCount || 0;
+        state.exits = g.exits || 6;
+        state.finished = !!g.finished;
+        if (state.finished) mpStopTimer();
+        else {
             $('#mpTimer').classList.remove('hidden');
             mpStartTimer(g.turnStartedAt || Date.now());
         }
-        selected = previouslySelected === null ? -1 : hand.findIndex((c) => c.id === previouslySelected);
-        rotation = 0;
+        state.selected = previouslySelected === null ? -1 : state.hand.findIndex((c) => c.id === previouslySelected);
+        state.rotation = 0;
         $('#heading').textContent = 'Bandito · кооператив · ' + (g.exits || 6) + ' выходов · ' + code;
         render();
         const current = (room.players && room.players[g.turnUid] && room.players[g.turnUid].name) || 'игрок';
         status(
-            finished
+            state.finished
                 ? g.won
                     ? 'Победа! Все туннели закрыты.'
                     : 'Поражение. Карты закончились.'
@@ -237,14 +240,14 @@ function mpAttach(code) {
                       : 'Нет доступных ходов. Нажми «Сбросить карты».'
                   : 'Ходит ' + current + '. Подожди своей очереди.'
         );
-        if (finished) {
+        if (state.finished) {
             showEndScreen(!!g.won);
             if (g.won && !mpCelebrated) {
                 mpCelebrated = true;
                 celebrate();
             }
         }
-        $('#exchange').disabled = finished || g.turnUid !== mpUid || !hand.length || canPlayAny();
+        $('#exchange').disabled = state.finished || g.turnUid !== mpUid || !state.hand.length || canPlayAny();
     };
     mpRoomRef.on('value', mpRoomListener, (e) => snackbar('Ошибка Firebase: ' + e.message, 'error'));
     mpWatchPresence(code);
@@ -277,6 +280,13 @@ async function mpClearPresence(code, uid) {
         } catch {}
     }
 }
+export function mpStopTimer() {
+    if (mpTimerInterval) {
+        clearInterval(mpTimerInterval);
+        mpTimerInterval = null;
+    }
+    $('#mpTimer').classList.add('hidden');
+}
 async function mpStartTimer(startedAt) {
     if (mpTimerInterval) clearInterval(mpTimerInterval);
     const el = $('#mpTimer');
@@ -285,7 +295,7 @@ async function mpStartTimer(startedAt) {
         const left = Math.max(0, 60 - Math.floor((Date.now() - startedAt) / 1000));
         el.textContent = left ? '⏱ До конца хода: ' + left + ' сек.' : '⏱ Время хода истекло';
         el.classList.toggle('notice--urgent', left <= 10);
-        if (left === 0 && !finished && !mpBusy) {
+        if (left === 0 && !state.finished && !mpBusy) {
             const currentUid = mpRoomData?.game?.turnUid;
             if (currentUid === mpUid) {
                 snackbar('Время на ход истекло — ход переходит к следующему игроку');
@@ -302,7 +312,7 @@ async function mpStartTimer(startedAt) {
     mpTimerInterval = setInterval(draw, 250);
 }
 async function mpPassTurn(forUid = null) {
-    if (!mpRoomCode || finished || mpBusy) return;
+    if (!mpRoomCode || state.finished || mpBusy) return;
     const currentUid = mpRoomData?.game?.turnUid;
     const targetUid = forUid || currentUid;
     if (!currentUid || (targetUid !== mpUid && mpRoomData?.owner !== mpUid)) return;
@@ -418,21 +428,21 @@ async function mpJoin() {
         mpBusy = false;
     }
 }
-async function mpStart() {
+export async function mpStart() {
     if (!mpRoomCode || mpRoomData?.owner !== mpUid) return;
     mpCelebrated = false;
-    animateLastPlacement = false;
+    state.animateLastPlacement = false;
     const chosen = $('#mpExits').value;
     const n = chosen === '2' ? 2 : chosen === '5' ? 5 : 6;
     const startId = { 2: 75, 5: 72, 6: 71 }[n];
-    const s = all.find((c) => c.id === startId);
+    const s = state.all.find((c) => c.id === startId);
     if (!s) {
         snackbar('Стартовая карта не найдена в колоде', 'error');
         return;
     }
     const players = Object.keys(mpRoomData.players || {});
     const cards = shuffle(
-        all.filter((c) => c.kind === 'tunnel' && c.id !== s.id).map((c) => ({ id: c.id, m: clone(c.matrix) }))
+        state.all.filter((c) => c.kind === 'tunnel' && c.id !== s.id).map((c) => ({ id: c.id, m: clone(c.matrix) }))
     );
     const hands = {};
     players.forEach((id) => (hands[id] = cards.splice(0, 3)));
@@ -455,21 +465,21 @@ async function mpStart() {
         snackbar('Не удалось начать: ' + e.message, 'error');
     }
 }
-async function mpPlay(x, y, m) {
-    if (!mpRoomCode || finished || selected < 0 || mpBusy) return;
+export async function mpPlay(x, y, m) {
+    if (!mpRoomCode || state.finished || state.selected < 0 || mpBusy) return;
     if (mpRoomData?.game?.turnUid !== mpUid) {
         snackbar('Сейчас ход другого игрока', 'error');
         return;
     }
     mpBusy = true;
     try {
-        const card = hand[selected];
+        const card = state.hand[state.selected];
         const result = await mpRoomRef.child('game').transaction((g) => {
             if (!g || g.finished || g.turnUid !== mpUid) return;
             const own = (g.hands && g.hands[mpUid]) || [];
             const idx = own.findIndex((c) => c.id === card.id);
             if (idx < 0) return;
-            placed = g.board || [];
+            state.placed = g.board || [];
             if (!valid(m, x, y)) return;
             const board = g.board.slice();
             board.push({ id: card.id, x, y, m });
@@ -481,10 +491,10 @@ async function mpPlay(x, y, m) {
             g.hands[mpUid] = own;
             g.turnCount = (g.turnCount || 0) + 1;
             g.turnStartedAt = Date.now();
-            const oldPlaced = placed;
-            placed = board;
+            const oldPlaced = state.placed;
+            state.placed = board;
             const open = opens();
-            placed = oldPlaced;
+            state.placed = oldPlaced;
             if (open === 0) {
                 g.finished = true;
                 g.won = true;
@@ -505,8 +515,8 @@ async function mpPlay(x, y, m) {
         mpBusy = false;
     }
 }
-async function mpExchange() {
-    if (!mpRoomCode || finished || mpBusy || mpRoomData?.game?.turnUid !== mpUid) return;
+export async function mpExchange() {
+    if (!mpRoomCode || state.finished || mpBusy || mpRoomData?.game?.turnUid !== mpUid) return;
     if (canPlayAny()) {
         snackbar('Сброс карт возможен только если нет доступных ходов', 'error');
         return;
@@ -536,16 +546,12 @@ async function mpExchange() {
         mpBusy = false;
     }
 }
-async function leaveMultiplayer(showMenu = true) {
+export async function leaveMultiplayer(showMenu = true) {
     const ref = mpRoomRef,
         uid = mpUid,
         listener = mpRoomListener;
     await mpClearPresence(mpRoomCode, uid);
-    $('#mpTimer').classList.add('hidden');
-    if (mpTimerInterval) {
-        clearInterval(mpTimerInterval);
-        mpTimerInterval = null;
-    }
+    mpStopTimer();
     if (ref && listener) ref.off('value', listener);
     if (ref && uid) {
         try {
@@ -601,10 +607,10 @@ async function leaveMultiplayer(showMenu = true) {
     mpRoomCode = null;
     mpRoomData = null;
     mpCelebrated = false;
-    hand = [];
-    placed = [];
-    deck = [];
-    selected = -1;
+    state.hand = [];
+    state.placed = [];
+    state.deck = [];
+    state.selected = -1;
     $('#play').classList.add('hidden');
     mpSwapPanel(false);
     if (showMenu) $('#menu').classList.remove('hidden');

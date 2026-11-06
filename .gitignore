@@ -6,3 +6,4 @@ build/
 .idea/
 .vscode/
 *.code-workspace
+.playwright-mcp/

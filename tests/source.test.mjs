@@ -4,7 +4,6 @@ import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { register } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import vm from 'node:vm';
 import test from 'node:test';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -41,49 +40,62 @@ function createClassList() {
     };
 }
 
-test('settings callbacks used by the game script save and restore preferences', async () => {
-    register('data:text/javascript,' + encodeURIComponent(imageImportHooks));
+register('data:text/javascript,' + encodeURIComponent(imageImportHooks));
 
+const moduleUrl = (path) => pathToFileURL(resolve(projectRoot, path)).href;
+
+function createStorage() {
     const storage = new Map();
+    return {
+        storage,
+        localStorage: {
+            getItem: (key) => storage.get(key) ?? null,
+            setItem: (key, value) => storage.set(key, String(value)),
+            removeItem: (key) => storage.delete(key),
+        },
+    };
+}
+
+async function withGlobals(globals, run) {
+    Object.assign(globalThis, globals);
+    try {
+        await run();
+    } finally {
+        for (const name of Object.keys(globals)) delete globalThis[name];
+    }
+}
+
+test('saveSettings and applySettings save and restore preferences', async () => {
+    const { storage, localStorage } = createStorage();
     const elements = {
         '#reduceMotion': { checked: false },
         '#darkTheme': { checked: false },
         '#brandLogo': { src: '' },
     };
     const body = { classList: createClassList(), style: {} };
-    globalThis.window = globalThis;
-    globalThis.document = { body, querySelector: (selector) => elements[selector] ?? null };
-    globalThis.localStorage = {
-        getItem: (key) => storage.get(key) ?? null,
-        setItem: (key, value) => storage.set(key, String(value)),
-        removeItem: (key) => storage.delete(key),
-    };
+    const document = { body, querySelector: (selector) => elements[selector] ?? null };
 
-    try {
-        await import(pathToFileURL(resolve(projectRoot, 'js/settings.js')).href);
+    await withGlobals({ document, localStorage }, async () => {
+        const { applySettings, saveSettings } = await import(moduleUrl('js/settings.js'));
 
-        // The game script binds the settings checkboxes to window.saveSettings (window is globalThis here).
+        // The settings checkboxes call saveSettings on change.
         elements['#reduceMotion'].checked = true;
         elements['#darkTheme'].checked = true;
-        globalThis.saveSettings();
+        saveSettings();
         assert.deepEqual(JSON.parse(storage.get('banditoSettings')), { reduceMotion: true, darkTheme: true });
         assert.ok(body.classList.contains('reduce-motion'));
         assert.ok(body.classList.contains('dark-theme'));
         assert.match(elements['#brandLogo'].src, /bandito-logo-night-512\.png$/);
 
-        // The reset button clears storage and calls window.applySettings.
+        // The reset button clears storage and calls applySettings.
         storage.delete('banditoSettings');
-        globalThis.applySettings();
+        applySettings();
         assert.equal(elements['#reduceMotion'].checked, false);
         assert.equal(elements['#darkTheme'].checked, false);
         assert.ok(!body.classList.contains('reduce-motion'));
         assert.ok(!body.classList.contains('dark-theme'));
         assert.match(elements['#brandLogo'].src, /bandito-logo\.png$/);
-    } finally {
-        delete globalThis.window;
-        delete globalThis.document;
-        delete globalThis.localStorage;
-    }
+    });
 });
 
 // Any DOM lookup returns a stub that absorbs property access, calls and assignments.
@@ -105,40 +117,21 @@ function createStub() {
     return stub;
 }
 
-test('classic scripts load in index.html order without runtime errors', () => {
+test('the entry point loads every application module without runtime errors', async () => {
     const html = readFileSync(resolve(projectRoot, 'index.html'), 'utf8');
-    // Module scripts are deferred and run after classic scripts, so they cannot provide globals at load time.
-    const classicScripts = [...html.matchAll(/<script(?![^>]*type="module")[^>]*src="(js\/[^"]+)"/g)].map(
-        (match) => match[1]
-    );
-    assert.ok(classicScripts.length > 0, 'No classic scripts found in index.html');
+    const localScripts = [...html.matchAll(/<script[^>]*src="([^":]+)"/g)].map((match) => match[1]);
+    assert.deepEqual(localScripts, ['js/main.js'], 'index.html must load only the js/main.js entry point');
 
-    const storage = new Map();
-    const context = vm.createContext({
-        console,
+    const { localStorage } = createStorage();
+    const globals = {
         document: createStub(),
-        navigator: createStub(),
         firebase: createStub(),
-        localStorage: {
-            getItem: (key) => storage.get(key) ?? null,
-            setItem: (key, value) => storage.set(key, String(value)),
-            removeItem: (key) => storage.delete(key),
-        },
+        localStorage,
         matchMedia: () => ({ matches: false }),
         fetch: () => new Promise(() => {}),
         requestAnimationFrame: () => 0,
-        setTimeout: () => 0,
-        clearTimeout: () => {},
-        setInterval: () => 0,
-        clearInterval: () => {},
-        addEventListener: () => {},
-    });
-    context.window = context;
-
-    for (const script of classicScripts) {
-        const source = readFileSync(resolve(projectRoot, script), 'utf8');
-        assert.doesNotThrow(() => vm.runInContext(source, context, { filename: script }), `${script} failed to load`);
-    }
+    };
+    await withGlobals({ ...globals, window: globals }, () => import(moduleUrl('js/main.js')));
 });
 
 test('all game scripts pass the JavaScript parser', () => {
