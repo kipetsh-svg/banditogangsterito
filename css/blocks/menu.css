@@ -26,7 +26,7 @@
     }
 
     @media (min-width: 761px) {
-        .menu__card--solo {
+        .menu--lobby-open .menu__card--solo {
             align-self: start;
         }
     }
