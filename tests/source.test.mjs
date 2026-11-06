@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { register } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import vm from 'node:vm';
 import test from 'node:test';
 
@@ -22,14 +23,67 @@ test('all local resources referenced by index.html exist', () => {
     }
 });
 
-test('settings module exposes callbacks used by the classic game script', () => {
-    const settings = readFileSync(resolve(projectRoot, 'js/settings.js'), 'utf8');
-    const game = readFileSync(resolve(projectRoot, 'js/game.js'), 'utf8');
+// Vite resolves image imports to URLs; in Node they resolve to the file URL itself.
+const imageImportHooks = `export async function load(url, context, nextLoad) {
+    if (/\\.(?:png|jpe?g|webp)$/.test(url)) {
+        return { format: 'module', source: 'export default ' + JSON.stringify(url) + ';', shortCircuit: true };
+    }
+    return nextLoad(url, context);
+}`;
 
-    assert.match(settings, /window\.applySettings = applySettings/);
-    assert.match(settings, /window\.saveSettings = saveSettings/);
-    assert.match(game, /window\.saveSettings\(\)/);
-    assert.match(game, /window\.applySettings\(\)/);
+function createClassList() {
+    const classes = new Set();
+    return {
+        add: (...names) => names.forEach((name) => classes.add(name)),
+        remove: (...names) => names.forEach((name) => classes.delete(name)),
+        toggle: (name, force = !classes.has(name)) => (force ? classes.add(name) : classes.delete(name), force),
+        contains: (name) => classes.has(name),
+    };
+}
+
+test('settings callbacks used by the game script save and restore preferences', async () => {
+    register('data:text/javascript,' + encodeURIComponent(imageImportHooks));
+
+    const storage = new Map();
+    const elements = {
+        '#reduceMotion': { checked: false },
+        '#darkTheme': { checked: false },
+        '#brandLogo': { src: '' },
+    };
+    const body = { classList: createClassList(), style: {} };
+    globalThis.window = globalThis;
+    globalThis.document = { body, querySelector: (selector) => elements[selector] ?? null };
+    globalThis.localStorage = {
+        getItem: (key) => storage.get(key) ?? null,
+        setItem: (key, value) => storage.set(key, String(value)),
+        removeItem: (key) => storage.delete(key),
+    };
+
+    try {
+        await import(pathToFileURL(resolve(projectRoot, 'js/settings.js')).href);
+
+        // The game script binds the settings checkboxes to window.saveSettings (window is globalThis here).
+        elements['#reduceMotion'].checked = true;
+        elements['#darkTheme'].checked = true;
+        globalThis.saveSettings();
+        assert.deepEqual(JSON.parse(storage.get('banditoSettings')), { reduceMotion: true, darkTheme: true });
+        assert.ok(body.classList.contains('reduce-motion'));
+        assert.ok(body.classList.contains('dark-theme'));
+        assert.match(elements['#brandLogo'].src, /bandito-logo-night-512\.png$/);
+
+        // The reset button clears storage and calls window.applySettings.
+        storage.delete('banditoSettings');
+        globalThis.applySettings();
+        assert.equal(elements['#reduceMotion'].checked, false);
+        assert.equal(elements['#darkTheme'].checked, false);
+        assert.ok(!body.classList.contains('reduce-motion'));
+        assert.ok(!body.classList.contains('dark-theme'));
+        assert.match(elements['#brandLogo'].src, /bandito-logo\.png$/);
+    } finally {
+        delete globalThis.window;
+        delete globalThis.document;
+        delete globalThis.localStorage;
+    }
 });
 
 // Any DOM lookup returns a stub that absorbs property access, calls and assignments.
