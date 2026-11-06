@@ -25,6 +25,12 @@
         flex-direction: column;
     }
 
+    @media (min-width: 761px) {
+        .menu__card--solo {
+            align-self: start;
+        }
+    }
+
     .menu__card--solo .mode-list {
         width: 100%;
         margin-top: var(--space-3);
@@ -55,10 +61,10 @@
     }
 
     .menu__status {
+        width: 100%;
         min-height: 20px;
         margin-top: var(--space-3);
         text-align: center;
-        align-self: center;
     }
 
     @media (max-width: 1050px) and (min-width: 761px) {
