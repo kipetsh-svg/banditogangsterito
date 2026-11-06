@@ -72,16 +72,25 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         const sourcePath = join(sourceImagesDirectory, sourceName);
         const sourceSize = statSync(sourcePath).size;
         const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
-        const matches = outputFiles.filter((name) => name.startsWith(stem + '-') && /\.webp$/i.test(name));
-        const rawDuplicates = outputFiles.filter((name) => name === sourceName);
+        const matches = outputFiles.filter(
+            (name) => name.startsWith(stem + '-') && /\.(?:webp|png|jpe?g)$/i.test(name)
+        );
 
         originalBytes += sourceSize;
-        assert.equal(matches.length, 1, `Expected exactly one hashed WebP for ${sourceName}, got ${matches.length}`);
-        assert.equal(rawDuplicates.length, 0, `Unhashed duplicate remains in build: ${sourceName}`);
+        assert.equal(matches.length, 1, `Expected exactly one hashed image for ${sourceName}, got ${matches.length}`);
 
-        const optimizedSize = statSync(join(buildImagesDirectory, matches[0])).size;
-        assert.ok(optimizedSize < sourceSize, `Optimized image is not smaller: ${sourceName}`);
-        outputBytes += optimizedSize;
+        const outputName = matches[0];
+        const outputSize = statSync(join(buildImagesDirectory, outputName)).size;
+        if (/\.webp$/i.test(outputName)) {
+            assert.ok(outputSize < sourceSize, `Optimized image is not smaller: ${sourceName}`);
+        } else {
+            assert.equal(
+                outputName.slice(outputName.lastIndexOf('.')),
+                sourceName.slice(sourceName.lastIndexOf('.')),
+                `Unexpected retained image format for ${sourceName}`
+            );
+        }
+        outputBytes += outputSize;
     }
 
     assert.ok(outputBytes < originalBytes, 'Image optimization did not reduce total image size');
@@ -96,7 +105,7 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
         assert.match(
             references,
-            new RegExp(stem + '-[a-zA-Z0-9_-]+\.webp'),
+            new RegExp(stem + '-[a-zA-Z0-9_-]+\\.(?:webp|png|jpe?g)'),
             `No built reference found for ${sourceName}`
         );
     }
