@@ -7,7 +7,7 @@ import test from 'node:test';
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const buildDirectory = resolve(projectRoot, 'build');
 const sourceImagesDirectory = resolve(projectRoot, 'assets/images');
-const buildImagesDirectory = resolve(buildDirectory, 'assets/images');
+const buildImagesDirectory = resolve(buildDirectory, 'assets');
 
 function localReferences(html) {
     return [...html.matchAll(/(?:src|href)\s*=\s*["']([^"']+)["']/gi)]
