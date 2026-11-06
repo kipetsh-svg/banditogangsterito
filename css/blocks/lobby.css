@@ -111,8 +111,8 @@
 
     .lobby__settings {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column;
+        align-items: stretch;
         gap: var(--space-3);
         margin-top: var(--space-2);
     }
@@ -128,7 +128,8 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         align-items: center;
         gap: 2px;
-        min-width: min(100%, 310px);
+        width: 100%;
+        min-width: 0;
         padding: 4px;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-full);
@@ -213,11 +214,6 @@
     @media (max-width: 420px) {
         .lobby__player-list {
             grid-template-columns: minmax(0, 1fr);
-        }
-
-        .lobby__settings {
-            flex-direction: column;
-            align-items: stretch;
         }
 
         .lobby__difficulty {
