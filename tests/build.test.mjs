@@ -24,10 +24,7 @@ test('production build contains index.html and every referenced local asset', ()
     assert.match(html, /<title>Bandito — карточная игра<\/title>/);
 
     for (const reference of localReferences(html)) {
-        assert.ok(
-            existsSync(resolve(buildDirectory, reference)),
-            `Build output is missing: ${reference}`
-        );
+        assert.ok(existsSync(resolve(buildDirectory, reference)), `Build output is missing: ${reference}`);
     }
 });
 
@@ -39,10 +36,7 @@ test('runtime scripts and dynamically loaded card data are present in the build'
         'js/multiplayer.js',
         'resources/bandido-matrices/cards.json',
     ]) {
-        assert.ok(
-            existsSync(resolve(buildDirectory, file)),
-            `Missing runtime file in build: ${file}`
-        );
+        assert.ok(existsSync(resolve(buildDirectory, file)), `Missing runtime file in build: ${file}`);
     }
 });
 
@@ -67,9 +61,7 @@ test('critical backgrounds and logos are preloaded', () => {
 });
 
 test('all source images are emitted once as optimized, hashed WebP assets', () => {
-    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) =>
-        /\.(?:png|jpe?g)$/i.test(name)
-    );
+    const sourceFiles = readdirSync(sourceImagesDirectory).filter((name) => /\.(?:png|jpe?g)$/i.test(name));
     const outputFiles = readdirSync(buildImagesDirectory);
     assert.ok(sourceFiles.length > 0, 'No source raster images found');
 
@@ -80,24 +72,15 @@ test('all source images are emitted once as optimized, hashed WebP assets', () =
         const sourcePath = join(sourceImagesDirectory, sourceName);
         const sourceSize = statSync(sourcePath).size;
         const stem = sourceName.replace(/\.(?:png|jpe?g)$/i, '');
-        const matches = outputFiles.filter(
-            (name) => name.startsWith(stem + '-') && /\.webp$/i.test(name)
-        );
+        const matches = outputFiles.filter((name) => name.startsWith(stem + '-') && /\.webp$/i.test(name));
         const rawDuplicates = outputFiles.filter((name) => name === sourceName);
 
         originalBytes += sourceSize;
-        assert.equal(
-            matches.length,
-            1,
-            `Expected exactly one hashed WebP for ${sourceName}, got ${matches.length}`
-        );
+        assert.equal(matches.length, 1, `Expected exactly one hashed WebP for ${sourceName}, got ${matches.length}`);
         assert.equal(rawDuplicates.length, 0, `Unhashed duplicate remains in build: ${sourceName}`);
 
         const optimizedSize = statSync(join(buildImagesDirectory, matches[0])).size;
-        assert.ok(
-            optimizedSize < sourceSize,
-            `Optimized image is not smaller: ${sourceName}`
-        );
+        assert.ok(optimizedSize < sourceSize, `Optimized image is not smaller: ${sourceName}`);
         outputBytes += optimizedSize;
     }
 
