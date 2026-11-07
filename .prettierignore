@@ -19,3 +19,4 @@ js/settings.js
 # Their staged edits are formatted by lint-staged with ignore rules disabled.
 eslint.config.mjs
 tests/source.test.mjs
+css/blocks/modal.css
