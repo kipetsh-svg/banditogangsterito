@@ -19,7 +19,7 @@
         background: var(--color-overlay);
         backdrop-filter: blur(1px);
         opacity: 0;
-        content: '';
+        content: "";
         animation: settings-backdrop-in 140ms ease-out forwards;
     }
 
