@@ -1,25 +1,21 @@
-/* Card in the player's hand with a miniature of its tunnels. */
+/* Card in the player's hand: a bare miniature of its tunnels, without a frame or a caption.
+   It stands upright on wide screens and lies flat in the narrow bottom sheet (the matrix is turned in JS). */
 @layer blocks {
     .hand-card {
+        /* The size of a miniature cell. A block around the hand can set it with --hand-card-cell. */
+        --hand-card-size: var(--hand-card-cell, 18px);
+
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
         min-width: 0;
-        min-height: 88px;
-        padding: var(--space-2);
-        border: 1px solid var(--color-control-border);
+        /* No side padding: the miniatures reach the edges of the hand. Above and below is room for the lift. */
+        padding: var(--space-3) 0 var(--space-2);
+        border: 0;
         border-radius: var(--radius-md);
-        background: var(--color-surface-raised);
+        background: none;
         color: var(--color-text);
-        transition:
-            transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
-            border-color var(--duration-fast);
-    }
-
-    /* :where keeps the hover as weak as a single class, so the pending border below wins over it. */
-    .hand-card:where(:hover:not(:disabled)) {
-        border-color: var(--color-control-border-hover);
+        transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .hand-card:disabled {
@@ -27,21 +23,20 @@
         cursor: not-allowed;
     }
 
-    /* A focused card shows its own bright border instead of the default focus ring with a gap,
-       the same as a card waiting for confirmation. */
-    .hand-card:where(:focus-visible) {
-        border-color: var(--color-selection);
+    /* No focus ring around the button: focus in the hand always selects a card, and the selected card
+       shows it by its lift and frame. */
+    .hand-card:focus-visible {
         outline: none;
     }
 
     /* The selected card slides up a little, as if pulled out of a fan of cards. */
-    /* The card's own border and an outline right outside it share the selection colour,
-       so they read as one thick frame without shifting the layout. */
     .hand-card--selected {
-        border-color: var(--color-selection);
-        outline: 1px solid var(--color-selection);
-        outline-offset: 0;
-        transform: translateY(calc(-1 * var(--space-1)));
+        transform: translateY(calc(-1 * var(--space-2)));
+    }
+
+    /* Its miniature gets a thick frame: the outline grows outwards to a sixth of a cell. */
+    .hand-card--selected .hand-card__mini {
+        outline-width: calc(var(--hand-card-size) / 6);
     }
 
     /* The hand is rebuilt on every render, so the slide is an animation of a card that has just been selected
@@ -54,20 +49,23 @@
         animation: hand-card-lower 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    /* Chosen with the keyboard but not confirmed yet: only the card's own border lights up.
-       Enter or Space confirm the card and give it the thick outline. */
-    .hand-card--pending {
-        border-color: var(--color-selection);
-        outline: none;
+    /* The hovered card lights up its frame, the selected one too. The card waiting for a keyboard confirmation
+       looks like the selected one: the status line asks for Enter or Space. */
+    .hand-card:hover:not(:disabled) .hand-card__mini {
+        outline-color: var(--color-selection);
     }
 
     /* The miniature repeats a placed board piece: the same outline, cell lines and walls. */
     .hand-card__mini {
         display: grid;
-        margin-bottom: var(--space-1);
         background: var(--color-tile-cell);
         outline: 1px solid var(--color-tile-outline);
         outline-offset: -0.5px;
+        /* Cards in the hand have rounded corners, unlike the pieces on the board. */
+        border-radius: 2px;
+        /* Clips the corner cells to the rounding, the outline is drawn outside the clip. */
+        overflow: hidden;
+        transition: outline-color var(--duration-fast);
     }
 
     .hand-card__cell {
@@ -81,26 +79,17 @@
         background: var(--color-tile-wall);
     }
 
-    /* A card just drawn from the deck. */
+    /* A card just drawn from the deck rises by a quarter of its height into the slot of the played card and fades in;
+       the played card just disappears. `translate` adds to the lift of a selected card. */
     .hand-card--fresh {
-        animation: hand-card-deal 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        animation: hand-card-deal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .hand-card__label {
-        color: var(--color-text-muted);
-        font-size: var(--text-xs);
-        line-height: var(--leading-tight);
-    }
-
-    /* The drawn card rises from below into its place in one smooth move, without an overshoot,
-       the same way as a selected card slides up. */
     @keyframes hand-card-deal {
         from {
             opacity: 0;
-            transform: translateY(var(--space-2)) scale(0.96);
+            translate: 0 25%;
         }
-
-        /* No end frame: a drawn card that is selected ends lifted. */
     }
 
     @keyframes hand-card-lift {
@@ -111,21 +100,14 @@
 
     @keyframes hand-card-lower {
         from {
-            transform: translateY(calc(-1 * var(--space-1)));
+            transform: translateY(calc(-1 * var(--space-2)));
         }
     }
 
     @media (max-width: 760px) {
         .hand-card {
-            flex: 0 0 92px;
-            min-height: 80px;
+            flex: 0 0 auto;
             scroll-snap-align: start;
-        }
-    }
-
-    @media (max-width: 380px) {
-        .hand-card {
-            flex-basis: 84px;
         }
     }
 }

@@ -226,12 +226,14 @@ export function centerCamera() {
 }
 // A resize keeps the zoom in percent (100% differs on narrow screens) and the cell in the middle of the view.
 window.addEventListener('resize', () => {
-    const base = baseCellSize();
-    if (base !== zoomBase) {
+    const base = baseCellSize(),
+        crossed = base !== zoomBase;
+    if (crossed) {
         cellSize = clampCell(Math.round((cellSize * base) / zoomBase / 2) * 2);
         zoomBase = base;
     }
-    if (!$('#play').classList.contains('hidden')) render({ hand: false });
+    // Crossing the narrow breakpoint turns the cards in the hand, so the hand is rebuilt too.
+    if (!$('#play').classList.contains('hidden')) render({ hand: crossed });
 });
 // hand: false keeps the hand as it is (zoom changes only the board).
 export function render({ hand = true } = {}) {
@@ -435,13 +437,21 @@ export function render({ hand = true } = {}) {
 let shownHandIds = [],
     // The card selected at the last render: a change of the selection slides the cards up and down once.
     shownSelectedId = null;
+// Each card in the hand lies at 0° or 180°, chosen at random once per card id, so a rebuild keeps it.
+const handFlips = new Map();
+function handFlip(id) {
+    if (!handFlips.has(id)) handFlips.set(id, Math.random() < 0.5 ? 0 : 2);
+    return handFlips.get(id);
+}
 // The hand is rebuilt separately from the board: zooming re-renders only the board.
 function renderHand(canAct) {
+    // Cards stand upright on wide screens and lie flat in the narrow bottom sheet.
+    const upright = narrowScreen() ? 0 : 1;
     // Rebuilding the hand drops focus, so a focused card gets it back after the render.
     const focusedCard = [...$('#hand').children].indexOf(document.activeElement);
     $('#hand').innerHTML = '';
     state.hand.forEach((card, i) => {
-        const m = rotated(card.m, i === state.selected ? state.rotation : 0),
+        const m = rotated(card.m, upright + handFlip(card.id)),
             btn = document.createElement('button');
         btn.className =
             'hand-card' +
@@ -457,30 +467,30 @@ function renderHand(canAct) {
         btn.disabled = state.finished || !canAct;
         const mini = document.createElement('span');
         mini.className = 'hand-card__mini';
-        mini.style.cssText = `grid-template-columns:repeat(${m[0].length},7px);grid-template-rows:repeat(${m.length},7px)`;
+        mini.style.cssText = `grid-template-columns:repeat(${m[0].length},var(--hand-card-size));grid-template-rows:repeat(${m.length},var(--hand-card-size))`;
         m.flat().forEach((v) => {
             const q = document.createElement('i');
             q.className = 'hand-card__cell' + (v ? '' : ' hand-card__cell--wall');
             mini.append(q);
         });
         btn.append(mini);
-        const label = document.createElement('small');
-        label.className = 'hand-card__label';
-        label.textContent = 'Карта ' + card.id;
-        btn.append(label);
+        btn.setAttribute('aria-label', 'Карта ' + card.id);
         // The hand is one radio group: a single tab stop (the selected card, else the first one), arrows pick a card.
         btn.setAttribute('role', 'radio');
         btn.setAttribute('aria-checked', String(i === state.selected));
         btn.tabIndex = i === (state.selected >= 0 ? state.selected : 0) ? 0 : -1;
-        // Focus entering the hand with no card selected selects the focused card and shows its spots.
+        // Focus entering the hand from the keyboard with no card selected selects the focused card and shows its
+        // spots. A mouse press focuses the card too, but the click selects it: a render here would swallow the click.
         btn.onfocus = () => {
-            if (!restoringFocus && state.selected < 0 && !btn.disabled) selectCard(i, 'confirm');
+            if (!restoringFocus && state.selected < 0 && !btn.disabled && btn.matches(':focus-visible'))
+                selectCard(i, 'confirm');
         };
         btn.onclick = (e) => {
             if (btn.disabled) return;
             // A click with detail 0 comes from Enter or Space: it starts placing the card from the keyboard.
             selectCard(i, e.detail === 0 ? 'place' : undefined);
         };
+        btn.dataset.cardId = card.id;
         $('#hand').append(btn);
     });
     shownHandIds = state.hand.map((card) => card.id);
@@ -660,6 +670,32 @@ function focusCard(i) {
     restoringFocus = false;
 }
 
+// Focus leaving the hand from the keyboard (Tab to the zoom buttons) drops the selection: the card goes down,
+// the spots and the preview disappear. The placement buttons belong to the card and keep it. A mouse click outside
+// the hand keeps it too: the card waits for a click on a spot. Re-rendering the hand and a blur
+// of the window have no next element and keep the selection.
+function dropSelectionOnFocusLeave(e) {
+    const next = e.relatedTarget;
+    if (state.selected < 0 || !next || next.closest('#hand, #placementPreview')) return;
+    // The next element is focused after this event; a keyboard move gives it :focus-visible, a mouse click does not.
+    setTimeout(() => {
+        if (document.activeElement !== next || !next.matches(':focus-visible') || state.selected < 0) return;
+        clearSelection();
+    });
+}
+$('#hand').addEventListener('focusout', dropSelectionOnFocusLeave);
+$('#placementPreview').addEventListener('focusout', dropSelectionOnFocusLeave);
+
+function clearSelection() {
+    state.selected = -1;
+    state.rotation = 0;
+    state.placementPreview = null;
+    state.hoverSpot = null;
+    state.cardPending = false;
+    status('Выбери карту в руке.');
+    render();
+}
+
 // Focus goes to the selected card; with none, the first card gets selected, so a new game starts with it active.
 export function focusHand() {
     if (state.selected < 0) {
@@ -676,7 +712,7 @@ function moveCardSelection(key) {
         current = cards.indexOf(document.activeElement),
         step = key === 'ArrowUp' || key === 'ArrowLeft' ? -1 : 1;
     if (current < 0 || cards[current].disabled) return;
-    const next = (current + step + cards.length) % cards.length;
+    const next = (current + step + state.hand.length) % state.hand.length;
     selectCard(next, 'confirm');
     focusCard(next);
 }
@@ -727,7 +763,8 @@ document.addEventListener('click', (e) => {
 });
 // 100% is a 24px cell, on narrow screens 18px; a game starts at 100%. The zoom changes the cell by 2px
 // from about 50% to about 150%: 12–36px on the desktop, 8–28px (44–156%) on narrow screens.
-const baseCellSize = () => (window.matchMedia('(max-width:760px)').matches ? 18 : 24);
+const narrowScreen = () => window.matchMedia('(max-width:760px)').matches;
+const baseCellSize = () => (narrowScreen() ? 18 : 24);
 // The 100% cell the current zoom is measured against.
 let zoomBase = baseCellSize(),
     cellSize = zoomBase;

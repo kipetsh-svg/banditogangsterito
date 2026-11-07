@@ -157,6 +157,7 @@
         --color-pin-3: #9276ad;
         --color-pin-hover: #d7e3ce;
         --color-pin-ring: #fff;
+        --color-latest-mark: #e8b42a;
         --shadow-pin: 0 1px 3px #0002;
 
         /* Decor */
@@ -248,6 +249,7 @@
         --color-pin-2: #d69658;
         --color-pin-3: #a78ac9;
         --color-pin-hover: transparent;
+        --color-latest-mark: #f0c24b;
         --shadow-pin: 0 1px 6px #000a;
     }
 }

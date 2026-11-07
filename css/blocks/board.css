@@ -14,15 +14,19 @@
         outline-offset: -0.5px;
     }
 
-    /* The last placed card (not the start one): the same outline, only thicker towards the outside,
-       so the card and its joints keep their geometry. It is drawn above its neighbours. */
-    .board__piece--latest {
-        z-index: 2;
-        /* A sixth of a cell: 4px at the 24px cell of 100%, scaled with the zoom. */
-        outline-width: calc(var(--board-cell, 24px) / 6);
-        border-radius: 2px;
-        /* Clips the corner cells to the rounding, the outline is drawn outside the clip. */
-        overflow: hidden;
+    /* The last placed card (not the start one) is marked with a yellow dot in the centre of its bottom right cell:
+       half a cell across, so it scales with the zoom. The card's frame stays the same. */
+    .board__piece--latest::after {
+        content: '';
+        position: absolute;
+        right: calc(var(--board-cell, 24px) / 2);
+        bottom: calc(var(--board-cell, 24px) / 2);
+        width: calc(var(--board-cell, 24px) / 2);
+        height: calc(var(--board-cell, 24px) / 2);
+        border-radius: 50%;
+        background: var(--color-latest-mark);
+        translate: 50% 50%;
+        pointer-events: none;
     }
 
     .board__piece--fresh {
@@ -120,7 +124,7 @@
 
         40% {
             opacity: 1;
-            transform: scale(1.3);
+            transform: scale(1.24);
             animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
         }
 
