@@ -1044,10 +1044,34 @@ fetch('./resources/bandido-matrices/cards.json')
         document.querySelectorAll('[data-start]').forEach((b) => (b.disabled = true));
     });
 
-$('#openSettings').onclick = () => $('#settingsModal').classList.remove('hidden');
-$('#closeSettings').onclick = () => $('#settingsModal').classList.add('hidden');
-$('#settingsModal').addEventListener('click', (e) => {
-    if (e.target.id === 'settingsModal') $('#settingsModal').classList.add('hidden');
+const settingsModal = $('#settingsModal');
+let settingsCloseTimer;
+
+function openSettings() {
+    window.clearTimeout(settingsCloseTimer);
+    settingsModal.classList.remove('is-closing', 'hidden');
+}
+
+function closeSettings() {
+    if (settingsModal.classList.contains('hidden') || settingsModal.classList.contains('is-closing')) return;
+    const reducedMotion =
+        document.body.classList.contains('reduce-motion') ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+        settingsModal.classList.add('hidden');
+        return;
+    }
+    settingsModal.classList.add('is-closing');
+    settingsCloseTimer = window.setTimeout(() => {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('is-closing');
+    }, 200);
+}
+
+$('#openSettings').onclick = openSettings;
+$('#closeSettings').onclick = closeSettings;
+settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettings();
 });
 $('#reduceMotion').addEventListener('change', saveSettings);
 $('#darkTheme').addEventListener('change', saveSettings);
@@ -1056,5 +1080,5 @@ $('#resetSettings').onclick = () => {
     applySettings();
 };
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') $('#settingsModal').classList.add('hidden');
+    if (e.key === 'Escape') closeSettings();
 });
