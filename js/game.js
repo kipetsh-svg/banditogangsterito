@@ -1065,10 +1065,13 @@ function closeSettings() {
     settingsCloseTimer = window.setTimeout(() => {
         settingsModal.classList.add('hidden');
         settingsModal.classList.remove('is-closing');
-    }, 200);
+    }, 280);
 }
 
-$('#openSettings').onclick = openSettings;
+$('#openSettings').onclick = (event) => {
+    event.stopPropagation();
+    openSettings();
+};
 $('#closeSettings').onclick = closeSettings;
 settingsModal.addEventListener('click', (e) => {
     if (e.target === settingsModal) closeSettings();
