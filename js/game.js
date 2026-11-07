@@ -213,18 +213,17 @@ export function canPlayAny() {
     return state.hand.some((card) => [0, 1, 2, 3].some((r) => legalSpots(rotated(card.m, r)).length > 0));
 }
 // The placed cards plus boardMargin cells on each side (1.5 card lengths) form the play area.
-// A play area that fits the camera is centred without scrolling; a larger one scrolls.
+// The board is the play area joined with the camera's view: a play area inside the view does not scroll,
+// a part outside the view can be scrolled to.
 const boardMargin = 9;
-// Board px of cell (0, 0) and the cell size at the last render: the next render keeps the same cell
-// in the middle of the camera, so the cards do not jump when the board grows or the zoom changes.
+// Board px of cell (0, 0) and the cell size at the last render. A new card keeps the view where it was,
+// so the cards stay at the same place on the screen; the zoom and a resize keep the cell in the middle.
 let boardOrigin = null;
-// Centres the play area in the camera.
+// Centres the play area in the camera (a new game).
 export function centerCamera() {
-    const camera = $('#camera');
-    camera.scrollLeft = (camera.scrollWidth - camera.clientWidth) / 2;
-    camera.scrollTop = (camera.scrollHeight - camera.clientHeight) / 2;
+    boardOrigin = null;
+    render({ hand: false });
 }
-// A play area that fits the camera is centred by the camera size.
 window.addEventListener('resize', () => {
     if (!$('#play').classList.contains('hidden')) render({ hand: false });
 });
@@ -245,23 +244,29 @@ export function render({ hand = true } = {}) {
         b = $('#board'),
         viewW = camera?.clientWidth || 0,
         viewH = camera?.clientHeight || 0,
-        areaW = (maxX - minX) * c,
-        areaH = (maxY - minY) * c,
-        // A play area that fits the camera is centred in it and does not scroll; a larger one scrolls.
-        padX = Math.max(0, Math.floor((viewW - areaW) / 2)),
-        padY = Math.max(0, Math.floor((viewH - areaH) / 2)),
-        originX = padX - minX * c,
-        originY = padY - minY * c;
-    let scrollLeft = savedLeft,
-        scrollTop = savedTop;
-    if (boardOrigin) {
-        scrollLeft = originX + ((savedLeft + viewW / 2 - boardOrigin.x) / boardOrigin.c) * c - viewW / 2;
-        scrollTop = originY + ((savedTop + viewH / 2 - boardOrigin.y) / boardOrigin.c) * c - viewH / 2;
-    }
-    boardOrigin = { x: originX, y: originY, c };
+        // The view's top left corner in px of the current scale, measured from cell (0, 0).
+        viewX = Math.round(
+            boardOrigin
+                ? ((savedLeft + viewW / 2 - boardOrigin.x) / boardOrigin.c) * c - viewW / 2
+                : ((minX + maxX) / 2) * c - viewW / 2
+        ),
+        viewY = Math.round(
+            boardOrigin
+                ? ((savedTop + viewH / 2 - boardOrigin.y) / boardOrigin.c) * c - viewH / 2
+                : ((minY + maxY) / 2) * c - viewH / 2
+        ),
+        left = Math.min(minX * c, viewX),
+        top = Math.min(minY * c, viewY),
+        right = Math.max(maxX * c, viewX + viewW),
+        bottom = Math.max(maxY * c, viewY + viewH),
+        padX = minX * c - left,
+        padY = minY * c - top,
+        scrollLeft = viewX - left,
+        scrollTop = viewY - top;
+    boardOrigin = { x: -left, y: -top, c };
     b.innerHTML = '';
-    b.style.width = areaW + padX * 2 + 'px';
-    b.style.height = areaH + padY * 2 + 'px';
+    b.style.width = right - left + 'px';
+    b.style.height = bottom - top + 'px';
     b.style.setProperty('--board-cell', c + 'px');
     for (const p of state.placed) {
         const [w, h] = dims(p.m),
@@ -292,7 +297,7 @@ export function render({ hand = true } = {}) {
     $('#openCount').textContent = opens();
     $('#turnCount').textContent = state.turnCount;
     $('#exchange').disabled = state.finished || !canAct || state.hand.length === 0 || hasMoves;
-    $('#zoomLevel').textContent = Math.round((cellSize / 18) * 100) + '%';
+    $('#zoomLevel').textContent = Math.round((cellSize / baseCellSize) * 100) + '%';
     if (!mpRoomCode && canAct && !state.finished && state.hand.length > 0 && !hasMoves) {
         if (!state.deck.length) {
             finishGame(false);
@@ -713,11 +718,13 @@ document.addEventListener('click', (e) => {
         $('#gameMenuToggle').setAttribute('aria-expanded', 'false');
     }
 });
-const defaultCellSize = () => (window.matchMedia('(max-width:760px)').matches ? 16 : 18);
+// 100% is a 24px cell (22px on narrow screens). The zoom goes from 12px (50%) to 36px (150%) in 2px steps.
+const baseCellSize = 24;
+const defaultCellSize = () => (window.matchMedia('(max-width:760px)').matches ? 22 : baseCellSize);
 let cellSize = defaultCellSize();
 // render() keeps the cell in the middle of the camera, so the zoom goes around the centre of the view.
 function setZoom(next) {
-    const value = Math.max(12, Math.min(30, next));
+    const value = Math.max(12, Math.min(36, next));
     if (value === cellSize) return;
     cellSize = value;
     render({ hand: false });

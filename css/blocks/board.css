@@ -18,8 +18,8 @@
        so the card and its joints keep their geometry. It is drawn above its neighbours. */
     .board__piece--latest {
         z-index: 2;
-        /* 3px at the default 18px cell, scaled with the zoom. */
-        outline-width: calc(var(--board-cell, 18px) / 6);
+        /* A sixth of a cell: 4px at the 24px cell of 100%, scaled with the zoom. */
+        outline-width: calc(var(--board-cell, 24px) / 6);
         border-radius: 2px;
         /* Clips the corner cells to the rounding, the outline is drawn outside the clip. */
         overflow: hidden;
