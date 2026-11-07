@@ -54,6 +54,7 @@
         background: var(--color-tile-wall);
     }
 
+    /* A pin only marks a spot and takes no pointer: the board picks the placement under the cursor. */
     .board__pin {
         position: absolute;
         z-index: 7;
@@ -61,19 +62,15 @@
         place-items: center;
         width: 40px;
         height: 40px;
-        padding: 0;
-        border: 0;
-        border-radius: 50%;
-        background: transparent;
-        touch-action: manipulation;
-        transition: background var(--duration-fast);
+        pointer-events: none;
     }
 
     .board__pin::before {
         content: '';
         display: block;
-        width: 12px;
-        height: 12px;
+        /* The size grows with the zoom from 12px to 20px, JS sets it on the board. */
+        width: var(--board-pin-size, 12px);
+        height: var(--board-pin-size, 12px);
         border: 2px solid var(--color-pin-ring);
         border-radius: 50%;
         background: var(--pin-color, var(--color-pin-0));
@@ -97,6 +94,8 @@
         --pin-color: var(--color-pin-3);
     }
 
+    /* The active pin: the placement under the cursor or the previewed one. */
+    .board__pin--hover::before,
     .board__pin--preview::before {
         transform: scale(1.35);
         box-shadow:
@@ -104,13 +103,9 @@
             var(--shadow-pin);
     }
 
-    .board__pin:hover {
-        background: var(--color-pin-hover);
-    }
-
-    .board__pin:hover::before,
-    .board__pin:focus-visible::before {
-        transform: scale(1.2);
+    /* The cursor is over a possible placement of the card: a click places it. */
+    .board--pointing {
+        cursor: pointer;
     }
 
     /* The card grows over its place and shrinks back to its size. Both halves have zero speed at the peak,

@@ -276,6 +276,11 @@ export function render({ hand = true } = {}) {
     b.style.width = right - left + 'px';
     b.style.height = bottom - top + 'px';
     b.style.setProperty('--board-cell', c + 'px');
+    // The pins grow with the zoom more gently than the cells: 12px at the smallest zoom, 20px at the largest,
+    // in whole 2px steps, so the pin stays centred in its 40px box without half pixels.
+    const zoomShare = (c - clampCell(0)) / (clampCell(Infinity) - clampCell(0)),
+        pinSize = 12 + 2 * Math.round(4 * zoomShare);
+    b.style.setProperty('--board-pin-size', pinSize + 'px');
     for (const p of state.placed) {
         const [w, h] = dims(p.m),
             el = document.createElement('div');
@@ -318,37 +323,30 @@ export function render({ hand = true } = {}) {
     if (!showPlacementPreview) state.placementPreview = null;
     const previewPanel = $('#placementPreview');
     previewPanel.classList.toggle('hidden', !showPlacementPreview);
+    boardTargets = [];
+    hovered = null;
+    boardCanAct = canAct;
+    $('#board').classList.remove('board--pointing');
     if (state.selected >= 0 && state.hand[state.selected] && !state.finished && canAct) {
         const ghost = document.createElement('div');
         ghost.className = 'board__piece board__piece--ghost hidden';
         ghost.dataset.ghost = '';
-        let previewPin = null;
-        // Shows the ghost of the spot under a resting cursor: the card changed under it without a pointerenter.
-        const ghostAt = new Map();
         b.append(ghost);
         const pinOffset = pinOffsetsFor(legalByRotation);
         for (let r = 0; r < legalByRotation.length; r++) {
             const { m, w: mw, h: mh, spots } = legalByRotation[r];
             for (const [sx, sy] of spots) {
                 const [ox, oy] = pinOffset(r, sx, sy),
-                    pin = document.createElement('button');
+                    left = padX + (sx - minX) * c,
+                    top = padY + (sy - minY) * c,
+                    pin = document.createElement('span');
+                // The pin only marks the spot: the board picks the placement under the cursor (targetAt()).
                 pin.className = 'board__pin board__pin--' + r;
-                pin.type = 'button';
-                // Spots are not tab stops: the keyboard moves between them with the arrow keys.
-                pin.tabIndex = -1;
+                pin.setAttribute('aria-hidden', 'true');
                 pin.dataset.spot = sx + ',' + sy + ',' + r;
-                pin.title = 'Поставить карту · ' + r * 90 + '°';
-                pin.setAttribute(
-                    'aria-label',
-                    'Поставить карту, поворот ' + r * 90 + ' градусов, позиция ' + sx + ', ' + sy
-                );
                 pin.style.cssText =
-                    'left:' +
-                    (padX + (sx - minX) * c + (mw * c) / 2 - 20 + ox) +
-                    'px;top:' +
-                    (padY + (sy - minY) * c + (mh * c) / 2 - 20 + oy) +
-                    'px';
-                const showGhost = () => {
+                    'left:' + (left + (mw * c) / 2 - 20 + ox) + 'px;top:' + (top + (mh * c) / 2 - 20 + oy) + 'px';
+                const show = () => {
                     ghost.innerHTML = '';
                     ghost.style.width = mw * c + 'px';
                     ghost.style.height = mh * c + 'px';
@@ -360,66 +358,29 @@ export function render({ hand = true } = {}) {
                         ghost.append(q);
                     });
                     ghost.classList.remove('hidden');
-                    ghost.style.left = padX + (sx - minX) * c + 'px';
-                    ghost.style.top = padY + (sy - minY) * c + 'px';
+                    ghost.style.left = left + 'px';
+                    ghost.style.top = top + 'px';
                 };
-                ghostAt.set(pin.dataset.spot, showGhost);
-                pin.onpointerenter = (e) => {
-                    if (state.placementPreview) {
-                        // Touch keeps its preview until the tap; the click handler moves it.
-                        // A resting cursor over a re-rendered pin is not a hover either.
-                        if (e.pointerType !== 'mouse' || !pointerMoved(e)) return;
-                        // A mouse hover leaves keyboard mode: hide the buttons, return focus to the selected card.
-                        state.placementPreview = null;
-                        previewPanel.classList.add('hidden');
-                        previewPin?.classList.remove('board__pin--preview');
-                        state.cardPending = false;
-                        renderHand(canAct);
-                        status('Выбери точку нужного цвета на поле для размещения карты.');
-                        focusCard(state.selected);
-                    }
-                    showGhost();
-                };
-                // Pointer events, like pointerenter: all pointer events fire before the mouse ones,
-                // so a mouseleave of the previous pin would hide the ghost the next pin has just shown.
-                pin.onpointerleave = () => {
-                    if (!state.placementPreview) ghost.classList.add('hidden');
-                };
+                const target = { spot: pin.dataset.spot, x: sx, y: sy, r, m, pin, show, ghost };
+                // The card's box and its pin centre, in px of the board.
+                Object.assign(target, { left, top, w: mw * c, h: mh * c });
+                Object.assign(target, { px: left + (mw * c) / 2 + ox, py: top + (mh * c) / 2 + oy });
                 if (
                     state.placementPreview &&
                     state.placementPreview.x === sx &&
                     state.placementPreview.y === sy &&
                     state.placementPreview.r === r
                 ) {
-                    showGhost();
+                    show();
                     pin.classList.add('board__pin--preview');
-                    previewPin = pin;
+                    target.previewed = true;
                 }
-                let pointerType = '';
-                pin.onpointerdown = (e) => {
-                    pointerType = e.pointerType;
-                };
-                // A pressed spot must not take focus: the keyboard works through «Поставить» only.
-                pin.onmousedown = (e) => e.preventDefault();
-                pin.onclick = (e) => {
-                    e.stopPropagation();
-                    state.rotation = r;
-                    // A mouse already previewed the card on hover, so it places at once.
-                    // Touch and pen have no hover: the first tap shows the preview to confirm.
-                    if (pointerType === 'mouse') {
-                        state.placementPreview = null;
-                        play(sx, sy, m);
-                        return;
-                    }
-                    previewAt(sx, sy, r);
-                };
+                boardTargets.push(target);
                 b.append(pin);
             }
         }
-        if (!state.placementPreview) {
-            const spot = spotAtCursor();
-            if (spot) ghostAt.get(spot)?.();
-        }
+        // The card changed under a resting cursor: its preview follows the cursor at once.
+        if (!state.placementPreview) hoverTarget(targetAt(cursor));
     }
     if (camera) {
         camera.scrollLeft = scrollLeft;
@@ -498,25 +459,105 @@ function renderHand(canAct) {
     if (focusedCard >= 0) focusCard(focusedCard);
 }
 
-// Chrome re-sends pointerenter to a pin re-created under a resting cursor (each arrow key re-renders the board).
-// Only an enter at a new position is a real hover: the pointermove of that move fires after the enter.
-let lastPointer = '',
-    cursor = null;
+// The last mouse position on the screen: a render under a resting cursor previews the placement under it.
+let cursor = null;
 document.addEventListener(
     'pointermove',
     (e) => {
-        lastPointer = e.screenX + ',' + e.screenY;
         cursor = e.pointerType === 'mouse' ? { x: e.clientX, y: e.clientY } : null;
     },
     true
 );
 // A cursor that left the window is not over the board any more.
 document.addEventListener('pointerout', (e) => !e.relatedTarget && (cursor = null), true);
-const pointerMoved = (e) => e.screenX + ',' + e.screenY !== lastPointer;
-// The spot ("x,y,r") of the pin under the mouse cursor, if the cursor rests on one.
+// The spot ("x,y,r") of the placement under the mouse cursor, if the cursor rests over one.
 function spotAtCursor() {
-    return cursor && document.elementFromPoint(cursor.x, cursor.y)?.closest?.('[data-spot]')?.dataset.spot;
+    return targetAt(cursor)?.spot;
 }
+
+// Placements of the selected card drawn by the last render(): spot, card box and pin centre in px of the board.
+let boardTargets = [],
+    hovered = null,
+    boardCanAct = false;
+// The placement under a point of the screen: any point of a possible card counts, and where the cards of several
+// placements overlap, the one with the pin nearest to the point wins. The point must be on the board itself,
+// not under a button or the edge of the camera.
+function targetAt(point) {
+    if (!point || !boardTargets.length || !document.elementFromPoint(point.x, point.y)?.closest('#board')) return null;
+    const box = $('#board').getBoundingClientRect(),
+        x = point.x - box.left,
+        y = point.y - box.top;
+    let best = null,
+        bestDistance = Infinity;
+    for (const t of boardTargets) {
+        if (x < t.left || x >= t.left + t.w || y < t.top || y >= t.top + t.h) continue;
+        const distance = Math.hypot(x - t.px, y - t.py);
+        if (distance < bestDistance) [best, bestDistance] = [t, distance];
+    }
+    return best;
+}
+// Hover: the ghost of the placement under the cursor and its pin lit; nothing hides the ghost unless it is a preview.
+function hoverTarget(target) {
+    if (target === hovered) return;
+    hovered?.pin.classList.remove('board__pin--hover');
+    hovered = target;
+    $('#board').classList.toggle('board--pointing', !!target);
+    if (target) {
+        target.pin.classList.add('board__pin--hover');
+        target.show();
+    } else if (!state.placementPreview) boardTargets[0]?.ghost.classList.add('hidden');
+}
+const boardEl = $('#board');
+let boardPointer = '',
+    boardPointerType = '';
+boardEl.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    // A drag of the camera is not a hover.
+    if (panState?.moved) return hoverTarget(null);
+    const target = targetAt({ x: e.clientX, y: e.clientY });
+    if (state.placementPreview) {
+        // Touch keeps its preview until the tap. The keyboard preview stays while the mouse is off the cards,
+        // and an event without a move (Chrome repeats them after a render) is not a hover either.
+        const position = e.screenX + ',' + e.screenY,
+            moved = position !== boardPointer;
+        boardPointer = position;
+        if (!target || !moved) return;
+        // A mouse hover leaves keyboard mode: hide the buttons, return focus to the selected card.
+        state.placementPreview = null;
+        $('#placementPreview').classList.add('hidden');
+        boardTargets.find((t) => t.previewed)?.pin.classList.remove('board__pin--preview');
+        state.cardPending = false;
+        renderHand(boardCanAct);
+        status('Выбери точку нужного цвета на поле для размещения карты.');
+        focusCard(state.selected);
+    }
+    boardPointer = e.screenX + ',' + e.screenY;
+    hoverTarget(target);
+});
+boardEl.addEventListener('pointerleave', (e) => {
+    if (e.pointerType === 'mouse') hoverTarget(null);
+});
+boardEl.addEventListener('pointerdown', (e) => {
+    boardPointerType = e.pointerType;
+});
+// A press on a placement must not take focus from the hand: the keyboard works through «Поставить» only.
+boardEl.addEventListener('mousedown', (e) => {
+    if (targetAt({ x: e.clientX, y: e.clientY })) e.preventDefault();
+});
+boardEl.addEventListener('click', (e) => {
+    if (panDragged) return;
+    const target = targetAt({ x: e.clientX, y: e.clientY });
+    if (!target) return;
+    state.rotation = target.r;
+    // A mouse already previewed the card on hover, so it places at once.
+    // Touch and pen have no hover: the first tap shows the preview to confirm.
+    if (boardPointerType === 'mouse') {
+        state.placementPreview = null;
+        play(target.x, target.y, target.m);
+        return;
+    }
+    previewAt(target.x, target.y, target.r);
+});
 
 // A pin stands at the centre of its future card. Rotations that share a centre are spread, in px of the current zoom.
 // A pair goes along the long axis of its card, ±pairSpread cells from the centre. Cards lie on a 3-cell grid,
@@ -779,9 +820,12 @@ function setZoom(next) {
 $('#zoomOut').onclick = () => setZoom(cellSize - 2);
 $('#zoomIn').onclick = () => setZoom(cellSize + 2);
 const cameraEl = $('#camera');
-let panState = null;
+let panState = null,
+    // A drag of the camera ends with a click, which must not place a card.
+    panDragged = false;
 cameraEl.addEventListener('pointerdown', (e) => {
     if ((e.pointerType === 'mouse' && e.button !== 0) || e.target.closest('button')) return;
+    panDragged = false;
     panState = {
         id: e.pointerId,
         x: e.clientX,
@@ -807,6 +851,7 @@ cameraEl.addEventListener('pointermove', (e) => {
 });
 function endPan(e) {
     if (!panState || panState.id !== e.pointerId) return;
+    panDragged = panState.moved;
     cameraEl.classList.remove('game__camera--dragging');
     panState = null;
 }
