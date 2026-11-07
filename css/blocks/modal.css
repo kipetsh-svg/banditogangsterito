@@ -1,4 +1,4 @@
-/* Centered dialog over a blurred backdrop. */
+/* Centered settings dialog with a soft blur-and-scale entrance. */
 @layer blocks {
     .modal {
         position: fixed;
@@ -17,46 +17,45 @@
         z-index: 0;
         inset: 0;
         background: var(--color-overlay);
-        backdrop-filter: blur(4px);
-        clip-path: circle(0 at 50% 50%);
+        backdrop-filter: blur(2px);
+        opacity: 0;
         content: '';
-        animation: settings-mist-in 200ms ease-out forwards;
+        animation: settings-backdrop-in 280ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
     }
 
     .modal.is-closing::before {
-        animation: settings-mist-out 200ms ease-in forwards;
+        animation: settings-backdrop-out 280ms ease forwards;
     }
 
     .modal__dialog {
         position: relative;
         z-index: 1;
         opacity: 0;
-        transform: scale(0.99);
-        animation: settings-panel-in 200ms ease-out forwards;
+        filter: blur(5px);
+        transform: scale(0.94);
+        animation: settings-panel-in 280ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
     }
 
     .modal.is-closing .modal__dialog {
-        animation: settings-panel-out 200ms ease-in forwards;
+        animation: settings-panel-out 280ms ease forwards;
     }
 
-    @keyframes settings-mist-in {
+    @keyframes settings-backdrop-in {
         to {
-            clip-path: circle(150vmax at 50% 50%);
+            opacity: 1;
         }
     }
 
-    @keyframes settings-mist-out {
-        from {
-            clip-path: circle(150vmax at 50% 50%);
-        }
+    @keyframes settings-backdrop-out {
         to {
-            clip-path: circle(0 at 50% 50%);
+            opacity: 0;
         }
     }
 
     @keyframes settings-panel-in {
         to {
             opacity: 1;
+            filter: blur(0);
             transform: scale(1);
         }
     }
@@ -64,7 +63,8 @@
     @keyframes settings-panel-out {
         to {
             opacity: 0;
-            transform: scale(0.99);
+            filter: blur(3px);
+            transform: scale(0.98);
         }
     }
 
