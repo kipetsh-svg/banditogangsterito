@@ -381,7 +381,8 @@ async function mpEnsureAuth() {
     }
 }
 async function mpCreate() {
-    if (mpBusy) return;
+    // Prevent an underlying create-room action if a modal is open.
+    if (!$('#settingsModal').classList.contains('hidden') || mpBusy) return;
     mpBusy = true;
     mpMessage('Создаю комнату…');
     try {
