@@ -26,7 +26,7 @@
     }
 
     .board__piece--fresh {
-        animation: board-tile-drop 0.5s cubic-bezier(0.18, 0.8, 0.25, 1.25) both;
+        animation: board-tile-drop 0.4s both;
     }
 
     .board__piece--ghost {
@@ -109,24 +109,24 @@
         transform: scale(1.2);
     }
 
+    /* The card grows over its place and shrinks back to its size. Both halves have zero speed at the peak,
+       so the motion turns there without a kink, and the end has no bounce. */
     @keyframes board-tile-drop {
         from {
             opacity: 0;
-            transform: translateY(-22px) scale(0.72);
+            transform: none;
+            animation-timing-function: cubic-bezier(0.3, 0.6, 0.6, 1);
         }
 
-        60% {
+        40% {
             opacity: 1;
-            transform: translateY(4px) scale(1.06);
-        }
-
-        80% {
-            transform: translateY(-1px) scale(0.99);
+            transform: scale(1.3);
+            animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
         }
 
         to {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: none;
         }
     }
 }

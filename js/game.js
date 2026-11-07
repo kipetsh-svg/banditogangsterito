@@ -224,7 +224,13 @@ export function centerCamera() {
     boardOrigin = null;
     render({ hand: false });
 }
+// A resize keeps the zoom in percent (100% differs on narrow screens) and the cell in the middle of the view.
 window.addEventListener('resize', () => {
+    const base = baseCellSize();
+    if (base !== zoomBase) {
+        cellSize = clampCell(Math.round((cellSize * base) / zoomBase / 2) * 2);
+        zoomBase = base;
+    }
     if (!$('#play').classList.contains('hidden')) render({ hand: false });
 });
 // hand: false keeps the hand as it is (zoom changes only the board).
@@ -247,12 +253,12 @@ export function render({ hand = true } = {}) {
         // The view's top left corner in px of the current scale, measured from cell (0, 0).
         viewX = Math.round(
             boardOrigin
-                ? ((savedLeft + viewW / 2 - boardOrigin.x) / boardOrigin.c) * c - viewW / 2
+                ? ((savedLeft + boardOrigin.w / 2 - boardOrigin.x) / boardOrigin.c) * c - viewW / 2
                 : ((minX + maxX) / 2) * c - viewW / 2
         ),
         viewY = Math.round(
             boardOrigin
-                ? ((savedTop + viewH / 2 - boardOrigin.y) / boardOrigin.c) * c - viewH / 2
+                ? ((savedTop + boardOrigin.h / 2 - boardOrigin.y) / boardOrigin.c) * c - viewH / 2
                 : ((minY + maxY) / 2) * c - viewH / 2
         ),
         left = Math.min(minX * c, viewX),
@@ -263,7 +269,7 @@ export function render({ hand = true } = {}) {
         padY = minY * c - top,
         scrollLeft = viewX - left,
         scrollTop = viewY - top;
-    boardOrigin = { x: -left, y: -top, c };
+    boardOrigin = { x: -left, y: -top, c, w: viewW, h: viewH };
     b.innerHTML = '';
     b.style.width = right - left + 'px';
     b.style.height = bottom - top + 'px';
@@ -297,7 +303,7 @@ export function render({ hand = true } = {}) {
     $('#openCount').textContent = opens();
     $('#turnCount').textContent = state.turnCount;
     $('#exchange').disabled = state.finished || !canAct || state.hand.length === 0 || hasMoves;
-    $('#zoomLevel').textContent = Math.round((cellSize / baseCellSize) * 100) + '%';
+    $('#zoomLevel').textContent = Math.round((cellSize / zoomBase) * 100) + '%';
     if (!mpRoomCode && canAct && !state.finished && state.hand.length > 0 && !hasMoves) {
         if (!state.deck.length) {
             finishGame(false);
@@ -649,7 +655,8 @@ function backToCard() {
 let restoringFocus = false;
 function focusCard(i) {
     restoringFocus = true;
-    $('#hand').children[i]?.focus();
+    // The hand is fixed to the bottom on phones: scrolling it into view would scroll the page under it.
+    $('#hand').children[i]?.focus({ preventScroll: true });
     restoringFocus = false;
 }
 
@@ -718,13 +725,16 @@ document.addEventListener('click', (e) => {
         $('#gameMenuToggle').setAttribute('aria-expanded', 'false');
     }
 });
-// 100% is a 24px cell (22px on narrow screens). The zoom goes from 12px (50%) to 36px (150%) in 2px steps.
-const baseCellSize = 24;
-const defaultCellSize = () => (window.matchMedia('(max-width:760px)').matches ? 22 : baseCellSize);
-let cellSize = defaultCellSize();
+// 100% is a 24px cell, on narrow screens 18px; a game starts at 100%. The zoom changes the cell by 2px
+// from about 50% to about 150%: 12–36px on the desktop, 8–28px (44–156%) on narrow screens.
+const baseCellSize = () => (window.matchMedia('(max-width:760px)').matches ? 18 : 24);
+// The 100% cell the current zoom is measured against.
+let zoomBase = baseCellSize(),
+    cellSize = zoomBase;
+const clampCell = (value) => Math.max(Math.floor(zoomBase / 4) * 2, Math.min(Math.ceil((zoomBase * 3) / 4) * 2, value));
 // render() keeps the cell in the middle of the camera, so the zoom goes around the centre of the view.
 function setZoom(next) {
-    const value = Math.max(12, Math.min(36, next));
+    const value = clampCell(next);
     if (value === cellSize) return;
     cellSize = value;
     render({ hand: false });

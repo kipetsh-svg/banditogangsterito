@@ -83,7 +83,7 @@
 
     /* A card just drawn from the deck. */
     .hand-card--fresh {
-        animation: hand-card-deal 0.36s cubic-bezier(0.18, 0.8, 0.25, 1.2);
+        animation: hand-card-deal 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .hand-card__label {
@@ -92,10 +92,12 @@
         line-height: var(--leading-tight);
     }
 
+    /* The drawn card rises from below into its place in one smooth move, without an overshoot,
+       the same way as a selected card slides up. */
     @keyframes hand-card-deal {
         from {
             opacity: 0;
-            transform: translateY(-12px) scale(0.9);
+            transform: translateY(var(--space-2)) scale(0.96);
         }
 
         /* No end frame: a drawn card that is selected ends lifted. */
