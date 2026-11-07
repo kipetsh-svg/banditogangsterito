@@ -450,8 +450,14 @@ function renderHand(canAct) {
         btn.disabled = state.finished || !canAct;
         btn.setAttribute('aria-checked', String(i === state.selected));
         btn.tabIndex = i === tabStop ? 0 : -1;
-        // A click, a tap, Enter and Space (a click with detail 0) all select the card.
-        btn.onclick = () => !btn.disabled && selectCard(i);
+        // A click, a tap, Enter and Space (a click with detail 0) all select the card. A second click or tap on
+        // the selected card drops the selection, as «Отмена» does; Enter, Space and the keys 1/2/3 keep it, so
+        // they always lead to placing the card.
+        btn.onclick = (e) => {
+            if (btn.disabled) return;
+            if (i === state.selected && e.detail !== 0) cancelSelection();
+            else selectCard(i);
+        };
         // Kept cards are already in order: moving a node would drop its focus and hover.
         if (hand.children[i] !== btn) hand.insertBefore(btn, hand.children[i] ?? null);
     });
@@ -663,7 +669,7 @@ function revealPreview() {
 }
 
 // Selects card i (a click, a tap, Enter, Space or the keys 1/2/3): the bar under it, its pins on the board and
-// the preview (see render()); with a preview focus goes to «Поставить». Selecting the selected card again keeps
+// the preview (see render()); with a preview focus goes to «Поставить». Selecting the selected card again (Enter, Space, 1/2/3) keeps
 // its preview.
 function selectCard(i) {
     if (i !== state.selected) {
