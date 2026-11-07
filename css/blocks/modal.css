@@ -7,8 +7,65 @@
         display: grid;
         place-items: center;
         padding: var(--space-5);
+        isolation: isolate;
+        overflow: hidden;
+        background: transparent;
+    }
+
+    .modal::before {
+        position: absolute;
+        z-index: 0;
+        inset: 0;
         background: var(--color-overlay);
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(4px);
+        clip-path: circle(0 at 50% 50%);
+        content: '';
+        animation: settings-mist-in 200ms ease-out forwards;
+    }
+
+    .modal.is-closing::before {
+        animation: settings-mist-out 200ms ease-in forwards;
+    }
+
+    .modal__dialog {
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+        transform: scale(0.99);
+        animation: settings-panel-in 200ms ease-out forwards;
+    }
+
+    .modal.is-closing .modal__dialog {
+        animation: settings-panel-out 200ms ease-in forwards;
+    }
+
+    @keyframes settings-mist-in {
+        to {
+            clip-path: circle(150vmax at 50% 50%);
+        }
+    }
+
+    @keyframes settings-mist-out {
+        from {
+            clip-path: circle(150vmax at 50% 50%);
+        }
+        to {
+            clip-path: circle(0 at 50% 50%);
+        }
+    }
+
+    @keyframes settings-panel-in {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes settings-panel-out {
+        to {
+            opacity: 0;
+            transform: scale(0.99);
+        }
     }
 
     .modal__dialog {
