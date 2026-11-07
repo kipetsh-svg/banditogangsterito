@@ -150,6 +150,7 @@
         --color-tile-cell: #fff;
         --color-tile-line: #e8e5dc;
         --color-tile-wall: #41443d;
+        --color-tile-wall-hover: #50544b;
         --color-tile-outline: #292a25;
         --color-pin-0: #718568;
         --color-pin-1: #668da8;
@@ -158,6 +159,8 @@
         --color-pin-hover: #d7e3ce;
         --color-pin-ring: #fff;
         --color-latest-mark: #e8b42a;
+        /* The bar under the selected card in the hand: the colour of the card's walls. */
+        --color-hand-mark: var(--color-tile-wall);
         --shadow-pin: 0 1px 3px #0002;
 
         /* Decor */
@@ -243,6 +246,7 @@
         --color-tile-cell: #30353b;
         --color-tile-line: #454b53;
         --color-tile-wall: #747b84;
+        --color-tile-wall-hover: #858c95;
         --color-tile-outline: #aeb4bc;
         --color-pin-0: #78a870;
         --color-pin-1: #64a2cb;
@@ -250,6 +254,7 @@
         --color-pin-3: #a78ac9;
         --color-pin-hover: transparent;
         --color-latest-mark: #f0c24b;
+        --color-hand-mark: var(--color-latest-mark);
         --shadow-pin: 0 1px 6px #000a;
     }
 }

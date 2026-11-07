@@ -4,18 +4,20 @@
     .hand-card {
         /* The size of a miniature cell. A block around the hand can set it with --hand-card-cell. */
         --hand-card-size: var(--hand-card-cell, 18px);
+        /* The lift and the bar: an ease-out, they move off quickly and stop softly. */
+        --hand-card-motion: 0.25s cubic-bezier(0.33, 1, 0.68, 1);
 
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
         min-width: 0;
-        /* No side padding: the miniatures reach the edges of the hand. Above and below is room for the lift. */
+        /* No side padding: the miniatures reach the edges of the hand. Above is room for the lift, below for the bar. */
         padding: var(--space-3) 0 var(--space-2);
         border: 0;
         border-radius: var(--radius-md);
         background: none;
         color: var(--color-text);
-        transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .hand-card:disabled {
@@ -23,49 +25,67 @@
         cursor: not-allowed;
     }
 
-    /* No focus ring around the button: focus in the hand always selects a card, and the selected card
-       shows it by its lift and frame. */
+    /* No focus ring around the button: the focused card is lifted and lit like a hovered one. */
     .hand-card:focus-visible {
         outline: none;
     }
 
-    /* The selected card slides up a little, as if pulled out of a fan of cards. */
-    .hand-card--selected {
+    /* The selected card and the card pointed at (under a hovering pointer or the keyboard focus, JS keeps one)
+       slide up a little, as if pulled out of a fan of cards. */
+    .hand-card--selected .hand-card__mini,
+    .hand-card--pointed .hand-card__mini {
         transform: translateY(calc(-1 * var(--space-2)));
     }
 
-    /* Its miniature gets a thick frame: the outline grows outwards to a sixth of a cell. */
-    .hand-card--selected .hand-card__mini {
-        outline-width: calc(var(--hand-card-size) / 6);
+    /* The frame of the selected and the pointed card is a pixel thicker, still centred on the edge, so the card
+       keeps its size. */
+    .hand-card--selected .hand-card__mini,
+    .hand-card--pointed .hand-card__mini {
+        outline-width: 2px;
+        outline-offset: -1px;
     }
 
-    /* The hand is rebuilt on every render, so the slide is an animation of a card that has just been selected
-       (or deselected) rather than a transition. The keyframes have no end: they run to the card's own position. */
-    .hand-card--lifting {
-        animation: hand-card-lift 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* The pointed card's walls get lighter; the cell lines and the frame colour stay. */
+    .hand-card--pointed .hand-card__cell--wall {
+        border-color: var(--color-tile-wall-hover);
+        background: var(--color-tile-wall-hover);
     }
 
-    .hand-card--lowering {
-        animation: hand-card-lower 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* The selected card has a thin bar under it, on the line of the bottom edges of the other cards: the lifted
+       miniature uncovers it. It unfolds from the centre when the card is selected and folds back when the selection
+       goes. */
+    .hand-card::after {
+        content: '';
+        position: absolute;
+        /* Narrower than the card by its rounding on each side, so it does not stick out past the corners. */
+        right: var(--radius-sm);
+        bottom: var(--space-2);
+        left: var(--radius-sm);
+        height: 3px;
+        border-radius: 2px;
+        background: var(--color-hand-mark);
+        transform: scaleX(0);
+        transition: transform var(--hand-card-motion);
     }
 
-    /* The hovered card lights up its frame, the selected one too. The card waiting for a keyboard confirmation
-       looks like the selected one: the status line asks for Enter or Space. */
-    .hand-card:hover:not(:disabled) .hand-card__mini {
-        outline-color: var(--color-selection);
+    .hand-card--selected::after {
+        transform: none;
     }
 
     /* The miniature repeats a placed board piece: the same outline, cell lines and walls. */
     .hand-card__mini {
+        /* Above the bar, so the bar hides under the card as it comes down. */
+        position: relative;
+        z-index: 1;
         display: grid;
         background: var(--color-tile-cell);
         outline: 1px solid var(--color-tile-outline);
         outline-offset: -0.5px;
         /* Cards in the hand have rounded corners, unlike the pieces on the board. */
-        border-radius: 2px;
+        border-radius: var(--radius-sm);
         /* Clips the corner cells to the rounding, the outline is drawn outside the clip. */
         overflow: hidden;
-        transition: outline-color var(--duration-fast);
+        transition: transform var(--hand-card-motion);
     }
 
     .hand-card__cell {
@@ -77,10 +97,13 @@
     .hand-card__cell--wall {
         border-color: var(--color-tile-wall);
         background: var(--color-tile-wall);
+        transition:
+            background var(--duration-fast),
+            border-color var(--duration-fast);
     }
 
     /* A card just drawn from the deck rises by a quarter of its height into the slot of the played card and fades in;
-       the played card just disappears. `translate` adds to the lift of a selected card. */
+       the played card just disappears. `translate` adds to the lift of a hovered card. */
     .hand-card--fresh {
         animation: hand-card-deal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
@@ -89,18 +112,6 @@
         from {
             opacity: 0;
             translate: 0 25%;
-        }
-    }
-
-    @keyframes hand-card-lift {
-        from {
-            transform: none;
-        }
-    }
-
-    @keyframes hand-card-lower {
-        from {
-            transform: translateY(calc(-1 * var(--space-2)));
         }
     }
 

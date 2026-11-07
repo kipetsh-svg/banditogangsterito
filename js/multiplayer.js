@@ -3,10 +3,13 @@ import { $ } from '#js/dom.js';
 import { snackbar } from '#js/snackbar.js';
 import {
     canPlayAny,
+    chooseCardMessage,
+    chooseCardTouchMessage,
     celebrate,
     centerCamera,
     clone,
     focusHand,
+    startHand,
     opens,
     render,
     showEndScreen,
@@ -241,27 +244,25 @@ function mpAttach(code) {
             mpStartTimer(g.turnStartedAt || Date.now());
         }
         state.selected = previouslySelected === null ? -1 : state.hand.findIndex((c) => c.id === previouslySelected);
-        // As in the solo game, the played card's slot stays selected: with the drawn card or the card that moved in.
+        // As in the solo game, the played card's slot (the drawn card or the card that moved in) stays selected,
+        // or after a keyboard turn gets focus.
+        let focusSlot = -1;
         if (mpPlayedSlot && state.selected < 0 && previouslySelected !== null) {
-            state.selected = Math.min(mpPlayedSlot.index, state.hand.length - 1);
-            state.cardPending = mpPlayedSlot.keyboard && state.selected >= 0;
+            const slot = Math.min(mpPlayedSlot.index, state.hand.length - 1);
+            if (mpPlayedSlot.keepSelection) state.selected = slot;
+            else focusSlot = slot;
             mpPlayedSlot = null;
         }
         state.rotation = 0;
         $('#heading').textContent = 'Bandito · кооператив · ' + (g.exits || 6) + ' выходов · ' + code;
         render();
         const current = (room.players && room.players[g.turnUid] && room.players[g.turnUid].name) || 'игрок';
-        status(
-            state.finished
-                ? g.won
-                    ? 'Победа! Все туннели закрыты.'
-                    : 'Поражение. Карты закончились.'
-                : g.turnUid === mpUid
-                  ? canPlayAny()
-                      ? 'Твой ход. Выбери карту.'
-                      : 'Нет доступных ходов. Нажми «Сбросить карты».'
-                  : 'Ходит ' + current + '. Подожди своей очереди.'
-        );
+        // On the player's turn a selected card keeps the status of its preview, as in the solo game.
+        if (state.finished) status(g.won ? 'Победа! Все туннели закрыты.' : 'Поражение. Карты закончились.');
+        else if (g.turnUid !== mpUid) status('Ходит ' + current + '. Подожди своей очереди.');
+        else if (!canPlayAny()) status('Нет доступных ходов. Нажми «Сбросить карты».');
+        else if (!state.placementPreview)
+            status('Твой ход. ' + chooseCardMessage, '', 'Твой ход. ' + chooseCardTouchMessage);
         if (state.finished) {
             showEndScreen(!!g.won);
             if (g.won && !mpCelebrated) {
@@ -272,7 +273,9 @@ function mpAttach(code) {
         $('#exchange').disabled = state.finished || g.turnUid !== mpUid || !state.hand.length || canPlayAny();
         if (starting) {
             centerCamera();
-            focusHand();
+            startHand();
+        } else if (focusSlot >= 0) {
+            focusHand(focusSlot);
         } else if (!wasMyTurn && g.turnUid === mpUid && !state.finished && document.activeElement === document.body) {
             // The hand lost focus when its cards were disabled for the other players' turns: it gets it back.
             focusHand();
@@ -496,14 +499,14 @@ export async function mpStart() {
 }
 // The slot of the card being played, kept selected when the room update brings the new hand.
 let mpPlayedSlot = null;
-export async function mpPlay(x, y, m, keyboard = false) {
+export async function mpPlay(x, y, m, keepSelection = true) {
     if (!mpRoomCode || state.finished || state.selected < 0 || mpBusy) return;
     if (mpRoomData?.game?.turnUid !== mpUid) {
         snackbar('Сейчас ход другого игрока', 'error');
         return;
     }
     mpBusy = true;
-    mpPlayedSlot = { index: state.selected, keyboard };
+    mpPlayedSlot = { index: state.selected, keepSelection };
     try {
         const card = state.hand[state.selected];
         const result = await mpRoomRef.child('game').transaction((g) => {

@@ -94,8 +94,7 @@
         --pin-color: var(--color-pin-3);
     }
 
-    /* The active pin: the placement under the cursor or the previewed one. */
-    .board__pin--hover::before,
+    /* The pin of the previewed placement. */
     .board__pin--preview::before {
         transform: scale(1.35);
         box-shadow:
@@ -103,7 +102,7 @@
             var(--shadow-pin);
     }
 
-    /* The cursor is over a possible placement of the card: a click places it. */
+    /* The cursor is over a possible placement of the card: a click shows it or, when shown, places the card. */
     .board--pointing {
         cursor: pointer;
     }
