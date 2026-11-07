@@ -45,7 +45,9 @@
         cursor: pointer;
     }
 
-    .game__menu-item:hover { background: var(--color-surface-sunken); }
+    .game__menu-item:hover {
+        background: var(--color-surface-sunken);
+    }
 
     .game__placement-preview {
         position: absolute;
@@ -62,8 +64,14 @@
         box-shadow: var(--shadow-float);
     }
 
-    .game__placement-label { color: var(--color-text-secondary); font-size: var(--text-xs); }
-    .game__placement-actions { display: flex; gap: var(--space-2); }
+    .game__placement-label {
+        color: var(--color-text-secondary);
+        font-size: var(--text-xs);
+    }
+    .game__placement-actions {
+        display: flex;
+        gap: var(--space-2);
+    }
 
     .game__layout {
         display: grid;
@@ -119,9 +127,10 @@
         gap: var(--space-2);
     }
 
+    /* Equal columns: a drawn card of another width must not shift its neighbours. */
     .game__hand {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: var(--space-2);
     }
 
@@ -143,8 +152,13 @@
         gap: var(--space-1);
     }
 
-    .game__zoom-reset {
+    /* The current zoom, a plain label between the − and + buttons. */
+    .game__zoom-level {
+        display: grid;
+        place-items: center;
         min-width: 56px;
+        color: var(--color-text);
+        font-size: var(--text-sm);
     }
 
     @media (max-height: 650px) and (min-width: 761px) {
@@ -213,15 +227,19 @@
         }
 
         .game__hand {
+            display: flex;
             flex-wrap: nowrap;
             margin: 0 calc(-1 * var(--space-1));
-            padding: var(--space-1) var(--space-1) var(--space-2);
+            /* Room above the cards for the selected one, which slides up by --space-2. */
+            padding: var(--space-3) var(--space-1) var(--space-2);
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             scrollbar-width: none;
         }
 
-        .game__hand::-webkit-scrollbar { display: none; }
+        .game__hand::-webkit-scrollbar {
+            display: none;
+        }
 
         .game__placement-preview {
             right: 8px;
@@ -231,7 +249,9 @@
             gap: 6px;
         }
 
-        .game__placement-label { max-width: 112px; }
+        .game__placement-label {
+            max-width: 112px;
+        }
     }
 
     @media (max-width: 380px) {

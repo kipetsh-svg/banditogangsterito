@@ -1,7 +1,20 @@
 /* Firebase, lobby UI, room presence, and cooperative game flow. */
 import { $ } from '#js/dom.js';
 import { snackbar } from '#js/snackbar.js';
-import { canPlayAny, celebrate, clone, opens, render, showEndScreen, shuffle, state, status, valid } from '#js/game.js';
+import {
+    canPlayAny,
+    celebrate,
+    centerCamera,
+    clone,
+    focusHand,
+    opens,
+    render,
+    showEndScreen,
+    shuffle,
+    state,
+    status,
+    valid,
+} from '#js/game.js';
 
 const firebaseConfig = {
     apiKey: 'AIzaSyDCBEArE3TebFxTiaK-6Q7DxWf8GloOuUg',
@@ -189,6 +202,7 @@ function mpAttach(code) {
             leaveMultiplayer(false);
             return;
         }
+        const wasMyTurn = mpRoomData?.game?.turnUid === mpUid;
         mpRoomData = room;
         if (!room.game || !room.game.started) {
             mpShowLobby(room);
@@ -198,6 +212,8 @@ function mpAttach(code) {
             document.querySelector('[data-end-screen]')?.remove();
             mpCelebrated = false;
         }
+        // The game screen opening means the game has just started: focus goes to the hand.
+        const starting = $('#play').classList.contains('hidden');
         $('#mpLobby').classList.add('hidden');
         $('#menu').classList.add('hidden');
         $('#play').classList.remove('hidden');
@@ -225,6 +241,12 @@ function mpAttach(code) {
             mpStartTimer(g.turnStartedAt || Date.now());
         }
         state.selected = previouslySelected === null ? -1 : state.hand.findIndex((c) => c.id === previouslySelected);
+        // As in the solo game, the played card's slot stays selected: with the drawn card or the card that moved in.
+        if (mpPlayedSlot && state.selected < 0 && previouslySelected !== null) {
+            state.selected = Math.min(mpPlayedSlot.index, state.hand.length - 1);
+            state.cardPending = mpPlayedSlot.keyboard && state.selected >= 0;
+            mpPlayedSlot = null;
+        }
         state.rotation = 0;
         $('#heading').textContent = 'Bandito · кооператив · ' + (g.exits || 6) + ' выходов · ' + code;
         render();
@@ -248,6 +270,13 @@ function mpAttach(code) {
             }
         }
         $('#exchange').disabled = state.finished || g.turnUid !== mpUid || !state.hand.length || canPlayAny();
+        if (starting) {
+            centerCamera();
+            focusHand();
+        } else if (!wasMyTurn && g.turnUid === mpUid && !state.finished && document.activeElement === document.body) {
+            // The hand lost focus when its cards were disabled for the other players' turns: it gets it back.
+            focusHand();
+        }
     };
     mpRoomRef.on('value', mpRoomListener, (e) => snackbar('Ошибка Firebase: ' + e.message, 'error'));
     mpWatchPresence(code);
@@ -465,13 +494,16 @@ export async function mpStart() {
         snackbar('Не удалось начать: ' + e.message, 'error');
     }
 }
-export async function mpPlay(x, y, m) {
+// The slot of the card being played, kept selected when the room update brings the new hand.
+let mpPlayedSlot = null;
+export async function mpPlay(x, y, m, keyboard = false) {
     if (!mpRoomCode || state.finished || state.selected < 0 || mpBusy) return;
     if (mpRoomData?.game?.turnUid !== mpUid) {
         snackbar('Сейчас ход другого игрока', 'error');
         return;
     }
     mpBusy = true;
+    mpPlayedSlot = { index: state.selected, keyboard };
     try {
         const card = state.hand[state.selected];
         const result = await mpRoomRef.child('game').transaction((g) => {
@@ -483,9 +515,10 @@ export async function mpPlay(x, y, m) {
             if (!valid(m, x, y)) return;
             const board = g.board.slice();
             board.push({ id: card.id, x, y, m });
-            own.splice(idx, 1);
             const pile = g.deck || [];
-            if (pile.length) own.push(pile.pop());
+            // The drawn card takes the place of the played one, so the other cards stay where they were.
+            if (pile.length) own[idx] = pile.pop();
+            else own.splice(idx, 1);
             g.board = board;
             g.deck = pile;
             g.hands[mpUid] = own;
@@ -508,8 +541,12 @@ export async function mpPlay(x, y, m) {
             }
             return g;
         });
-        if (!result.committed) snackbar('Ход не принят: возможно, очередь уже перешла другому игроку', 'error');
+        if (!result.committed) {
+            mpPlayedSlot = null;
+            snackbar('Ход не принят: возможно, очередь уже перешла другому игроку', 'error');
+        }
     } catch (e) {
+        mpPlayedSlot = null;
         snackbar('Ошибка хода: ' + e.message, 'error');
     } finally {
         mpBusy = false;

@@ -26,6 +26,8 @@ export const state = {
     turnCount: 0,
     hoverSpot: null,
     placementPreview: null,
+    // The keyboard moved to the selected card, but Enter or Space has not confirmed it yet.
+    cardPending: false,
     lastPlaced: null,
     animateLastPlacement: false,
 };
@@ -146,8 +148,11 @@ export function opens() {
     }
     return n;
 }
-function begin(n) {
+async function begin(n) {
     if (!state.all.length) return;
+    // The solo modes stay clickable next to the coop lobby: a solo game leaves the room first,
+    // otherwise the room's turn order keeps every card in the hand disabled.
+    if (mpRoomCode) await leaveMultiplayer();
     mpStopTimer();
     state.exits = n;
     let s = state.all.find((c) => c.id === (n === 2 ? 75 : n === 6 ? 71 : 72));
@@ -168,6 +173,8 @@ function begin(n) {
     $('#heading').textContent = n === 2 ? 'Bandito · лёгкая партия' : 'Bandito · ' + n + ' выходов';
     status('Выбери карту в руке.');
     render();
+    centerCamera();
+    focusHand();
 }
 function rotated(m, r) {
     let a = clone(m);
@@ -205,30 +212,57 @@ function legalSpots(m) {
 export function canPlayAny() {
     return state.hand.some((card) => [0, 1, 2, 3].some((r) => legalSpots(rotated(card.m, r)).length > 0));
 }
-export function render() {
+// The placed cards plus boardMargin cells on each side (1.5 card lengths) form the play area.
+// A play area that fits the camera is centred without scrolling; a larger one scrolls.
+const boardMargin = 9;
+// Board px of cell (0, 0) and the cell size at the last render: the next render keeps the same cell
+// in the middle of the camera, so the cards do not jump when the board grows or the zoom changes.
+let boardOrigin = null;
+// Centres the play area in the camera.
+export function centerCamera() {
+    const camera = $('#camera');
+    camera.scrollLeft = (camera.scrollWidth - camera.clientWidth) / 2;
+    camera.scrollTop = (camera.scrollHeight - camera.clientHeight) / 2;
+}
+// A play area that fits the camera is centred by the camera size.
+window.addEventListener('resize', () => {
+    if (!$('#play').classList.contains('hidden')) render({ hand: false });
+});
+// hand: false keeps the hand as it is (zoom changes only the board).
+export function render({ hand = true } = {}) {
     const camera = $('#camera'),
         savedLeft = camera?.scrollLeft || 0,
         savedTop = camera?.scrollTop || 0;
     if (state.selected >= state.hand.length) state.selected = -1;
     if (state.finished) state.selected = -1;
-    let minX = Math.min(...state.placed.map((p) => p.x)),
-        minY = Math.min(...state.placed.map((p) => p.y)),
-        maxX = Math.max(...state.placed.map((p) => p.x + dims(p.m)[0])),
-        maxY = Math.max(...state.placed.map((p) => p.y + dims(p.m)[1]));
+    // Spots touch the placed cards, so they always lie inside the margin.
+    const minX = Math.min(...state.placed.map((p) => p.x)) - boardMargin,
+        minY = Math.min(...state.placed.map((p) => p.y)) - boardMargin,
+        maxX = Math.max(...state.placed.map((p) => p.x + dims(p.m)[0])) + boardMargin,
+        maxY = Math.max(...state.placed.map((p) => p.y + dims(p.m)[1])) + boardMargin;
     const legalByRotation = placementOptions();
-    for (const { w, h, spots } of legalByRotation)
-        for (const [x, y] of spots) {
-            minX = Math.min(minX, x);
-            minY = Math.min(minY, y);
-            maxX = Math.max(maxX, x + w);
-            maxY = Math.max(maxY, y + h);
-        }
     const c = cellSize,
-        pad = 36,
-        b = $('#board');
+        b = $('#board'),
+        viewW = camera?.clientWidth || 0,
+        viewH = camera?.clientHeight || 0,
+        areaW = (maxX - minX) * c,
+        areaH = (maxY - minY) * c,
+        // A play area that fits the camera is centred in it and does not scroll; a larger one scrolls.
+        padX = Math.max(0, Math.floor((viewW - areaW) / 2)),
+        padY = Math.max(0, Math.floor((viewH - areaH) / 2)),
+        originX = padX - minX * c,
+        originY = padY - minY * c;
+    let scrollLeft = savedLeft,
+        scrollTop = savedTop;
+    if (boardOrigin) {
+        scrollLeft = originX + ((savedLeft + viewW / 2 - boardOrigin.x) / boardOrigin.c) * c - viewW / 2;
+        scrollTop = originY + ((savedTop + viewH / 2 - boardOrigin.y) / boardOrigin.c) * c - viewH / 2;
+    }
+    boardOrigin = { x: originX, y: originY, c };
     b.innerHTML = '';
-    b.style.width = (maxX - minX) * c + pad * 2 + 'px';
-    b.style.height = (maxY - minY) * c + pad * 2 + 'px';
+    b.style.width = areaW + padX * 2 + 'px';
+    b.style.height = areaH + padY * 2 + 'px';
+    b.style.setProperty('--board-cell', c + 'px');
     for (const p of state.placed) {
         const [w, h] = dims(p.m),
             el = document.createElement('div');
@@ -237,14 +271,13 @@ export function render() {
             p.id === state.lastPlaced.id &&
             p.x === state.lastPlaced.x &&
             p.y === state.lastPlaced.y;
-        const highlightLatest = !!mpRoomCode && isLatest;
         const animateThis = isLatest && state.animateLastPlacement;
         el.className =
             'board__piece' +
-            (highlightLatest ? ' board__piece--latest' : '') +
+            (isLatest && p !== state.placed[0] ? ' board__piece--latest' : '') +
             (animateThis ? ' board__piece--fresh' : '');
         if (animateThis) state.animateLastPlacement = false;
-        el.style.cssText = `left:${pad + (p.x - minX) * c}px;top:${pad + (p.y - minY) * c}px;width:${w * c}px;height:${h * c}px;grid-template-columns:repeat(${w},${c}px);grid-template-rows:repeat(${h},${c}px)`;
+        el.style.cssText = `left:${padX + (p.x - minX) * c}px;top:${padY + (p.y - minY) * c}px;width:${w * c}px;height:${h * c}px;grid-template-columns:repeat(${w},${c}px);grid-template-rows:repeat(${h},${c}px)`;
         p.m.flat().forEach((v) => {
             const q = document.createElement('i');
             q.className = 'board__cell' + (v ? '' : ' board__cell--wall');
@@ -252,48 +285,14 @@ export function render() {
         });
         b.append(el);
     }
-    $('#hand').innerHTML = '';
     const canAct = !mpRoomCode || mpRoomData?.game?.turnUid === mpUid;
     const hasMoves = canAct && !state.finished && state.hand.length > 0 && canPlayAny();
-    state.hand.forEach((card, i) => {
-        const m = rotated(card.m, i === state.selected ? state.rotation : 0),
-            btn = document.createElement('button');
-        btn.className = 'hand-card' + (i === state.selected ? ' hand-card--selected' : '');
-        btn.type = 'button';
-        btn.disabled = state.finished || !canAct;
-        const mini = document.createElement('span');
-        mini.className = 'hand-card__mini';
-        mini.style.cssText = `grid-template-columns:repeat(${m[0].length},7px);grid-template-rows:repeat(${m.length},7px)`;
-        m.flat().forEach((v) => {
-            const q = document.createElement('i');
-            q.className = 'hand-card__cell' + (v ? '' : ' hand-card__cell--wall');
-            mini.append(q);
-        });
-        btn.append(mini);
-        const label = document.createElement('small');
-        label.className = 'hand-card__label';
-        label.textContent = 'Карта ' + card.id;
-        btn.append(label);
-        btn.setAttribute('aria-pressed', String(i === state.selected));
-        btn.onclick = (e) => {
-            if (btn.disabled) return;
-            // A click with detail 0 comes from Enter or Space: keyboard selection opens the preview at once.
-            selectCard(i, e.detail === 0);
-        };
-        btn.onfocus = () => {
-            // Tabbing onto a card selects it and previews its first spot. Focus stays on the card,
-            // so the next Tab reaches the next card; arrows or Enter move focus to «Поставить».
-            if (focusingCard || btn.disabled || !btn.matches(':focus-visible')) return;
-            if (state.selected === i && state.placementPreview) return;
-            selectCard(i, true, false);
-        };
-        $('#hand').append(btn);
-    });
+    if (hand) renderHand(canAct);
     $('#deckcount').textContent = state.deck.length;
     $('#openCount').textContent = opens();
     $('#turnCount').textContent = state.turnCount;
     $('#exchange').disabled = state.finished || !canAct || state.hand.length === 0 || hasMoves;
-    $('#zoomReset').textContent = Math.round((cellSize / 18) * 100) + '%';
+    $('#zoomLevel').textContent = Math.round((cellSize / 18) * 100) + '%';
     if (!mpRoomCode && canAct && !state.finished && state.hand.length > 0 && !hasMoves) {
         if (!state.deck.length) {
             finishGame(false);
@@ -311,21 +310,20 @@ export function render() {
         ghost.className = 'board__piece board__piece--ghost hidden';
         ghost.dataset.ghost = '';
         let previewPin = null;
+        // Shows the ghost of the spot under a resting cursor: the card changed under it without a pointerenter.
+        const ghostAt = new Map();
         b.append(ghost);
-        const offsets = [
-            [-17, -17],
-            [17, -17],
-            [17, 17],
-            [-17, 17],
-        ];
+        const pinOffset = pinOffsetsFor(legalByRotation);
         for (let r = 0; r < legalByRotation.length; r++) {
             const { m, w: mw, h: mh, spots } = legalByRotation[r];
             for (const [sx, sy] of spots) {
-                const pin = document.createElement('button');
+                const [ox, oy] = pinOffset(r, sx, sy),
+                    pin = document.createElement('button');
                 pin.className = 'board__pin board__pin--' + r;
                 pin.type = 'button';
                 // Spots are not tab stops: the keyboard moves between them with the arrow keys.
                 pin.tabIndex = -1;
+                pin.dataset.spot = sx + ',' + sy + ',' + r;
                 pin.title = 'Поставить карту · ' + r * 90 + '°';
                 pin.setAttribute(
                     'aria-label',
@@ -333,9 +331,9 @@ export function render() {
                 );
                 pin.style.cssText =
                     'left:' +
-                    (pad + (sx - minX) * c + (mw * c) / 2 - 20 + offsets[r][0]) +
+                    (padX + (sx - minX) * c + (mw * c) / 2 - 20 + ox) +
                     'px;top:' +
-                    (pad + (sy - minY) * c + (mh * c) / 2 - 20 + offsets[r][1]) +
+                    (padY + (sy - minY) * c + (mh * c) / 2 - 20 + oy) +
                     'px';
                 const showGhost = () => {
                     ghost.innerHTML = '';
@@ -349,17 +347,21 @@ export function render() {
                         ghost.append(q);
                     });
                     ghost.classList.remove('hidden');
-                    ghost.style.left = pad + (sx - minX) * c + 'px';
-                    ghost.style.top = pad + (sy - minY) * c + 'px';
+                    ghost.style.left = padX + (sx - minX) * c + 'px';
+                    ghost.style.top = padY + (sy - minY) * c + 'px';
                 };
+                ghostAt.set(pin.dataset.spot, showGhost);
                 pin.onpointerenter = (e) => {
                     if (state.placementPreview) {
                         // Touch keeps its preview until the tap; the click handler moves it.
-                        if (e.pointerType !== 'mouse') return;
+                        // A resting cursor over a re-rendered pin is not a hover either.
+                        if (e.pointerType !== 'mouse' || !pointerMoved(e)) return;
                         // A mouse hover leaves keyboard mode: hide the buttons, return focus to the selected card.
                         state.placementPreview = null;
                         previewPanel.classList.add('hidden');
                         previewPin?.classList.remove('board__pin--preview');
+                        state.cardPending = false;
+                        renderHand(canAct);
                         status('Выбери точку нужного цвета на поле для размещения карты.');
                         focusCard(state.selected);
                     }
@@ -401,16 +403,139 @@ export function render() {
                 b.append(pin);
             }
         }
+        if (!state.placementPreview) {
+            const spot = spotAtCursor();
+            if (spot) ghostAt.get(spot)?.();
+        }
+    }
+    if (camera) {
+        camera.scrollLeft = scrollLeft;
+        camera.scrollTop = scrollTop;
     }
     requestAnimationFrame(() => {
         if (camera) {
-            camera.scrollLeft = savedLeft;
-            camera.scrollTop = savedTop;
+            camera.scrollLeft = scrollLeft;
+            camera.scrollTop = scrollTop;
         }
     });
 }
 
-// Legal spots of the selected card for every rotation, in reading order: top to bottom, left to right.
+// Card ids of the last rendered hand: a card missing there has just been drawn and plays the deal animation once.
+let shownHandIds = [],
+    // The card selected at the last render: a change of the selection slides the cards up and down once.
+    shownSelectedId = null;
+// The hand is rebuilt separately from the board: zooming re-renders only the board.
+function renderHand(canAct) {
+    // Rebuilding the hand drops focus, so a focused card gets it back after the render.
+    const focusedCard = [...$('#hand').children].indexOf(document.activeElement);
+    $('#hand').innerHTML = '';
+    state.hand.forEach((card, i) => {
+        const m = rotated(card.m, i === state.selected ? state.rotation : 0),
+            btn = document.createElement('button');
+        btn.className =
+            'hand-card' +
+            (!shownHandIds.includes(card.id)
+                ? ' hand-card--fresh'
+                : i === state.selected && card.id !== shownSelectedId
+                  ? ' hand-card--lifting'
+                  : i !== state.selected && card.id === shownSelectedId
+                    ? ' hand-card--lowering'
+                    : '') +
+            (i === state.selected ? ' hand-card--selected' + (state.cardPending ? ' hand-card--pending' : '') : '');
+        btn.type = 'button';
+        btn.disabled = state.finished || !canAct;
+        const mini = document.createElement('span');
+        mini.className = 'hand-card__mini';
+        mini.style.cssText = `grid-template-columns:repeat(${m[0].length},7px);grid-template-rows:repeat(${m.length},7px)`;
+        m.flat().forEach((v) => {
+            const q = document.createElement('i');
+            q.className = 'hand-card__cell' + (v ? '' : ' hand-card__cell--wall');
+            mini.append(q);
+        });
+        btn.append(mini);
+        const label = document.createElement('small');
+        label.className = 'hand-card__label';
+        label.textContent = 'Карта ' + card.id;
+        btn.append(label);
+        // The hand is one radio group: a single tab stop (the selected card, else the first one), arrows pick a card.
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', String(i === state.selected));
+        btn.tabIndex = i === (state.selected >= 0 ? state.selected : 0) ? 0 : -1;
+        // Focus entering the hand with no card selected selects the focused card and shows its spots.
+        btn.onfocus = () => {
+            if (!restoringFocus && state.selected < 0 && !btn.disabled) selectCard(i, 'confirm');
+        };
+        btn.onclick = (e) => {
+            if (btn.disabled) return;
+            // A click with detail 0 comes from Enter or Space: it starts placing the card from the keyboard.
+            selectCard(i, e.detail === 0 ? 'place' : undefined);
+        };
+        $('#hand').append(btn);
+    });
+    shownHandIds = state.hand.map((card) => card.id);
+    shownSelectedId = state.hand[state.selected]?.id ?? null;
+    if (focusedCard >= 0) focusCard(focusedCard);
+}
+
+// Chrome re-sends pointerenter to a pin re-created under a resting cursor (each arrow key re-renders the board).
+// Only an enter at a new position is a real hover: the pointermove of that move fires after the enter.
+let lastPointer = '',
+    cursor = null;
+document.addEventListener(
+    'pointermove',
+    (e) => {
+        lastPointer = e.screenX + ',' + e.screenY;
+        cursor = e.pointerType === 'mouse' ? { x: e.clientX, y: e.clientY } : null;
+    },
+    true
+);
+// A cursor that left the window is not over the board any more.
+document.addEventListener('pointerout', (e) => !e.relatedTarget && (cursor = null), true);
+const pointerMoved = (e) => e.screenX + ',' + e.screenY !== lastPointer;
+// The spot ("x,y,r") of the pin under the mouse cursor, if the cursor rests on one.
+function spotAtCursor() {
+    return cursor && document.elementFromPoint(cursor.x, cursor.y)?.closest?.('[data-spot]')?.dataset.spot;
+}
+
+// A pin stands at the centre of its future card. Rotations that share a centre are spread, in px of the current zoom.
+// A pair goes along the long axis of its card, ±pairSpread cells from the centre. Cards lie on a 3-cell grid,
+// so the closest pins of other spots are another pair 3 cells away along the axis or a card of the other
+// orientation 1.5 cells away on both axes. The distances 2d, 3 − 2d and √2·(1.5 − d) are balanced at d ≈ 0.62:
+// all of them are about 1.24 cells.
+// 3 pins go along the long axis of the first rotation's card at quarters of its length;
+// 4 pins form a rhombus: the pair in that card's orientation along its long axis, the other pair along the short
+// one, at a quarter of the side — the gaps edge, pin, centre line, pin, edge are equal on both axes.
+const pairSpread = 0.62;
+function pinOffsetsFor(options) {
+    const centre = (x, y, w, h) => x * 2 + w + ',' + (y * 2 + h),
+        groups = new Map();
+    options.forEach(({ w, h, spots }, r) => {
+        for (const [x, y] of spots) {
+            const key = centre(x, y, w, h);
+            groups.set(key, [...(groups.get(key) || []), r]);
+        }
+    });
+    return (r, x, y) => {
+        const { w, h } = options[r],
+            group = groups.get(centre(x, y, w, h)),
+            n = group.length,
+            i = group.indexOf(r);
+        if (n === 1) return [0, 0];
+        const first = options[group[0]],
+            horizontal = first.w >= first.h,
+            long = Math.max(first.w, first.h) * cellSize,
+            short = Math.min(first.w, first.h) * cellSize,
+            along = (axisHorizontal, shift) => (axisHorizontal ? [shift, 0] : [0, shift]);
+        if (n === 2) return along(horizontal, (i ? 1 : -1) * pairSpread * cellSize);
+        if (n === 3) return along(horizontal, long * ((i + 1) / 4 - 1 / 2));
+        const sameOrientation = w >= h === horizontal,
+            pair = group.filter((q) => options[q].w >= options[q].h === w >= h),
+            sign = pair.indexOf(r) ? 1 : -1;
+        return sameOrientation ? along(horizontal, (sign * long) / 4) : along(!horizontal, (sign * short) / 4);
+    };
+}
+
+// Legal spots of the selected card for every rotation.
 // A symmetric card looks the same in several rotations (a straight line at 0° and 180°):
 // such a repeated rotation gets no spots, so each distinct placement has a single pin.
 function placementOptions() {
@@ -421,22 +546,53 @@ function placementOptions() {
         const m = rotated(state.hand[state.selected].m, r),
             [w, h] = dims(m),
             key = JSON.stringify(m),
-            spots = seen.has(key) ? [] : legalSpots(m).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+            spots = seen.has(key) ? [] : legalSpots(m);
         seen.add(key);
         options.push({ m, w, h, spots });
     }
     return options;
 }
 
+// All placements of the selected card in one circle, clockwise from 12 o'clock around the centre of the cards
+// already on the board. Placements are grouped by the card position: groups go by the angle of the card centre
+// (the nearer one first on the same line), and the pins of a group by their own angle around the same centre.
+function placementCycle() {
+    const minX = Math.min(...state.placed.map((p) => p.x)),
+        minY = Math.min(...state.placed.map((p) => p.y)),
+        maxX = Math.max(...state.placed.map((p) => p.x + dims(p.m)[0])),
+        maxY = Math.max(...state.placed.map((p) => p.y + dims(p.m)[1])),
+        cx = (minX + maxX) / 2,
+        cy = (minY + maxY) / 2,
+        clockwise = (dx, dy) => (Math.atan2(dx, -dy) + 2 * Math.PI) % (2 * Math.PI);
+    const cycle = [],
+        options = placementOptions(),
+        pinOffset = pinOffsetsFor(options);
+    options.forEach(({ w, h, spots }, r) => {
+        for (const [x, y] of spots) {
+            const [ox, oy] = pinOffset(r, x, y),
+                dx = x + w / 2 - cx,
+                dy = y + h / 2 - cy,
+                angle = clockwise(dx, dy),
+                pinAngle = clockwise(dx + ox / cellSize, dy + oy / cellSize);
+            // Pin angle relative to its group, in (-π, π], so a group at 12 o'clock does not split across 0°.
+            const pinTurn = ((pinAngle - angle + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
+            cycle.push({ x, y, r, angle, distance: Math.hypot(dx, dy), pinTurn });
+        }
+    });
+    return cycle.sort((a, b) => a.angle - b.angle || a.distance - b.distance || a.pinTurn - b.pinTurn);
+}
+
 function previewAt(x, y, r) {
     const current = state.placementPreview;
     if (current && current.x === x && current.y === y && current.r === r) return;
-    const spots = placementOptions()[r].spots,
-        index = spots.findIndex(([sx, sy]) => sx === x && sy === y);
+    const cycle = placementCycle(),
+        index = cycle.findIndex((p) => p.x === x && p.y === y && p.r === r);
     state.rotation = r;
     state.placementPreview = { x, y, r };
+    // A preview means the card is chosen: it gets the thick outline.
+    state.cardPending = false;
     status(
-        'Поворот ' + r * 90 + '°, место ' + (index + 1) + ' из ' + spots.length + '. Нажми «Поставить» или «Отмена».'
+        'Позиция ' + (index + 1) + ' из ' + cycle.length + ', поворот ' + r * 90 + '°. Нажми «Поставить» или «Отмена».'
     );
     render();
 }
@@ -459,58 +615,72 @@ function revealPreview() {
     });
 }
 
-function selectCard(i, keyboard, focusConfirm = true) {
+// mode 'place': start placing from the keyboard — preview at the first position, focus on «Поставить».
+// mode 'confirm': the keyboard only moved to the card, Enter or Space must confirm it (only its border lights up).
+// No mode: a mouse pick, the card is chosen at once.
+const confirmCardMessage = 'Нажми Enter или пробел, чтобы подтвердить выбор карты.';
+function selectCard(i, mode) {
     state.selected = i;
     state.rotation = 0;
     state.placementPreview = null;
-    status('Выбери точку нужного цвета на поле для размещения карты.');
-    if (!keyboard) {
-        render();
-        return;
-    }
-    // Keyboard mode: show the preview at the first available spot right away.
-    moveKeyboardPreview();
-    if (!state.placementPreview) render();
-    else if (!focusConfirm) focusCard(i);
+    state.cardPending = mode === 'confirm';
+    status(state.cardPending ? confirmCardMessage : 'Выбери точку нужного цвета на поле для размещения карты.');
+    render();
+    // The new pins must be on the board first: the preview starts at the pin under the cursor.
+    if (mode === 'place') moveKeyboardPreview();
 }
 
-// Moves focus to a hand card without the focus handler selecting it again.
-let focusingCard = false;
+// Leaving the preview from the keyboard returns to the card, which needs a confirmation again.
+function backToCard() {
+    state.placementPreview = null;
+    state.cardPending = true;
+    status(confirmCardMessage);
+    render();
+    focusCard(state.selected);
+}
+
+// render() re-creates the hand, so focus is restored on the new button.
+// A restored focus is not a user's choice: it must not select a card after Esc cleared the selection.
+let restoringFocus = false;
 function focusCard(i) {
-    focusingCard = true;
+    restoringFocus = true;
     $('#hand').children[i]?.focus();
-    focusingCard = false;
+    restoringFocus = false;
 }
 
-// Keyboard placement: ↑/↓ rotate the card, ←/→ cycle the spots of the current rotation.
-// Every spot is reachable: the rotation is picked with ↑/↓, the spot within it with ←/→.
-function moveKeyboardPreview(key) {
-    const options = placementOptions(),
-        current = state.placementPreview;
-    if (!options.some(({ spots }) => spots.length)) return;
-    if (!current) {
-        const r = options.findIndex(({ spots }) => spots.length);
-        previewAt(...options[r].spots[0], r);
-    } else if (key === 'ArrowLeft' || key === 'ArrowRight') {
-        const spots = options[current.r].spots,
-            index = spots.findIndex(([x, y]) => x === current.x && y === current.y),
-            next = spots[(index + (key === 'ArrowRight' ? 1 : -1) + spots.length) % spots.length];
-        previewAt(...next, current.r);
-    } else {
-        // Keep the card roughly in place: pick the spot of the next rotation closest to the current one.
-        const step = key === 'ArrowUp' ? 1 : 3,
-            cx = current.x + options[current.r].w / 2,
-            cy = current.y + options[current.r].h / 2;
-        for (let k = 1; k < 4; k++) {
-            const r = (current.r + step * k) % 4,
-                { w, h, spots } = options[r];
-            if (!spots.length) continue;
-            const distance = ([x, y]) => (x + w / 2 - cx) ** 2 + (y + h / 2 - cy) ** 2;
-            const nearest = spots.reduce((best, spot) => (distance(spot) < distance(best) ? spot : best));
-            previewAt(...nearest, r);
-            break;
-        }
+// Focus goes to the selected card; with none, the first card gets selected, so a new game starts with it active.
+export function focusHand() {
+    if (state.selected < 0) {
+        const card = $('#hand').children[0];
+        if (!card || card.disabled) return;
+        selectCard(0, 'confirm');
     }
+    focusCard(state.selected);
+}
+
+// Arrows inside the hand move the selection between the cards, wrapping around.
+function moveCardSelection(key) {
+    const cards = [...$('#hand').children],
+        current = cards.indexOf(document.activeElement),
+        step = key === 'ArrowUp' || key === 'ArrowLeft' ? -1 : 1;
+    if (current < 0 || cards[current].disabled) return;
+    const next = (current + step + cards.length) % cards.length;
+    selectCard(next, 'confirm');
+    focusCard(next);
+}
+
+// Keyboard placement walks the placement circle: ↑/← go to the previous position, ↓/→ to the next one.
+function moveKeyboardPreview(key) {
+    const cycle = placementCycle(),
+        current = state.placementPreview;
+    if (!cycle.length) return;
+    const index = current ? cycle.findIndex((p) => p.x === current.x && p.y === current.y && p.r === current.r) : -1;
+    // Without a preview it starts at the pin under the mouse cursor, else at the first position.
+    const spot = spotAtCursor(),
+        hovered = cycle.find((p) => p.x + ',' + p.y + ',' + p.r === spot);
+    const step = key === 'ArrowUp' || key === 'ArrowLeft' ? -1 : 1,
+        next = index < 0 ? hovered || cycle[0] : cycle[(index + step + cycle.length) % cycle.length];
+    previewAt(next.x, next.y, next.r);
     revealPreview();
     $('#placementConfirm').focus();
 }
@@ -521,18 +691,15 @@ $('#placementConfirm').onclick = (e) => {
     const m = rotated(state.hand[state.selected].m, r);
     state.rotation = r;
     state.placementPreview = null;
-    play(x, y, m);
-    // Placed from the keyboard: stay in keyboard mode with the first card previewed.
-    const first = $('#hand').children[0];
-    if (e.detail === 0 && first && !first.disabled) {
-        selectCard(0, true, false);
-    }
+    // Placed from the keyboard: focus returns to the hand, to the new card in the played card's slot.
+    play(x, y, m, e.detail === 0);
 };
-$('#placementCancel').onclick = () => {
+$('#placementCancel').onclick = (e) => {
+    // A click with detail 0 is Enter or Space: the keyboard goes back to the card.
+    if (e.detail === 0) return backToCard();
     state.placementPreview = null;
     status('Выбери точку на поле.');
     render();
-    focusCard(state.selected);
 };
 $('#gameMenuToggle').onclick = () => {
     const menu = $('#gameMenu');
@@ -548,23 +715,15 @@ document.addEventListener('click', (e) => {
 });
 const defaultCellSize = () => (window.matchMedia('(max-width:760px)').matches ? 16 : 18);
 let cellSize = defaultCellSize();
+// render() keeps the cell in the middle of the camera, so the zoom goes around the centre of the view.
 function setZoom(next) {
     const value = Math.max(12, Math.min(30, next));
     if (value === cellSize) return;
-    const camera = $('#camera'),
-        ratio = value / cellSize,
-        cx = camera.scrollLeft + camera.clientWidth / 2,
-        cy = camera.scrollTop + camera.clientHeight / 2;
     cellSize = value;
-    render();
-    requestAnimationFrame(() => {
-        camera.scrollLeft = Math.max(0, cx * ratio - camera.clientWidth / 2);
-        camera.scrollTop = Math.max(0, cy * ratio - camera.clientHeight / 2);
-    });
+    render({ hand: false });
 }
 $('#zoomOut').onclick = () => setZoom(cellSize - 2);
 $('#zoomIn').onclick = () => setZoom(cellSize + 2);
-$('#zoomReset').onclick = () => setZoom(defaultCellSize());
 const cameraEl = $('#camera');
 let panState = null;
 cameraEl.addEventListener('pointerdown', (e) => {
@@ -608,36 +767,34 @@ cameraEl.addEventListener(
     },
     { passive: false }
 );
-// Physical keys, so the layout does not matter. As in Tetris, X rotates clockwise like ↑ and Z counterclockwise like ↓.
-const placementKeys = {
-    ArrowLeft: 'ArrowLeft',
-    ArrowRight: 'ArrowRight',
-    ArrowUp: 'ArrowUp',
-    ArrowDown: 'ArrowDown',
-    KeyX: 'ArrowUp',
-    KeyZ: 'ArrowDown',
-};
 document.addEventListener('keydown', (e) => {
     if ($('#play').classList.contains('hidden') || e.altKey || e.ctrlKey || e.metaKey) return;
     if (!$('#settingsModal').classList.contains('hidden')) return;
     if (e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
-    const selectedCard = $('#hand').children[state.selected];
-    if (['1', '2', '3'].includes(e.key)) {
+    const selectedCard = $('#hand').children[state.selected],
+        arrow = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key);
+    if (e.code === 'Equal' || e.code === 'NumpadAdd') {
+        setZoom(cellSize + 2);
+    } else if (e.code === 'Minus' || e.code === 'NumpadSubtract') {
+        setZoom(cellSize - 2);
+    } else if (arrow && e.target.closest?.('#hand')) {
+        e.preventDefault();
+        moveCardSelection(e.key);
+    } else if (['1', '2', '3'].includes(e.key)) {
         const index = Number(e.key) - 1;
         if (state.hand[index] && !state.finished && !$('#hand').children[index].disabled) {
-            selectCard(index, true);
+            selectCard(index, 'place');
         }
-    } else if (placementKeys[e.code] && selectedCard && !selectedCard.disabled) {
+    } else if (arrow && selectedCard && !selectedCard.disabled) {
         e.preventDefault();
-        moveKeyboardPreview(placementKeys[e.code]);
+        moveKeyboardPreview(e.key);
     } else if (e.key === 'Escape' && state.placementPreview) {
-        state.placementPreview = null;
-        status('Выбери точку на поле.');
-        render();
-        focusCard(state.selected);
+        backToCard();
     } else if (e.key === 'Escape' && state.selected >= 0) {
+        const focused = [...$('#hand').children].indexOf(document.activeElement);
         state.selected = -1;
         render();
+        focusCard(focused);
     }
 });
 export function showEndScreen(won) {
@@ -726,13 +883,21 @@ export function celebrate() {
     document.body.append(layer);
     setTimeout(() => layer.remove(), 1800);
 }
-function play(x, y, m) {
+// keepHand: the turn came from the keyboard, so the card in the played card's slot gets selected for the next turn.
+function play(x, y, m, keepHand = false) {
+    // A card chosen with the keyboard keeps the keyboard in the hand even when the mouse places it.
+    const keyboardHand =
+        keepHand || (document.activeElement?.closest?.('#hand') && document.activeElement.matches(':focus-visible'));
     if (mpRoomCode) {
-        mpPlay(x, y, m);
+        mpPlay(x, y, m, keyboardHand);
         return;
     }
     if (state.finished || state.selected < 0 || !valid(m, x, y)) return;
-    let card = state.hand.splice(state.selected, 1)[0];
+    const index = state.selected,
+        card = state.hand[index];
+    // The drawn card takes the place of the played one, so the other cards stay where they were.
+    if (state.deck.length) state.hand[index] = state.deck.pop();
+    else state.hand.splice(index, 1);
     const newPiece = { id: card.id, x, y, m };
     state.placed.push(newPiece);
     state.lastPlaced = newPiece;
@@ -740,7 +905,6 @@ function play(x, y, m) {
     state.turnCount++;
     state.selected = -1;
     state.rotation = 0;
-    draw();
     let n = opens();
     if (n === 0) {
         finishGame(true);
@@ -752,7 +916,18 @@ function play(x, y, m) {
         status('Поражение. Карты закончились, выходы остались.', 'lose');
         showEndScreen(false);
     } else status('Карта размещена.');
+    // The played card's slot stays selected: with the drawn card, or, when the deck is empty and the hand
+    // closed up to the left, with the card that moved into it (the last card if the slot is gone).
+    // After a keyboard turn the card waits for a confirmation; after a mouse turn its spots show at once.
+    // It is selected before the single render, so the render does not cut the deal animation of the new card.
+    const next = state.finished ? -1 : Math.min(index, state.hand.length - 1);
+    if (next >= 0) {
+        state.selected = next;
+        state.cardPending = keyboardHand;
+        if (keyboardHand) status(confirmCardMessage);
+    }
     render();
+    if (next >= 0 && keyboardHand) focusCard(next);
 }
 $('#exchange').onclick = () => {
     if (mpRoomCode) {

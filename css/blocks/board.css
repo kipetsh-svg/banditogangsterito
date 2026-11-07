@@ -9,25 +9,32 @@
         position: absolute;
         display: grid;
         background: var(--color-tile-cell);
+        /* Centred on the edge, so the outlines of adjacent pieces fall on the same line. */
         outline: 1px solid var(--color-tile-outline);
+        outline-offset: -0.5px;
+    }
+
+    /* The last placed card (not the start one): the same outline, only thicker towards the outside,
+       so the card and its joints keep their geometry. It is drawn above its neighbours. */
+    .board__piece--latest {
+        z-index: 2;
+        /* 3px at the default 18px cell, scaled with the zoom. */
+        outline-width: calc(var(--board-cell, 18px) / 6);
+        border-radius: 2px;
+        /* Clips the corner cells to the rounding, the outline is drawn outside the clip. */
+        overflow: hidden;
     }
 
     .board__piece--fresh {
-        animation: board-tile-drop 0.32s cubic-bezier(0.18, 0.8, 0.25, 1.25) both;
-    }
-
-    .board__piece--latest {
-        z-index: 2;
-        border-radius: 2px;
-        outline-color: var(--color-tile-latest);
-        outline-offset: 1px;
+        animation: board-tile-drop 0.5s cubic-bezier(0.18, 0.8, 0.25, 1.25) both;
     }
 
     .board__piece--ghost {
         z-index: 5;
         top: 0;
         left: 0;
-        border: 1px dashed var(--color-success);
+        /* No border: it would shrink the grid and shift the cells off the placement spot. */
+        outline-style: dashed;
         opacity: 0.62;
         pointer-events: none;
     }
@@ -88,7 +95,9 @@
 
     .board__pin--preview::before {
         transform: scale(1.35);
-        box-shadow: 0 0 0 5px var(--color-pin-hover), var(--shadow-pin);
+        box-shadow:
+            0 0 0 5px var(--color-pin-hover),
+            var(--shadow-pin);
     }
 
     .board__pin:hover {
@@ -103,12 +112,16 @@
     @keyframes board-tile-drop {
         from {
             opacity: 0;
-            transform: translateY(-9px) scale(0.88);
+            transform: translateY(-22px) scale(0.72);
         }
 
-        65% {
+        60% {
             opacity: 1;
-            transform: translateY(2px) scale(1.025);
+            transform: translateY(4px) scale(1.06);
+        }
+
+        80% {
+            transform: translateY(-1px) scale(0.99);
         }
 
         to {

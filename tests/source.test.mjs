@@ -130,6 +130,7 @@ test('the entry point loads every application module without runtime errors', as
         matchMedia: () => ({ matches: false }),
         fetch: () => new Promise(() => {}),
         requestAnimationFrame: () => 0,
+        addEventListener: () => {},
     };
     await withGlobals({ ...globals, window: globals }, () => import(moduleUrl('js/main.js')));
 });

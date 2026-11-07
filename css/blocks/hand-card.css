@@ -17,7 +17,8 @@
             border-color var(--duration-fast);
     }
 
-    .hand-card:hover:not(:disabled) {
+    /* :where keeps the hover as weak as a single class, so the pending border below wins over it. */
+    .hand-card:where(:hover:not(:disabled)) {
         border-color: var(--color-control-border-hover);
     }
 
@@ -26,33 +27,90 @@
         cursor: not-allowed;
     }
 
-    .hand-card--selected {
-        outline: 2px solid var(--color-selection);
-        outline-offset: 1px;
-        transform: translateY(-1px);
+    /* A focused card shows its own bright border instead of the default focus ring with a gap,
+       the same as a card waiting for confirmation. */
+    .hand-card:where(:focus-visible) {
+        border-color: var(--color-selection);
+        outline: none;
     }
 
+    /* The selected card slides up a little, as if pulled out of a fan of cards. */
+    /* The card's own border and an outline right outside it share the selection colour,
+       so they read as one thick frame without shifting the layout. */
+    .hand-card--selected {
+        border-color: var(--color-selection);
+        outline: 1px solid var(--color-selection);
+        outline-offset: 0;
+        transform: translateY(calc(-1 * var(--space-1)));
+    }
+
+    /* The hand is rebuilt on every render, so the slide is an animation of a card that has just been selected
+       (or deselected) rather than a transition. The keyframes have no end: they run to the card's own position. */
+    .hand-card--lifting {
+        animation: hand-card-lift 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .hand-card--lowering {
+        animation: hand-card-lower 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Chosen with the keyboard but not confirmed yet: only the card's own border lights up.
+       Enter or Space confirm the card and give it the thick outline. */
+    .hand-card--pending {
+        border-color: var(--color-selection);
+        outline: none;
+    }
+
+    /* The miniature repeats a placed board piece: the same outline, cell lines and walls. */
     .hand-card__mini {
         display: grid;
-        gap: 1px;
         margin-bottom: var(--space-1);
-        padding: 2px;
-        background: var(--color-tile-outline);
+        background: var(--color-tile-cell);
+        outline: 1px solid var(--color-tile-outline);
+        outline-offset: -0.5px;
     }
 
     .hand-card__cell {
         display: block;
+        border: 0.5px solid var(--color-tile-line);
         background: var(--color-tile-cell);
     }
 
     .hand-card__cell--wall {
+        border-color: var(--color-tile-wall);
         background: var(--color-tile-wall);
+    }
+
+    /* A card just drawn from the deck. */
+    .hand-card--fresh {
+        animation: hand-card-deal 0.36s cubic-bezier(0.18, 0.8, 0.25, 1.2);
     }
 
     .hand-card__label {
         color: var(--color-text-muted);
         font-size: var(--text-xs);
         line-height: var(--leading-tight);
+    }
+
+    @keyframes hand-card-deal {
+        from {
+            opacity: 0;
+            transform: translateY(-12px) scale(0.9);
+        }
+
+        /* No end frame: a drawn card that is selected ends lifted. */
+    }
+
+    @keyframes hand-card-lift {
+        from {
+            transform: none;
+        }
+    }
+
+    @keyframes hand-card-lower {
+        from {
+            transform: translateY(calc(-1 * var(--space-1)));
+        }
     }
 
     @media (max-width: 760px) {
