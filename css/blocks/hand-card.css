@@ -25,15 +25,14 @@
         cursor: not-allowed;
     }
 
-    /* No focus ring around the button: the focused card is lifted and lit like a hovered one. */
+    /* No focus ring around the button: the focused card is lit like a hovered one. */
     .hand-card:focus-visible {
         outline: none;
     }
 
-    /* The selected card and the card pointed at (under a hovering pointer or the keyboard focus, JS keeps one)
-       slide up a little, as if pulled out of a fan of cards. */
-    .hand-card--selected .hand-card__mini,
-    .hand-card--pointed .hand-card__mini {
+    /* The selected card slides up a little, as if pulled out of a fan of cards. The card pointed at (under
+       a hovering pointer or the keyboard focus, JS keeps one) stays in place and is only lit. */
+    .hand-card--selected .hand-card__mini {
         transform: translateY(calc(-1 * var(--space-2)));
     }
 
@@ -103,7 +102,7 @@
     }
 
     /* A card just drawn from the deck rises by a quarter of its height into the slot of the played card and fades in;
-       the played card just disappears. `translate` adds to the lift of a hovered card. */
+       the played card just disappears. `translate` adds to the lift of the selected card. */
     .hand-card--fresh {
         animation: hand-card-deal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }

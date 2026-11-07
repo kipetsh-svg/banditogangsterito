@@ -257,11 +257,11 @@ function mpAttach(code) {
         $('#heading').textContent = 'Bandito · кооператив · ' + (g.exits || 6) + ' выходов · ' + code;
         render();
         const current = (room.players && room.players[g.turnUid] && room.players[g.turnUid].name) || 'игрок';
-        // On the player's turn a selected card keeps the status of its preview, as in the solo game.
+        // On the player's turn a selected card keeps the status of its placement, as in the solo game.
         if (state.finished) status(g.won ? 'Победа! Все туннели закрыты.' : 'Поражение. Карты закончились.');
         else if (g.turnUid !== mpUid) status('Ходит ' + current + '. Подожди своей очереди.');
         else if (!canPlayAny()) status('Нет доступных ходов. Нажми «Сбросить карты».');
-        else if (!state.placementPreview)
+        else if (state.selected < 0)
             status('Твой ход. ' + chooseCardMessage, '', 'Твой ход. ' + chooseCardTouchMessage);
         if (state.finished) {
             showEndScreen(!!g.won);

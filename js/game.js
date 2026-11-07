@@ -372,14 +372,18 @@ export function render({ hand = true } = {}) {
         camera.scrollTop = scrollTop;
     }
     // The selected card keeps its preview; a card selected just now shows it at the placement under the mouse cursor,
-    // else at the first position of the circle.
+    // else, after the keyboard or a tap, at the first position of the circle. After the mouse the pins wait for
+    // a hover: the cursor is about to go to the board anyway.
     const preview = state.placementPreview,
         previewed =
             (preview && targetFor(preview)) ||
             targetAt(cursor) ||
-            (boardTargets.length && targetFor(placementCycle()[0]));
+            (!mouseInput && boardTargets.length && targetFor(placementCycle()[0]));
     if (previewed) setPreview(previewed);
-    else state.placementPreview = null;
+    else {
+        state.placementPreview = null;
+        if (state.selected >= 0 && boardTargets.length) status(choosePlacementMessage, '', choosePlacementTouchMessage);
+    }
     const previewPanel = $('#placementPreview'),
         focusInPanel = previewPanel.contains(document.activeElement);
     previewPanel.classList.toggle('hidden', !previewed);
@@ -453,7 +457,7 @@ function renderHand(canAct) {
     });
 }
 // The card under a hovering pointer or under the keyboard focus, whichever came last: a hover over another card
-// takes the lift from the card the arrows moved to, as one mouse cursor would.
+// takes the highlight from the card the arrows moved to, as one mouse cursor would.
 let pointedCardId = null;
 function pointCard(id) {
     pointedCardId = id;
@@ -465,6 +469,11 @@ $('#hand').addEventListener('animationend', (e) => {
     if (e.animationName === 'hand-card-deal') e.target.classList.remove('hand-card--fresh');
 });
 
+// Whether the last press was a mouse button rather than a key or a touch: a card selected with the mouse
+// gets no preview at the first position.
+let mouseInput = false;
+document.addEventListener('pointerdown', (e) => (mouseInput = e.pointerType === 'mouse'), true);
+document.addEventListener('keydown', () => (mouseInput = false), true);
 // The last position of a hovering pointer on the screen: a render under a resting cursor previews the placement
 // under it. Touch does not hover.
 let cursor = null;
@@ -654,18 +663,19 @@ function revealPreview() {
 }
 
 // Selects card i (a click, a tap, Enter, Space or the keys 1/2/3): the bar under it, its pins on the board and
-// the preview at the placement under the mouse cursor, else at the first position; focus goes to «Поставить».
-// Selecting the selected card again keeps its preview.
+// the preview (see render()); with a preview focus goes to «Поставить». Selecting the selected card again keeps
+// its preview.
 function selectCard(i) {
     if (i !== state.selected) {
         state.selected = i;
         state.placementPreview = null;
     }
     render();
-    if (!state.placementPreview) {
+    if (!boardTargets.length) {
         status('Этой карте некуда встать. Выбери другую карту.');
         return;
     }
+    if (!state.placementPreview) return;
     revealPreview();
     $('#placementConfirm').focus();
 }
@@ -675,7 +685,7 @@ function focusCard(i) {
     $('#hand').children[i]?.focus({ preventScroll: true });
 }
 
-// A game starts with nothing selected and focus on the first card, which is pointed at (lifted) as if the arrows
+// A game starts with nothing selected and focus on the first card, which is pointed at (lit) as if the arrows
 // moved to it, whether the game was started with the mouse or the keyboard. On another player's turn the cards are
 // disabled and get nothing. Narrow screens are phones: there the player picks a card with a tap, and nothing is
 // pointed at for them.
